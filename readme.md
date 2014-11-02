@@ -15,6 +15,16 @@ work for you.
 Also you may have a cross-origin (domain) issues when testing. In future, this project will become
 a part of DeepSee.
 
+## Debug
+
+While [node](http://nodejs.org/) installed, run <code>npm install</code> in the project root to
+install all required modules, and then execute <code>node test/testServer</code> to run local
+server. By doing tests this way you have to to uncomment string
+<code>d %response.SetHeader("Access-Control-Allow-Origin","*")</code> in MDX2JSON.REST class in
+MDX2JSON package and additionally comment <code>If tMethodMatched=0 Set tSC=..Http405() Quit</code> line
+there for cross-domain security purposes. Then give the right URL and MDX as in the example in
+demos/index.html file.
+
 ## Preview
 
 ![Light pivot table](https://cloud.githubusercontent.com/assets/4989256/4876290/ce0918ea-62be-11e4-9583-fa9d78450716.png)
