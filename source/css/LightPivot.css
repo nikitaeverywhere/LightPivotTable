@@ -1,0 +1,39 @@
+.lpt {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 0 30px rgb(136, 160, 255);
+    border-radius: 5px;
+}
+
+.lpt > .tableContainer {
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+}
+
+.lpt > .tableContainer > table {
+    min-width: 100%;
+    min-height: 100%;
+}
+
+.lpt > .tableContainer td, .lpt > .tableContainer th {
+    border-radius: 3px;
+    padding: .5em;
+}
+
+.lpt th {
+    background: #C0CDFF;
+}
+
+.lpt td {
+    background: #E1E8FF;
+}
+
+.lpt tr:hover td {
+    background: #FFDEBF;
+}
+
+.lpt tbody > tr > th {
+    cursor: pointer;
+}

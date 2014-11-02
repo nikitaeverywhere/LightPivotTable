@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Demos</title>
+    <link rel="stylesheet" href="../source/css/LightPivot.css"/>
+    <script type="text/javascript" src="../source/js/LightPivot.js"></script>
+    <script type="text/javascript" src="../source/js/DataSource.js"></script>
+    <script type="text/javascript" src="../source/js/PivotView.js"></script>
+</head>
+<body>
+    <div id="pivot" style="position: fixed; left: 20%; top: 20%; width: 60%; height: 60%;">
+
+    </div>
+    <script type="text/javascript">
+        var lp = new LightPivot({
+            container: document.getElementById("pivot"),
+            dataSource: {
+                MDX2JSONSource: "http://localhost:57772/SAMPLES",
+                //basicMDX: "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0, NON EMPTY [Outlet].[H1].[Region].Members ON 1 FROM [HoleFoods]"
+                //basicMDX: "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].&[2010].children ON 1 FROM [HoleFoods] %FILTER [DateOfSale].[Actual].[YearSold].&[2010] %FILTER [Measures].[%COUNT]"
+                basicMDX: "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY HEAD(NONEMPTYCROSSJOIN([Outlet].[H1].[Region].Members,[Outlet].[H1].[Country].Members),2000) ON 1 FROM [HoleFoods] %FILTER [Measures].[%COUNT]"
+                //basicMDX: "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [DateOfSale].[Actual].[MonthSold].&[201003].children ON 1 FROM [HoleFoods] %FILTER [DateOfSale].[Actual].[YearSold].&[2010] %FILTER [DateOfSale].[Actual].[MonthSold].&[201003] %FILTER [Measures].[%COUNT]"
+                //        "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].&[2010].children ON 1 FROM [HoleFoods] %FILTER [DateOfSale].[Actual].[YearSold].&[2010] %FILTER [Measures].[%COUNT]"
+                //basicMDX: "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY HEAD(NONEMPTYCROSSJOIN([DateOfSale].[Actual].[YearSold].Members,[DateOfSale].[Actual].[MonthSold].Members),2000) ON 1 FROM [HoleFoods] %FILTER [Measures].[%COUNT]"
+                //basicMDX: "SELECT NON EMPTY NONEMPTYCROSSJOIN([Product].[P1].[Product Category].Members,[Product].[P1].[Product Name].Members) ON 0,NON EMPTY HEAD(NONEMPTYCROSSJOIN([DateOfSale].[Actual].[YearSold].Members,[DateOfSale].[Actual].[MonthSold].Members),2000) ON 1 FROM [HoleFoods] %FILTER [Measures].[%COUNT]"
+                //basicMDX: "SELECT NON EMPTY NONEMPTYCROSSJOIN(NONEMPTYCROSSJOIN([Product].[P1].[Product Category].Members,[Product].[P1].[Product Name].Members),{%LABEL([Measures].[%COUNT],\"Кол-во\",\"\"),[Measures].[Units Sold]}) ON 0,NON EMPTY HEAD(NONEMPTYCROSSJOIN([DateOfSale].[Actual].[YearSold].Members,[DateOfSale].[Actual].[MonthSold].Members),2000) ON 1 FROM [HoleFoods]"
+                //basicMDX: "SELECT {[Measures].[%COUNT]} ON 0 FROM [HoleFoods] %FILTER [Measures].[%COUNT]"
+                //basicMDX: "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,{[Measures].[%COUNT]} ON 1 FROM [HoleFoods] %FILTER [Measures].[%COUNT]"
+            }
+        })
+    </script>
+</body>
+</html>
