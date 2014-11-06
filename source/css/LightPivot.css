@@ -26,6 +26,23 @@
     background: #C0CDFF;
 }
 
+.lpt thead tr:last-child th {
+    cursor: pointer;
+    -webkit-transition: all .3s ease;
+}
+
+.lpt thead tr:last-child th:first-child ~ th:hover {
+    background: #e2c8ff;
+}
+
+.orderedDec {
+    background: red;
+}
+
+.orderedAsc {
+    background: orange;
+}
+
 .lpt td {
     background: #E1E8FF;
 }

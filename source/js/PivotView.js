@@ -1,4 +1,9 @@
-var PivotView = function (container) {
+/**
+ * @param {LightPivotTable} controller
+ * @param container
+ * @constructor
+ */
+var PivotView = function (controller, container) {
 
     if (!(container instanceof HTMLElement)) throw new Error("Please, provide HTMLElement " +
         "instance \"container\" into pivot table configuration.");
@@ -9,6 +14,8 @@ var PivotView = function (container) {
         tableContainer: document.createElement("div"),
         controlsContainer: document.createElement("div")
     };
+
+    this.controller = controller;
 
     this.init();
 
@@ -26,7 +33,104 @@ PivotView.prototype.init = function () {
 
 };
 
-PivotView.prototype.render = function (data) {
+PivotView.prototype._columnClickHandler = function (columnIndex) {
+
+    this.controller.dataController.sortByColumn(columnIndex);
+
+};
+
+/**
+ * Raw data - plain 2-dimensional array of data to render.
+ *
+ * group - makes able to group cells together. Cells with same group number will be gathered.
+ * source - data source object with it's properties.
+ * value - value of cell (will be stringified).
+ *
+ * @param {{ group: number, source: Object, value: *, isCaption: boolean }[][]} data
+ */
+PivotView.prototype.renderRawData = function (data) {
+
+    if (!data || !data[0] || !data[0][0]) {
+        this.elements.tableContainer.innerHTML = "<h1>Unable to render data</h1><p>"
+            + JSON.stringify(data) + "</p>";
+        return;
+    }
+
+    var table = document.createElement("table"),
+        thead = document.createElement("thead"),
+        tbody = document.createElement("tbody"),
+        timeToBreak = false,
+        _ = this,
+        x, y, tr, td, headColsNum = 0, headLeftColsNum = 0;
+
+    for (y = 0; y < data.length; y++) {
+        for (x = 0; x < data[y].length; x++) {
+            if (!data[y][x].isCaption) {
+                timeToBreak = true;
+                break;
+            }
+        }
+        if (timeToBreak) {
+            headLeftColsNum = x;
+            break;
+        } else headColsNum++;
+    }
+
+    for (y = 0; y < data.length; y++) {
+        tr = document.createElement("tr");
+        for (x = 0; x < data[y].length; x++) {
+            if (data[y][x].group) {
+                if ((y > 0 && data[y - 1][x].group
+                        && data[y - 1][x].group === data[y][x].group)
+                    || (x > 0 && data[y][x - 1].group
+                        && data[y][x - 1].group === data[y][x].group)) {
+
+                    td = null;
+
+                } else {
+
+                    td = document.createElement(data[y][x].isCaption ? "th" : "td");
+                    td.colSpan = (function (g) {
+                        var i;
+                        for (i = x; i < data[y].length; i++) {
+                            if (data[y][i].group !== g) break;
+                        }
+                        return i - x;
+                    })(data[y][x].group);
+                    td.rowSpan = (function (g) {
+                        var i;
+                        for (i = y; i < data.length; i++) {
+                            if (data[i][x].group !== g) break;
+                        }
+                        return i - y;
+                    })(data[y][x].group);
+
+                }
+            } else {
+                td = document.createElement(data[y][x].isCaption ? "th" : "td");
+            }
+            if (x >= headLeftColsNum && y === headColsNum - 1) { // clickable cells (sort option)
+                if (td) (function (x) {td.addEventListener("click", function () {
+                    var colNum = x - headLeftColsNum;
+                    _._columnClickHandler.call(_, colNum);
+                })})(x);
+            }
+            if (td) {
+                td.textContent = data[y][x].value;
+                tr.appendChild(td);
+            }
+        }
+        (y < headColsNum ? thead : tbody).appendChild(tr);
+    }
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    this.elements.tableContainer.textContent = "";
+    this.elements.tableContainer.appendChild(table);
+
+};
+
+PivotView.prototype.renderHierarchy = function (data) {
 
     if (data.error) {
         this.elements.tableContainer.innerHTML = "<h1>Unable to render data</h1><p>"
@@ -34,12 +138,17 @@ PivotView.prototype.render = function (data) {
         return;
     }
 
-    this.elements.tableContainer.textContent = "";
-
     var vTree, horDimArr = [], tableWidth, td, extraTh, tr, i,
+        _ = this,
         table = document.createElement("table"),
         thead = document.createElement("thead"),
         tbody = document.createElement("tbody");
+
+    var columnClickHandler = function (columnIndex) {
+        _.controller.dataController.sortByColumn(columnIndex);
+    };
+
+    this.elements.tableContainer.textContent = "";
 
     var build = function (tree, barr, dim) {
 
@@ -121,7 +230,7 @@ PivotView.prototype.render = function (data) {
 
         if (u == 0) {
             var cornerTd = document.createElement("th");
-            //cornerTd.innerHTML = "";
+            cornerTd.innerHTML = data.info["cubeName"] || "";
             cornerTd.setAttribute("rowspan", horDimArr.length.toString());
             cornerTd.setAttribute("colspan", maxLev.toString());
             tr.appendChild(cornerTd);
@@ -133,9 +242,12 @@ PivotView.prototype.render = function (data) {
 
             td = document.createElement("th");
 
+            (function (i) { td.onclick = function () { columnClickHandler(i); }; })(i);
+
             td.textContent = ch.caption || "";
             td.setAttribute("colspan", ch.numOfChildren);
             tr.appendChild(td);
+
         }
 
         thead.appendChild(tr);

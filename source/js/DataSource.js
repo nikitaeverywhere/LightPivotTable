@@ -24,7 +24,7 @@ DataSource.prototype._post = function (url, data, callback) {
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url);
-    xhr.setRequestHeader("Content-Type", "application/json");
+    //xhr.setRequestHeader("Content-Type", "application/json");
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
             callback(JSON.parse(xhr.responseText));
@@ -38,7 +38,7 @@ DataSource.prototype._post = function (url, data, callback) {
 };
 
 /**
- * Converts data from MDX2JSON source to LightPivot representation.
+ * Converts data from MDX2JSON source to LightPivotTable representation.
  *
  * @param {object} data
  * @private
@@ -72,6 +72,6 @@ DataSource.prototype.getCurrentData = function (callback) {
 
     this._post(this.SOURCE_URL + "/MDX", {
         MDX: this.BASIC_MDX
-    }, function (data) { console.log(data); callback(_._convert(data)); });
+    }, function (data) { callback(_._convert(data)); });
 
 };
