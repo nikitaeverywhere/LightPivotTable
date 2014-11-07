@@ -29,6 +29,12 @@
         <a href="#8" onclick="window.location.reload(true);">8</a>
     </div>
     <div id="mdx"></div>
+    <form id="mdxForm" onsubmit="return false;">
+        <label>
+            <br/>Your MDX:<br/>
+            <input id="yourMDX" type="text" style="width: 100%"/>
+        </label>
+    </form>
     <script type="text/javascript">
 
         var mdxTo = document.getElementById("mdx"),
@@ -44,6 +50,20 @@
                 "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0, NON EMPTY [Outlet].[H1].[Region].Members ON 1 FROM [HoleFoods]",
                 "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].&[2010].children ON 1 FROM [HoleFoods] %FILTER [DateOfSale].[Actual].[YearSold].&[2010] %FILTER [Measures].[%COUNT]"
             ][v];
+
+        if (location.hash.slice(1, 3) === "q=") {
+            req = location.hash.slice(3);
+        }
+
+        document.getElementById("mdxForm").addEventListener("submit", function () {
+
+            var yourMDX = document.getElementById("yourMDX").value;
+
+            window.location.hash = "#q=" + yourMDX;
+
+            window.location.reload(true);
+
+        });
 
         mdxTo.innerHTML = "<b>MDX:</b> <i>" + req + "</i>";
 
