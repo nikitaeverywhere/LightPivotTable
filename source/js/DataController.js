@@ -166,7 +166,8 @@ DataController.prototype.sortByColumn = function (columnIndex) {
         return order*b[xIndex].value - order*a[xIndex].value;
     });
 
-    this.data.rawData = [this.data._rawDataOrigin[0]].concat(newRawData);
+    this.data.rawData = this.data._rawDataOrigin.slice(0, this.data.info.topHeaderRowsNumber)
+        .concat(newRawData);
 
     this._trigger();
 
