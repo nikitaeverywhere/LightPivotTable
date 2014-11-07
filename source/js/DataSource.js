@@ -24,7 +24,6 @@ DataSource.prototype._post = function (url, data, callback) {
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url);
-    //xhr.setRequestHeader("Content-Type", "application/json");
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
             callback(JSON.parse(xhr.responseText));
@@ -50,8 +49,8 @@ DataSource.prototype._convert = function (data) {
     try {
         return {
             dimensions: [
-                (data["Cols"][0]["tuples"][0]["children"] || [])[0],
-                (data["Cols"][1]["tuples"][0]["children"] || [])[0]
+                data["Cols"][0]["tuples"],
+                data["Cols"][1]["tuples"]
             ],
             dataArray: data["Data"],
             info: data["Info"]
