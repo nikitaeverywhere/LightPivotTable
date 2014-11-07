@@ -28,9 +28,11 @@
         <a href="#7" onclick="window.location.reload(true);">7</a>,
         <a href="#8" onclick="window.location.reload(true);">8</a>
     </div>
+    <div id="mdx"></div>
     <script type="text/javascript">
 
-        var v = parseInt(location.hash.slice(1)) || 0,
+        var mdxTo = document.getElementById("mdx"),
+            v = parseInt(location.hash.slice(1)) || 0,
             req = [
                 "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY HEAD(NONEMPTYCROSSJOIN([Outlet].[H1].[Region].Members,[Outlet].[H1].[Country].Members),2000) ON 1 FROM [HoleFoods] %FILTER [Measures].[%COUNT]",
                 "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [DateOfSale].[Actual].[MonthSold].&[201003].children ON 1 FROM [HoleFoods] %FILTER [DateOfSale].[Actual].[YearSold].&[2010] %FILTER [DateOfSale].[Actual].[MonthSold].&[201003] %FILTER [Measures].[%COUNT]",
@@ -43,6 +45,8 @@
                 "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].&[2010].children ON 1 FROM [HoleFoods] %FILTER [DateOfSale].[Actual].[YearSold].&[2010] %FILTER [Measures].[%COUNT]"
             ][v];
 
+        mdxTo.innerHTML = "<b>MDX:</b> <i>" + req + "</i>";
+
         var lp = new LightPivotTable({
             container: document.getElementById("pivot"), // HTMLElement which will contain table.
             dataSource: {
@@ -50,6 +54,7 @@
                 basicMDX: req
             }
         })
+
     </script>
 </body>
 </html>
