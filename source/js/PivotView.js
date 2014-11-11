@@ -17,6 +17,11 @@ var PivotView = function (controller, container) {
 
     this.controller = controller;
 
+    /**
+     * @private
+     */
+    this._scrollListener = null;
+
     this.init();
 
 };
@@ -40,6 +45,104 @@ PivotView.prototype._columnClickHandler = function (columnIndex) {
 };
 
 /**
+ * Create clones of headers with fixed sizes.
+ *
+ * @param {HTMLElement} tableElement
+ */
+PivotView.prototype.fixHeaders = function (tableElement) {
+
+    var fhx, temp, hHead, fhy, c1, c2, d1, d2, st;
+
+    var getChildrenByTagName = function (element, tagName) {
+        var cls = [];
+        for (var c in element.childNodes) {
+            if (element.childNodes[c].tagName === tagName.toUpperCase()) {
+                cls.push(element.childNodes[c]);
+            }
+        }
+        return cls;
+    };
+
+    var fixSizes = function (baseElement, elementToFix) {
+
+        if (!elementToFix.style) return false;
+
+        for (var i in elementToFix.childNodes) {
+            fixSizes(baseElement.childNodes[i], elementToFix.childNodes[i]);
+        }
+
+        if (baseElement["triggerFunction"]) {
+            elementToFix.addEventListener("click", baseElement["triggerFunction"]);
+        }
+
+        var style = window.getComputedStyle(baseElement, null);
+        elementToFix.style.width = style.getPropertyValue("width");
+        elementToFix.style.height = style.getPropertyValue("height");
+
+    };
+
+    if (!tableElement.parentNode) console.warn("Missing fix headers: before function call to " +
+        "fixHeaders() table element must be attached to DOM.");
+
+    // clone thead
+    temp = fhx = getChildrenByTagName(tableElement, "thead")[0];
+    if (!fhx) {
+        console.error("Unable to fix headers: no \"thead\" in basic table."); return false;
+    }
+    fhx = fhx.cloneNode(true);
+    fhx.className = "fixedHeader";
+    fhx.style.zIndex = 2;
+    fixSizes(temp, fhx);
+    fhx.style.width = "";
+
+    // clone top left corner
+    hHead = temp.childNodes[0].childNodes[0].cloneNode(true);
+    st = window.getComputedStyle(temp.childNodes[0].childNodes[0], null);
+    hHead.style.width = st.getPropertyValue("width");
+    hHead.style.height = st.getPropertyValue("height");
+    temp = document.createElement("thead");
+    temp.appendChild(document.createElement("tr")).appendChild(hHead);
+    temp.className = "fixedHeader";
+    temp.style.zIndex = 3;
+    hHead = temp;
+
+    // clone body headers
+    temp = fhy = getChildrenByTagName(tableElement, "tbody")[0];
+    if (!fhy) {
+        console.error("Unable to fix headers: no \"tbody\" in basic table."); return false;
+    }
+    fhy = fhy.cloneNode(false);
+    fhy.className = "fixedHeader";
+    fhy.style.top = temp.offsetTop - 2 + "px";
+    c1 = getChildrenByTagName(temp, "tr");
+    for (var i in c1) {
+        fhy.appendChild(d1 = c1[i].cloneNode(false));
+        c2 = getChildrenByTagName(c1[i], "th");
+        for (var u in c2) {
+            d1.appendChild(d2 = c2[u].cloneNode(true));
+        }
+    }
+    fixSizes(temp, fhy);
+    fhy.style.width = "";
+    fhy.style.zIndex = 1;
+
+    // add scroll listener
+    tableElement.parentNode.addEventListener("scroll", this._scrollListener = function () {
+        hHead.style.top = fhx.style.top = tableElement.parentNode.scrollTop + "px";
+        hHead.style.left = fhy.style.left = tableElement.parentNode.scrollLeft + "px";
+    }, false);
+
+    // append new elements
+    tableElement.appendChild(fhx);
+    tableElement.appendChild(fhy);
+    tableElement.appendChild(hHead);
+
+    // call scroll handler because of render may be performed anytime
+    this._scrollListener();
+
+};
+
+/**
  * Raw data - plain 2-dimensional array of data to render.
  *
  * group - makes able to group cells together. Cells with same group number will be gathered.
@@ -54,6 +157,11 @@ PivotView.prototype.renderRawData = function (data) {
         this.elements.tableContainer.innerHTML = "<h1>Unable to render data</h1><p>"
             + JSON.stringify(data) + "</p>";
         return;
+    }
+
+    if (this._scrollListener) {
+        this.elements.tableContainer.removeEventListener("scroll", this._scrollListener);
+        this._scrollListener = null;
     }
 
     var table = document.createElement("table"),
@@ -110,7 +218,7 @@ PivotView.prototype.renderRawData = function (data) {
                 td = document.createElement(data[y][x].isCaption ? "th" : "td");
             }
             if (x >= headLeftColsNum && y === headColsNum - 1) { // clickable cells (sort option)
-                if (td) (function (x) {td.addEventListener("click", function () {
+                if (td) (function (x) {td.addEventListener("click", td["triggerFunction"] = function () {
                     var colNum = x - headLeftColsNum;
                     _._columnClickHandler.call(_, colNum);
                 })})(x);
@@ -127,148 +235,6 @@ PivotView.prototype.renderRawData = function (data) {
     table.appendChild(tbody);
     this.elements.tableContainer.textContent = "";
     this.elements.tableContainer.appendChild(table);
-
-};
-
-PivotView.prototype.renderHierarchy = function (data) {
-
-    if (data.error) {
-        this.elements.tableContainer.innerHTML = "<h1>Unable to render data</h1><p>"
-            + data.error + "</p>";
-        return;
-    }
-
-    var vTree, horDimArr = [], tableWidth, td, extraTh, tr, i,
-        _ = this,
-        table = document.createElement("table"),
-        thead = document.createElement("thead"),
-        tbody = document.createElement("tbody");
-
-    var columnClickHandler = function (columnIndex) {
-        _.controller.dataController.sortByColumn(columnIndex);
-    };
-
-    this.elements.tableContainer.textContent = "";
-
-    var build = function (tree, barr, dim) {
-
-        var d = [], ch, n, o, nn = 0;
-
-        if (barr) {
-            if (!dim) dim = 0;
-            if (!horDimArr[dim]) horDimArr[dim] = [];
-        }
-
-        for (var i in tree) {
-            ch = tree[i].children ? build(tree[i].children, barr, barr ? dim + 1 : dim) : null;
-            n = ch ? ch.numOfChildren : 1;
-            nn += n;
-            d.push(o = {
-                caption: tree[i].caption,
-                dimension: tree[i].dimension,
-                path: tree[i].path,
-                children: ch ? ch.children : ch,
-                numOfChildren: n
-            });
-            if (barr) horDimArr[dim].push(o);
-        }
-
-        return {
-            children: d,
-            numOfChildren: nn
-        }
-
-    };
-
-    var prepend = function (cont, el) {
-        cont.insertBefore(el, cont.firstChild);
-    };
-
-    var lastTr,
-        trs = [],
-        maxLev = 1;
-
-    var verticalTree = function (children, sti, lev) {
-
-        if (!sti) sti = 0;
-        if (!lev) lev = 1;
-        if (lev > maxLev) maxLev = lev;
-
-        for (var i in children) {
-
-            var ch = children[i],
-                td;
-
-            if (ch.children) {
-                verticalTree(ch.children, sti, lev + 1);
-                td = document.createElement("th");
-                td.setAttribute("rowspan", ch.numOfChildren);
-                td.textContent = ch.caption || "";
-                prepend(trs[sti], td);
-                sti += ch.numOfChildren;
-            } else {
-                trs.push(lastTr = document.createElement("tr"));
-                tbody.appendChild(lastTr);
-                td = document.createElement("th");
-                td.textContent = ch.caption || "";
-                prepend(lastTr, td);
-            }
-
-        }
-
-    };
-
-    build(data.dimensions[0], 1);
-    tableWidth = horDimArr[horDimArr.length - 1].length;
-    vTree = build(data.dimensions[1]);
-
-    verticalTree(vTree.children);
-
-    for (var u = 0; u < horDimArr.length; u++) {
-
-        tr = document.createElement("tr");
-
-        if (u == 0) {
-            var cornerTd = document.createElement("th");
-            cornerTd.innerHTML = data.info["cubeName"] || "";
-            cornerTd.setAttribute("rowspan", horDimArr.length.toString());
-            cornerTd.setAttribute("colspan", maxLev.toString());
-            tr.appendChild(cornerTd);
-        }
-
-        for (i in horDimArr[u]) {
-
-            var ch = horDimArr[u][i];
-
-            td = document.createElement("th");
-
-            (function (i) { td.onclick = function () { columnClickHandler(i); }; })(i);
-
-            td.textContent = ch.caption || "";
-            td.setAttribute("colspan", ch.numOfChildren);
-            tr.appendChild(td);
-
-        }
-
-        thead.appendChild(tr);
-
-    }
-
-    for (i = 0; i < data.dataArray.length; i++) {
-        td = document.createElement("td");
-        td.textContent = data.dataArray[i];
-        tr = trs[Math.floor(i / tableWidth)];
-        if (!tr) {
-            trs[Math.floor(i / tableWidth)] = tr = document.createElement("tr");
-            extraTh = document.createElement("th");
-            tr.appendChild(extraTh);
-            tbody.appendChild(tr);
-        }
-        tr.appendChild(td);
-    }
-
-    table.appendChild(thead);
-    table.appendChild(tbody);
-    this.elements.tableContainer.appendChild(table);
+    this.fixHeaders(table);
 
 };

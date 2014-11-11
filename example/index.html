@@ -18,15 +18,15 @@
 
     </div>
     <div>Variants:
-        <a href="#0" onclick="window.location.reload(true);">0</a>,
-        <a href="#1" onclick="window.location.reload(true);">1</a>,
-        <a href="#2" onclick="window.location.reload(true);">2</a>,
-        <a href="#3" onclick="window.location.reload(true);">3</a>,
-        <a href="#4" onclick="window.location.reload(true);">4</a>,
-        <a href="#5" onclick="window.location.reload(true);">5</a>,
-        <a href="#6" onclick="window.location.reload(true);">6</a>,
-        <a href="#7" onclick="window.location.reload(true);">7</a>,
-        <a href="#8" onclick="window.location.reload(true);">8</a>
+        <a href="#0" onclick="rSoon()">0</a>,
+        <a href="#1" onclick="rSoon()">1</a>,
+        <a href="#2" onclick="rSoon()">2</a>,
+        <a href="#3" onclick="rSoon()">3</a>,
+        <a href="#4" onclick="rSoon()">4</a>,
+        <a href="#5" onclick="rSoon()">5</a>,
+        <a href="#6" onclick="rSoon()">6</a>,
+        <a href="#7" onclick="rSoon()">7</a>,
+        <a href="#8" onclick="rSoon()">8</a>
     </div>
     <div id="mdx"></div>
     <form id="mdxForm" onsubmit="return false;">
@@ -36,6 +36,9 @@
         </label>
     </form>
     <script type="text/javascript">
+
+        // reloads the page.
+        var rSoon = function () { setTimeout(function () { window.location.reload(true); }, 1); };
 
         var mdxTo = document.getElementById("mdx"),
             v = parseInt(location.hash.slice(1)) || 0,
