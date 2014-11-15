@@ -8,11 +8,14 @@ var PivotView = function (controller, container) {
     if (!(container instanceof HTMLElement)) throw new Error("Please, provide HTMLElement " +
         "instance \"container\" into pivot table configuration.");
 
+    this.tablesStack = [];
+
     this.elements = {
         container: container,
         base: document.createElement("div"),
-        tableContainer: document.createElement("div"),
-        controlsContainer: document.createElement("div")
+        tableContainer: undefined,
+        controlsContainer: document.createElement("div"),
+        messageElement: undefined
     };
 
     this.controller = controller;
@@ -22,25 +25,140 @@ var PivotView = function (controller, container) {
      */
     this._scrollListener = null;
 
+    /**
+     * Fixed headers links.
+     *
+     * @private
+     */
+    this._headers = {
+        "h": { base: undefined, clone: undefined },
+        "v": { base: undefined, clone: undefined },
+        "c": { base: undefined, clone: undefined }
+    };
+
     this.init();
 
 };
 
 PivotView.prototype.init = function () {
 
-    var els = this.elements;
+    var _ = this,
+        els = this.elements;
 
     els.base.className = "lpt";
-    els.tableContainer.textContent = "Loading...";
-    els.tableContainer.className = "tableContainer";
-    els.base.appendChild(els.tableContainer);
     els.container.appendChild(els.base);
+
+    this.pushTable();
+
+    this.displayMessage("Loading...");
+
+    window.addEventListener("resize", function () {
+        _._sizesChanged.call(_);
+    });
+
+};
+
+PivotView.prototype._sizesChanged = function () {
+
+    for (var i in this.tablesStack) {
+        var t = this.tablesStack[i]._headers;
+        if (t.c.clone) {
+            for (var u in t) {
+                this.fixSizes(t[u].base, t[u].clone);
+            }
+        }
+        t.v.clone.style.width = "";
+        t.v.clone.style.zIndex = 1;
+    }
+
+};
+
+PivotView.prototype._updateTablesPosition = function (seek) {
+
+    for (var i = 0; i < this.tablesStack.length; i++) {
+        this.tablesStack[i].element.style.left =
+            (1 + (seek || 0) + i - this.tablesStack.length)*100 + "%";
+    }
+
+};
+
+PivotView.prototype.pushTable = function () {
+
+    var _ = this,
+        tableElement = document.createElement("div");
+
+    tableElement.className = "tableContainer";
+    if (this.tablesStack.length) tableElement.style.left = "100%";
+
+    this.tablesStack.push({
+        element: tableElement,
+        _headers: {
+            "h": { base: undefined, clone: undefined },
+            "v": { base: undefined, clone: undefined },
+            "c": { base: undefined, clone: undefined }
+        }
+    });
+
+    this.elements.base.appendChild(tableElement);
+    this.elements.tableContainer = tableElement;
+
+    setTimeout(function () {
+        _._updateTablesPosition();
+    }, 1);
+
+};
+
+PivotView.prototype.popTable = function () {
+
+    if (this.tablesStack.length < 2) return;
+
+    this._updateTablesPosition(1);
+    var garbage = this.tablesStack.pop();
+
+    setTimeout(function () {
+        garbage.element.parentNode.removeChild(garbage.element);
+    }, 500);
+    this.elements.tableContainer = this.tablesStack[this.tablesStack.length - 1].element;
 
 };
 
 PivotView.prototype._columnClickHandler = function (columnIndex) {
 
     this.controller.dataController.sortByColumn(columnIndex);
+
+};
+
+PivotView.prototype._rowClickHandler = function (rowIndex, cellData) {
+
+    this.controller.tryDrillDown(cellData.source.path);
+
+};
+
+PivotView.prototype._backClickHandler = function () {
+
+    this.popTable();
+    this.controller.popDataSource();
+
+};
+
+PivotView.prototype.fixSizes = function (baseElement, elementToFix) {
+
+    if (!elementToFix.style) return false;
+
+    for (var i in elementToFix.childNodes) {
+        this.fixSizes(baseElement.childNodes[i], elementToFix.childNodes[i]);
+    }
+
+    if (baseElement["triggerFunction"]) {
+        elementToFix.addEventListener(
+            baseElement["triggerFunction"].event,
+            baseElement["triggerFunction"].trigger
+        );
+    }
+
+    var style = window.getComputedStyle(baseElement, null);
+    elementToFix.style.width = style.getPropertyValue("width");
+    elementToFix.style.height = style.getPropertyValue("height");
 
 };
 
@@ -51,7 +169,8 @@ PivotView.prototype._columnClickHandler = function (columnIndex) {
  */
 PivotView.prototype.fixHeaders = function (tableElement) {
 
-    var fhx, temp, hHead, fhy, c1, c2, d1, d2, st;
+    var fhx, temp, hHead, fhy, c1, c2, d1, d2,
+        cth = this.tablesStack[this.tablesStack.length - 1]._headers;
 
     var getChildrenByTagName = function (element, tagName) {
         var cls = [];
@@ -61,24 +180,6 @@ PivotView.prototype.fixHeaders = function (tableElement) {
             }
         }
         return cls;
-    };
-
-    var fixSizes = function (baseElement, elementToFix) {
-
-        if (!elementToFix.style) return false;
-
-        for (var i in elementToFix.childNodes) {
-            fixSizes(baseElement.childNodes[i], elementToFix.childNodes[i]);
-        }
-
-        if (baseElement["triggerFunction"]) {
-            elementToFix.addEventListener("click", baseElement["triggerFunction"]);
-        }
-
-        var style = window.getComputedStyle(baseElement, null);
-        elementToFix.style.width = style.getPropertyValue("width");
-        elementToFix.style.height = style.getPropertyValue("height");
-
     };
 
     if (!tableElement.parentNode) console.warn("Missing fix headers: before function call to " +
@@ -92,14 +193,16 @@ PivotView.prototype.fixHeaders = function (tableElement) {
     fhx = fhx.cloneNode(true);
     fhx.className = "fixedHeader";
     fhx.style.zIndex = 2;
-    fixSizes(temp, fhx);
+    cth.h.base = temp;
+    cth.h.clone = fhx;
+    this.fixSizes(temp, fhx);
     fhx.style.width = "";
 
     // clone top left corner
     hHead = temp.childNodes[0].childNodes[0].cloneNode(true);
-    st = window.getComputedStyle(temp.childNodes[0].childNodes[0], null);
-    hHead.style.width = st.getPropertyValue("width");
-    hHead.style.height = st.getPropertyValue("height");
+    cth.c.base = temp.childNodes[0].childNodes[0];
+    cth.c.clone = hHead;
+    this.fixSizes(temp.childNodes[0].childNodes[0], hHead);
     temp = document.createElement("thead");
     temp.appendChild(document.createElement("tr")).appendChild(hHead);
     temp.className = "fixedHeader";
@@ -122,7 +225,9 @@ PivotView.prototype.fixHeaders = function (tableElement) {
             d1.appendChild(d2 = c2[u].cloneNode(true));
         }
     }
-    fixSizes(temp, fhy);
+    cth.v.base = temp;
+    cth.v.clone = fhy;
+    this.fixSizes(temp, fhy);
     fhy.style.width = "";
     fhy.style.zIndex = 1;
 
@@ -139,6 +244,32 @@ PivotView.prototype.fixHeaders = function (tableElement) {
 
     // call scroll handler because of render may be performed anytime
     this._scrollListener();
+
+};
+
+/**
+ * Displays text which hovers table. Pass empty string to hide message.
+ *
+ * @param {string} html
+ */
+PivotView.prototype.displayMessage = function (html) {
+
+    if (this.elements.messageElement && this.elements.messageElement.parentNode) {
+        this.elements.messageElement.parentNode.removeChild(this.elements.messageElement);
+    }
+
+    if (!html) return;
+
+    var d1 = document.createElement("div"),
+        d2 = document.createElement("div"),
+        d3 = document.createElement("div");
+
+    d1.className = "central";
+    d3.innerHTML = html;
+    d2.appendChild(d3);
+    d1.appendChild(d2);
+    this.elements.messageElement = d1;
+    this.elements.tableContainer.appendChild(d1);
 
 };
 
@@ -169,8 +300,11 @@ PivotView.prototype.renderRawData = function (data) {
         tbody = document.createElement("tbody"),
         timeToBreak = false,
         _ = this,
-        x, y, tr, td, headColsNum = 0, headLeftColsNum = 0;
+        x, y, tr, td,
+        headColsNum = 0, headLeftColsNum = 0,
+        headRowsNum = 0, headLeftRowsNum = 0;
 
+    // compute headColsNum & headLeftColsNum
     for (y = 0; y < data.length; y++) {
         for (x = 0; x < data[y].length; x++) {
             if (!data[y][x].isCaption) {
@@ -182,6 +316,15 @@ PivotView.prototype.renderRawData = function (data) {
             headLeftColsNum = x;
             break;
         } else headColsNum++;
+    }
+
+    // compute headRowsNum & headLeftRowsNum
+    for (y = 0; y < data.length; y++) {
+        if (!data[y][data[y].length - 1].isCaption) {
+            headRowsNum = y;
+            headLeftRowsNum = data.length - y;
+            break;
+        }
     }
 
     for (y = 0; y < data.length; y++) {
@@ -213,20 +356,53 @@ PivotView.prototype.renderRawData = function (data) {
                         return i - y;
                     })(data[y][x].group);
 
+                    if (x === 0 && y === 0 && _.tablesStack.length > 1) {
+                        td.className += " backButton";
+                        td.addEventListener("click", (td["triggerFunction"] = {
+                            trigger: function () {
+                                _._backClickHandler.call(_);
+                            },
+                            event: "click"
+                        }).trigger);
+                    }
+
                 }
             } else {
                 td = document.createElement(data[y][x].isCaption ? "th" : "td");
             }
-            if (x >= headLeftColsNum && y === headColsNum - 1) { // clickable cells (sort option)
-                if (td) (function (x) {td.addEventListener("click", td["triggerFunction"] = function () {
-                    var colNum = x - headLeftColsNum;
-                    _._columnClickHandler.call(_, colNum);
-                })})(x);
+
+            // add _columnClickHandler to last rows of th's
+            if (td && x >= headLeftColsNum && y === headColsNum - 1) {
+                // clickable cells (sort option)
+                (function (x) {
+                    td.addEventListener("click", (td["triggerFunction"] = {
+                        trigger: function () {
+                            var colNum = x - headLeftColsNum;
+                            _._columnClickHandler.call(_, colNum);
+                        },
+                        event: "click"
+                    }).trigger);
+                })(x);
             }
+
+            // add _rowClickHandler to th's last column
+            if (td && x === headLeftColsNum - 1 && y >= headRowsNum) {
+                (function (y, x) {
+                    td.addEventListener("click", (td["triggerFunction"] = {
+                        trigger: function () {
+                            var rowNum = y - headRowsNum;
+                            _._rowClickHandler.call(_, rowNum, data[y][x]);
+                        },
+                        event: "click"
+                    }).trigger);
+                })(y, x);
+            }
+
             if (td) {
                 td.textContent = data[y][x].value;
                 tr.appendChild(td);
             }
+
         }
         (y < headColsNum ? thead : tbody).appendChild(tr);
     }

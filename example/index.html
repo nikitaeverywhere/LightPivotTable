@@ -11,22 +11,31 @@
     <script type="text/javascript" src="../source/js/DataSource.js"></script>
     <script type="text/javascript" src="../source/js/PivotView.js"></script>
     <script type="text/javascript" src="../source/js/DataController.js"></script>
+    <script type="text/javascript" src="../source/js/MDXParser.js"></script>
     <!-- endbuild -->
+    <style>
+        a {
+            text-decoration: underline;
+            color: blue;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <div id="pivot" style="position: fixed; left: 20%; top: 20%; width: 60%; height: 60%;">
+    <div id="pivot" style="position: fixed; left: 20%; top: 30%; width: 60%; height: 60%;">
 
     </div>
     <div>Variants:
-        <a href="#0" onclick="rSoon()">0</a>,
-        <a href="#1" onclick="rSoon()">1</a>,
-        <a href="#2" onclick="rSoon()">2</a>,
-        <a href="#3" onclick="rSoon()">3</a>,
-        <a href="#4" onclick="rSoon()">4</a>,
-        <a href="#5" onclick="rSoon()">5</a>,
-        <a href="#6" onclick="rSoon()">6</a>,
-        <a href="#7" onclick="rSoon()">7</a>,
-        <a href="#8" onclick="rSoon()">8</a>
+        <a onclick="rSoon(this)">0</a>,
+        <a onclick="rSoon(this)">1</a>,
+        <a onclick="rSoon(this)">2</a>,
+        <a onclick="rSoon(this)">3</a>,
+        <a onclick="rSoon(this)">4</a>,
+        <a onclick="rSoon(this)">5</a>,
+        <a onclick="rSoon(this)">6</a>,
+        <a onclick="rSoon(this)">7</a>,
+        <a onclick="rSoon(this)">8</a>,
+        <a onclick="rSoon(this)">9</a>
     </div>
     <div id="mdx"></div>
     <form id="mdxForm" onsubmit="return false;">
@@ -38,7 +47,10 @@
     <script type="text/javascript">
 
         // reloads the page.
-        var rSoon = function () { setTimeout(function () { window.location.reload(true); }, 1); };
+        var rSoon = function (o) {
+            location.hash = "#" + o.textContent;
+            setTimeout(function () { window.location.reload(true); }, 1);
+        };
 
         var mdxTo = document.getElementById("mdx"),
             v = parseInt(location.hash.slice(1)) || 0,
@@ -51,7 +63,8 @@
                 "SELECT {[Measures].[%COUNT]} ON 0 FROM [HoleFoods] %FILTER [Measures].[%COUNT]",
                 "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,{[Measures].[%COUNT]} ON 1 FROM [HoleFoods] %FILTER [Measures].[%COUNT]",
                 "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0, NON EMPTY [Outlet].[H1].[Region].Members ON 1 FROM [HoleFoods]",
-                "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].&[2010].children ON 1 FROM [HoleFoods] %FILTER [DateOfSale].[Actual].[YearSold].&[2010] %FILTER [Measures].[%COUNT]"
+                "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].&[2010].children ON 1 FROM [HoleFoods] %FILTER [DateOfSale].[Actual].[YearSold].&[2010] %FILTER [Measures].[%COUNT]",
+                "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].Members ON 1 FROM [HoleFoods]"
             ][v];
 
         if (location.hash.slice(1, 3) === "q=") {
@@ -68,7 +81,7 @@
 
         });
 
-        mdxTo.innerHTML = "<b>MDX:</b> <i>" + req + "</i>";
+        mdxTo.innerHTML = "<b>Basic MDX:</b> <i>" + req + "</i>";
 
         var lp = new LightPivotTable({
             container: document.getElementById("pivot"), // HTMLElement which will contain table.

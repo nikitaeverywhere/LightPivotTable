@@ -2,7 +2,8 @@
  * Data source.
  * 
  * Must implement methods.
- * 
+ *
+ * @param {Object} config
  * @constructor
  */
 var DataSource = function (config) {
@@ -26,7 +27,16 @@ DataSource.prototype._post = function (url, data, callback) {
     xhr.open("POST", url);
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            callback(JSON.parse(xhr.responseText));
+            callback((function () {
+                try {
+                    return JSON.parse(xhr.responseText)
+                } catch (e) {
+                    return {
+                        error: "<h1>Unable to parse server response</h1><p>" + xhr.responseText
+                            + "</p>"
+                    };
+                }
+            })());
         } else if (xhr.readyState === 4 && xhr.status !== 200) {
             callback({ error: xhr.responseText
                 || "Error while trying to retrieve data from server." });
@@ -44,17 +54,21 @@ DataSource.prototype._post = function (url, data, callback) {
  */
 DataSource.prototype._convert = function (data) {
 
+    var o;
+
     if (typeof data !== "object" || data.error) return { error: data.error || true };
 
     try {
-        return {
+        o = {
             dimensions: [
                 data["Cols"][0]["tuples"],
                 data["Cols"][1]["tuples"]
             ],
             dataArray: data["Data"],
             info: data["Info"]
-        }
+        };
+        //console.log(o);
+        return o;
     } catch (e) {
         console.error("Error while parsing data:", e);
         return { error: data.error || true };
@@ -71,6 +85,8 @@ DataSource.prototype.getCurrentData = function (callback) {
 
     this._post(this.SOURCE_URL + "/MDX", {
         MDX: this.BASIC_MDX
-    }, function (data) { callback(_._convert(data)); });
+    }, function (data) {
+        callback(_._convert(data));
+    });
 
 };
