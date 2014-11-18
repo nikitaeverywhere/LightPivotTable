@@ -141,6 +141,15 @@ PivotView.prototype._backClickHandler = function () {
 
 };
 
+PivotView.prototype._drillThroughClickHandler = function (event) {
+
+    this.controller.showDrillThrough();
+
+    event.cancelBubble = true;
+    event.stopPropagation();
+
+};
+
 PivotView.prototype.fixSizes = function (baseElement, elementToFix) {
 
     if (!elementToFix.style) return false;
@@ -304,6 +313,17 @@ PivotView.prototype.renderRawData = function (data) {
         headColsNum = 0, headLeftColsNum = 0,
         headRowsNum = 0, headLeftRowsNum = 0;
 
+    var addTrigger = function (element, event, trigger) {
+
+        element["triggerFunction"] = {
+            event: event,
+            trigger: trigger
+        };
+
+        element.addEventListener(event, trigger);
+
+    };
+
     // compute headColsNum & headLeftColsNum
     for (y = 0; y < data.length; y++) {
         for (x = 0; x < data[y].length; x++) {
@@ -357,13 +377,12 @@ PivotView.prototype.renderRawData = function (data) {
                     })(data[y][x].group);
 
                     if (x === 0 && y === 0 && _.tablesStack.length > 1) {
-                        td.className += " backButton";
-                        td.addEventListener("click", (td["triggerFunction"] = {
-                            trigger: function () {
-                                _._backClickHandler.call(_);
-                            },
-                            event: "click"
-                        }).trigger);
+                        var elt = document.createElement("div");
+                        elt.className = "backButton";
+                        addTrigger(elt, "click", function () {
+                            _._backClickHandler.call(_);
+                        });
+                        td.insertBefore(elt, td.childNodes[td.childNodes.length - 1] || null);
                     }
 
                 }
@@ -375,32 +394,38 @@ PivotView.prototype.renderRawData = function (data) {
             if (td && x >= headLeftColsNum && y === headColsNum - 1) {
                 // clickable cells (sort option)
                 (function (x) {
-                    td.addEventListener("click", (td["triggerFunction"] = {
-                        trigger: function () {
-                            var colNum = x - headLeftColsNum;
-                            _._columnClickHandler.call(_, colNum);
-                        },
-                        event: "click"
-                    }).trigger);
+                    addTrigger(td, "click", function () {
+                        var colNum = x - headLeftColsNum;
+                        _._columnClickHandler.call(_, colNum);
+                    });
                 })(x);
             }
 
             // add _rowClickHandler to th's last column
             if (td && x === headLeftColsNum - 1 && y >= headRowsNum) {
                 (function (y, x) {
-                    td.addEventListener("click", (td["triggerFunction"] = {
-                        trigger: function () {
-                            var rowNum = y - headRowsNum;
-                            _._rowClickHandler.call(_, rowNum, data[y][x]);
-                        },
-                        event: "click"
-                    }).trigger);
+                    addTrigger(td, "click", function () {
+                        var rowNum = y - headRowsNum;
+                        _._rowClickHandler.call(_, rowNum, data[y][x]);
+                    });
                 })(y, x);
             }
 
             if (td) {
-                td.textContent = data[y][x].value;
+                var span = document.createElement("span");
+                span.textContent = data[y][x].value;
+                td.appendChild(span);
+                //td.textContent = ;
                 tr.appendChild(td);
+            }
+
+            if (x === 0 && y === 0 && _.controller.dataController.getData().info.action === "MDX") {
+                var element = document.createElement("div");
+                element.className = "drillDownIcon";
+                addTrigger(element, "click", function (event) {
+                    _._drillThroughClickHandler.call(_, event);
+                });
+                td.insertBefore(element, td.childNodes[td.childNodes.length - 1] || null);
             }
 
         }

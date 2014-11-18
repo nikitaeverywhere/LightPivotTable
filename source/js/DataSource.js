@@ -13,6 +13,8 @@ var DataSource = function (config) {
 
     this.BASIC_MDX = config.basicMDX;
 
+    this.ACTION = config.action || "MDX";
+
 };
 
 /**
@@ -29,7 +31,7 @@ DataSource.prototype._post = function (url, data, callback) {
         if (xhr.readyState === 4 && xhr.status === 200) {
             callback((function () {
                 try {
-                    return JSON.parse(xhr.responseText)
+                    return JSON.parse(xhr.responseText) || {}
                 } catch (e) {
                     return {
                         error: "<h1>Unable to parse server response</h1><p>" + xhr.responseText
@@ -81,12 +83,57 @@ DataSource.prototype._convert = function (data) {
  */
 DataSource.prototype.getCurrentData = function (callback) {
 
-    var _ = this;
+    var _ = this,
+        __ = this._convert;
 
-    this._post(this.SOURCE_URL + "/MDX", {
+    this._post(this.SOURCE_URL + "/" + this.ACTION, {
         MDX: this.BASIC_MDX
     }, function (data) {
-        callback(_._convert(data));
+        (data.Info || {}).action = _.ACTION;
+        if (_.ACTION === "MDXDrillthrough") {
+            callback((function (data) {
+
+                var arr = data["children"] || [],
+                    headers = [],
+                    obj, i, u;
+
+                if (!arr.length) return {
+                    error: "No DrillThrough data."
+                };
+
+                for (i in arr[0]) {
+                    headers.push({ caption: i });
+                }
+
+                obj = {
+                    Cols: [ { tuples: headers }, { tuples: [] } ],
+                    Data: [],
+                    Info: {
+                        colCount: 8,
+                        cubeClass: "No cube class",
+                        cubeName: "No cube name",
+                        leftHeaderColumnsNumber: 0,
+                        rowCount: arr.length,
+                        topHeaderRowsNumber: headers.length,
+                        action: _.ACTION
+                    }
+                };
+
+                for (i in arr) {
+                    for (u in arr[i]) {
+                        obj.Data.push(arr[i][u]);
+                    }
+                }
+
+                return __(obj);
+
+            })(data));
+        } else if (_.ACTION = "MDX") {
+            callback(_._convert(data));
+        } else {
+            console.error("Not implemented URL action: " + _.ACTION);
+            callback({ error: "Not implemented URL action: " + data || true });
+        }
     });
 
 };

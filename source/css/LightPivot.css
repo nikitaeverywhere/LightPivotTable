@@ -17,7 +17,13 @@
 }
 
 .lpt .backButton {
-    padding-left: 1.25em !important;
+    width: 14px;
+    height: 14px;
+    top: 1px;
+    padding: 2px;
+    vertical-align: middle;
+    display: inline-block;
+    position: relative;
 }
 
 .lpt .backButton:before, .lpt .backButton:after {
@@ -27,7 +33,7 @@
     display: block;
     height: 0.25em;
     position: absolute;
-    left: .5em;
+    left: 0;
     top: 50%;
     width: .8em;
     transition: background .4s ease;
@@ -57,8 +63,53 @@
     background: #C768FF;
 }
 
-.lpt .backButton:hover {
+.lpt table tr:first-child th:first-child {
+    position: relative;
+    white-space: nowrap;
+}
+
+.lpt .drillDownIcon {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    width: 15px;
+    height: 14px;
+    border: 2px solid #000000;
+    border-radius: 4px;
+    margin-right: .3em;
+    transition: all .4s ease;
+}
+
+.lpt .drillDownIcon:hover {
     background: #e2c8ff;
+    border-color: #C768FF;
+}
+
+.lpt .drillDownIcon:after {
+    content: "";
+    width: 10px;
+    height: 2px;
+    background-color: #000000;
+    border-radius: 4px;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    box-shadow: 0 8px 0 #000000;
+}
+
+.lpt .drillDownIcon:before {
+    content: "";
+    width: 8px;
+    height: 2px;
+    background-color: #000000;
+    border-radius: 4px;
+    position: absolute;
+    top: 6px;
+    left: 2px;
+}
+
+.lpt .drillDownIcon:hover:before {
+    background-color: #C768FF;
 }
 
 .lpt .central > div {

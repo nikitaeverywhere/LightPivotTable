@@ -22,9 +22,9 @@ DataController.prototype.isValidData = function (data) {
     return data.dimensions instanceof Array
         && data.dimensions[0] instanceof Array
         && data.dimensions[0].length > 0
-        && data.dimensions[1].length > 0
+        //&& data.dimensions[1].length > 0
         && data.dimensions[0][0].hasOwnProperty("caption")
-        && data.dimensions[1][0].hasOwnProperty("caption")
+        //&& data.dimensions[1][0].hasOwnProperty("caption")
         && data.dataArray instanceof Array
         && typeof data["info"] === "object"
         && data["info"]["cubeName"];
@@ -140,13 +140,13 @@ DataController.prototype.resetRawData = function () {
 
     };
 
-    dim0raw(rd0, data.dimensions[0]);
-    dim1raw(rd1, data.dimensions[1]);
+    if (data.dimensions[0].length) dim0raw(rd0, data.dimensions[0]);
+    if (data.dimensions[1].length) dim1raw(rd1, data.dimensions[1]);
 
-    var xw = rd0[0].length,
-        yh = rd1.length,
-        xh = rd0.length,
-        yw = rd1[0].length;
+    var xw = (rd0[0] || []).length,
+        yh = rd1.length || data.info.rowCount || 0,
+        xh = rd0.length || data.info.colCount || 0,
+        yw = (rd1[0] || []).length;
 
     // render columns, rows and data
     for (var y = 0; y < xh + yh; y++) {
@@ -222,7 +222,9 @@ DataController.prototype.sortByColumn = function (columnIndex) {
     order = -order;
 
     newRawData.sort(function (a, b) {
-        return order*b[xIndex].value - order*a[xIndex].value;
+        if (b[xIndex].value > a[xIndex].value) return order;
+        if (b[xIndex].value < a[xIndex].value) return -order;
+        return 0;
     });
 
     data.rawData = data._rawDataOrigin.slice(0, data.info.topHeaderRowsNumber)

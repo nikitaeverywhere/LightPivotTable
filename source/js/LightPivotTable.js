@@ -73,9 +73,33 @@ LightPivotTable.prototype.tryDrillDown = function (filter) {
     var _ = this,
         ds = {};
 
-    // clone
+    // clone dataSource config object
     for (var i in _.CONFIG.dataSource) { ds[i] = _.CONFIG.dataSource[i]; }
     ds.basicMDX = this.mdxParser.drillDown(ds.basicMDX, filter) || ds.basicMDX;
+
+    this.pushDataSource(ds);
+
+    this.dataSource.getCurrentData(function (data) {
+        if (_.dataController.isValidData(data) && data.dataArray.length > 0) {
+            _.pivotView.pushTable();
+            _.dataController.pushData();
+            _.dataController.setData(data);
+        } else {
+            _.popDataSource();
+        }
+    });
+
+};
+
+LightPivotTable.prototype.showDrillThrough = function () {
+
+    var _ = this,
+        ds = {};
+
+    // clone dataSource config object
+    for (var i in _.CONFIG.dataSource) { ds[i] = _.CONFIG.dataSource[i]; }
+    ds.action = "MDXDrillthrough";
+    ds.basicMDX = this.mdxParser.drillThrough(ds.basicMDX) || ds.basicMDX;
 
     this.pushDataSource(ds);
 
