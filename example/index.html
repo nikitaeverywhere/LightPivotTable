@@ -35,7 +35,8 @@
         <a onclick="rSoon(this)">6</a>,
         <a onclick="rSoon(this)">7</a>,
         <a onclick="rSoon(this)">8</a>,
-        <a onclick="rSoon(this)">9</a>
+        <a onclick="rSoon(this)">9</a>,
+        <a onclick="rSoon(this)">10</a>
     </div>
     <div id="mdx"></div>
     <form id="mdxForm" onsubmit="return false;">
@@ -64,6 +65,7 @@
                 "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,{[Measures].[%COUNT]} ON 1 FROM [HoleFoods] %FILTER [Measures].[%COUNT]",
                 "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0, NON EMPTY [Outlet].[H1].[Region].Members ON 1 FROM [HoleFoods]",
                 "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].&[2010].children ON 1 FROM [HoleFoods] %FILTER [DateOfSale].[Actual].[YearSold].&[2010] %FILTER [Measures].[%COUNT]",
+                "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].Members ON 1 FROM [HoleFoods]",
                 "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].Members ON 1 FROM [HoleFoods]"
             ][v];
 

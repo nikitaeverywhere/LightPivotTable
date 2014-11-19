@@ -134,7 +134,10 @@ PivotView.prototype._rowClickHandler = function (rowIndex, cellData) {
 
 };
 
-PivotView.prototype._backClickHandler = function () {
+PivotView.prototype._backClickHandler = function (event) {
+
+    event.cancelBubble = true;
+    event.stopPropagation();
 
     this.popTable();
     this.controller.popDataSource();
@@ -147,6 +150,22 @@ PivotView.prototype._drillThroughClickHandler = function (event) {
 
     event.cancelBubble = true;
     event.stopPropagation();
+
+};
+
+PivotView.prototype._cellClickHandler = function (x, y) {
+
+    var data = this.controller.dataController.getData(),
+        f1, f2;
+
+    try {
+        f1 = data.rawData[y][data.info.leftHeaderColumnsNumber - 1].source.path;
+        f2 = data.rawData[data.info.topHeaderRowsNumber - 1][x].source.path;
+    } catch (e) {
+        console.warn("Unable to get filters for cell (%d, %d)", x, y);
+    }
+
+    this.controller.showDrillThrough([f1, f2]);
 
 };
 
@@ -242,8 +261,9 @@ PivotView.prototype.fixHeaders = function (tableElement) {
 
     // add scroll listener
     tableElement.parentNode.addEventListener("scroll", this._scrollListener = function () {
-        hHead.style.top = fhx.style.top = tableElement.parentNode.scrollTop + "px";
-        hHead.style.left = fhy.style.left = tableElement.parentNode.scrollLeft + "px";
+            if (!tableElement.parentNode) return; // toFix
+            hHead.style.top = fhx.style.top = tableElement.parentNode.scrollTop + "px";
+            hHead.style.left = fhy.style.left = tableElement.parentNode.scrollLeft + "px";
     }, false);
 
     // append new elements
@@ -379,8 +399,8 @@ PivotView.prototype.renderRawData = function (data) {
                     if (x === 0 && y === 0 && _.tablesStack.length > 1) {
                         var elt = document.createElement("div");
                         elt.className = "backButton";
-                        addTrigger(elt, "click", function () {
-                            _._backClickHandler.call(_);
+                        addTrigger(elt, "click", function (event) {
+                            _._backClickHandler.call(_, event);
                         });
                         td.insertBefore(elt, td.childNodes[td.childNodes.length - 1] || null);
                     }
@@ -415,8 +435,12 @@ PivotView.prototype.renderRawData = function (data) {
                 var span = document.createElement("span");
                 span.textContent = data[y][x].value;
                 td.appendChild(span);
-                //td.textContent = ;
                 tr.appendChild(td);
+                if (x >= headLeftColsNum && y >= headRowsNum) {
+                    (function (x, y) {addTrigger(td, "click", function () {
+                        _._cellClickHandler.call(_, x, y);
+                    })})(x, y);
+                }
             }
 
             if (x === 0 && y === 0 && _.controller.dataController.getData().info.action === "MDX") {

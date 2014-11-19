@@ -59,3 +59,22 @@ MDXParser.prototype.drillThrough = function (basicMDX) {
     }
 
 };
+
+/**
+ * @param {string} basicMDX
+ * @param {string[]} filters
+ */
+MDXParser.prototype.customDrillThrough = function (basicMDX, filters) {
+
+    var cubeName = basicMDX.split(/FROM\s*\[([^\]]*)]/i)[1],
+        query = "DRILLTHROUGH SELECT FROM [" + cubeName + "]";
+
+    if (!(filters instanceof Array)) filters = [filters];
+
+    for (var i in filters) {
+        query += " %FILTER " + filters[i];
+    }
+
+    return query;
+
+};

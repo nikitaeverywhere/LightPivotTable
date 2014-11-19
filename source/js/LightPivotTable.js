@@ -91,7 +91,10 @@ LightPivotTable.prototype.tryDrillDown = function (filter) {
 
 };
 
-LightPivotTable.prototype.showDrillThrough = function () {
+/**
+ * @param {string[]} [filters]
+ */
+LightPivotTable.prototype.showDrillThrough = function (filters) {
 
     var _ = this,
         ds = {};
@@ -99,7 +102,13 @@ LightPivotTable.prototype.showDrillThrough = function () {
     // clone dataSource config object
     for (var i in _.CONFIG.dataSource) { ds[i] = _.CONFIG.dataSource[i]; }
     ds.action = "MDXDrillthrough";
-    ds.basicMDX = this.mdxParser.drillThrough(ds.basicMDX) || ds.basicMDX;
+    if (filters instanceof Array) {
+        ds.basicMDX = this.mdxParser.customDrillThrough(this.dataSource.BASIC_MDX, filters)
+            || this.dataSource.basicMDX;
+    } else {
+        ds.basicMDX = this.dataSource.BASIC_MDX;
+        ds.basicMDX = this.mdxParser.drillThrough(ds.basicMDX) || ds.basicMDX;
+    }
 
     this.pushDataSource(ds);
 

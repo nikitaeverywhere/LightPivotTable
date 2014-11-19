@@ -177,20 +177,20 @@
     background: #e2c8ff;
 }
 
-.orderedDec {
-    background: red;
-}
-
-.orderedAsc {
-    background: orange;
-}
-
 .lpt td {
     background: #E1E8FF;
+    -webkit-transition: all .3s ease;
+    -moz-transition: all .3s ease;
+    -o-transition: all .3s ease;
+    transition: all .3s ease;
 }
 
 .lpt tr:hover td {
-    background: #FFDEBF;
+    background: #ffe6cf;
+}
+
+.lpt table td:hover {
+    background: #e2c8ff;
 }
 
 .lpt tbody > tr > th {
