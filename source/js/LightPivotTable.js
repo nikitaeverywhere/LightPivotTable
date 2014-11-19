@@ -75,7 +75,14 @@ LightPivotTable.prototype.tryDrillDown = function (filter) {
 
     // clone dataSource config object
     for (var i in _.CONFIG.dataSource) { ds[i] = _.CONFIG.dataSource[i]; }
-    ds.basicMDX = this.mdxParser.drillDown(ds.basicMDX, filter) || ds.basicMDX;
+
+    if (this.CONFIG.DrillDownExpression && this._dataSourcesStack.length < 2) {
+        ds.basicMDX = this.mdxParser.customDrillDown(
+            this.dataSource.BASIC_MDX, this.CONFIG.DrillDownExpression, filter
+        ) || this.dataSource.BASIC_MDX;
+    } else {
+        ds.basicMDX = this.mdxParser.drillDown(this.dataSource.BASIC_MDX, filter) || this.dataSource.BASIC_MDX;
+    }
 
     this.pushDataSource(ds);
 
@@ -103,6 +110,7 @@ LightPivotTable.prototype.showDrillThrough = function (filters) {
     for (var i in _.CONFIG.dataSource) { ds[i] = _.CONFIG.dataSource[i]; }
     ds.action = "MDXDrillthrough";
     if (filters instanceof Array) {
+        console.log("BASIC MDX: " + this.dataSource.BASIC_MDX, "\n\nFILTERS: " + filters);
         ds.basicMDX = this.mdxParser.customDrillThrough(this.dataSource.BASIC_MDX, filters)
             || this.dataSource.basicMDX;
     } else {

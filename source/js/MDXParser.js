@@ -17,17 +17,53 @@ MDXParser.prototype.drillDown = function (basicMDX, filter) {
 
         var filterParts = filter.split(/(\(?)([^\)]*)(\)?)/),
             clearFilter = filterParts[2],
-            parts = basicMDX.split(/(\s+ON\s+0,\s*)(.*)(\s+ON\s+1\s*)/),
+            parts = basicMDX.split(/(\s+ON\s+0,\s*)(.*)(\s+ON\s+1\s*)/i),
             oldPath = parts[2].split(/(\(?)(\[[^\(^\)]*)(\)?)/);
 
         oldPath[2] = clearFilter + ".children";
         parts[2] = oldPath.join("");
+
+        //console.log("\n\nIN: "+basicMDX+"\n\nFILTER: " + filter + "\n\nCUSTOM: "+  parts.join("")
+        //    + " %FILTER " + filterParts.join(""));
 
         return parts.join("") + " %FILTER " + filterParts.join("");
 
     } catch (e) {
 
         console.error("Unable to get DrillDown statement from", basicMDX, "with filter", filter);
+        return "";
+
+    }
+
+};
+
+/**
+ * Replace dimension [1] with expression.
+ *
+ * @param {string} basicMDX
+ * @param {string} expression
+ * @param {string} [filter]
+ * @returns {string}
+ */
+MDXParser.prototype.customDrillDown = function (basicMDX, expression, filter) {
+
+    try {
+
+        var parts = basicMDX.split(/(\s+ON\s+0,\s*)(.*)(\s+ON\s+1\s*)/i);
+
+        parts[2] = expression;
+
+        if (filter) parts.push(" %FILTER " + filter);
+
+        //console.log("\n\nIN: "+basicMDX+"\n\nEXPR: " + expression + "\n\nFILTER: "
+        //    + filter + "\n\nCUSTOM: " + parts.join(""));
+
+        return parts.join("");
+
+    } catch (e) {
+
+        console.error("Unable to get DrillDown statement from", basicMDX, "by", expression,
+            "with filter", filter);
         return "";
 
     }
@@ -45,7 +81,7 @@ MDXParser.prototype.drillThrough = function (basicMDX) {
     try {
 
         var statement = ["DRILLTHROUGH SELECT "]
-            .concat(basicMDX.split(/(\s+ON\s+0,\s*)(.*)(\s+ON\s+1\s*)/).slice(2)).join("");
+            .concat(basicMDX.split(/(\s+ON\s+0,\s*)(.*)(\s+ON\s+1\s*)/i).slice(2)).join("");
 
         console.log("DRILLTHROUGH STATEMENT:", statement);
 
@@ -66,14 +102,16 @@ MDXParser.prototype.drillThrough = function (basicMDX) {
  */
 MDXParser.prototype.customDrillThrough = function (basicMDX, filters) {
 
-    var cubeName = basicMDX.split(/FROM\s*\[([^\]]*)]/i)[1],
-        query = "DRILLTHROUGH SELECT FROM [" + cubeName + "]";
+    var cubeAndFilters = basicMDX.split(/(FROM\s*\[[^\]]*].*)/i)[1],
+        query = "DRILLTHROUGH SELECT " + cubeAndFilters;
 
     if (!(filters instanceof Array)) filters = [filters];
 
     for (var i in filters) {
         query += " %FILTER " + filters[i];
     }
+
+    console.log("CUSTOM DRILLTHROUGH STATEMENT: " + query);
 
     return query;
 
