@@ -1,10 +1,12 @@
 var gulp = require("gulp"),
+    fs = require("fs"),
     clean = require("gulp-clean"),
     concat = require("gulp-concat"),
     uglify = require("gulp-uglify"),
     wrap = require("gulp-wrap"),
     minifyCSS = require("gulp-minify-css"),
-    htmlReplace = require("gulp-html-replace");
+    htmlReplace = require("gulp-html-replace"),
+    replace = require('gulp-replace');
 
 gulp.task("clean", function () {
     return gulp.src("build", {read: false})
@@ -35,6 +37,13 @@ gulp.task("addExample", ["clean"], function () {
         .pipe(gulp.dest("build/example/"));
 });
 
+gulp.task("exportCacheXML", ["clean", "gatherScripts", "gatherCSS"], function () {
+    gulp.src("export/LightPivotTable.xml")
+        .pipe(replace(/\{\{replace:css}}/, fs.readFileSync("build/css/lightPivotTable.css")))
+        .pipe(replace(/\{\{replace:js}}/, fs.readFileSync("build/js/lightPivotTable.js")))
+        .pipe(gulp.dest("build/"));
+});
+
 gulp.task("copyLICENSE", ["clean"], function (){
     gulp.src("LICENSE")
         .pipe(gulp.dest("build/"));
@@ -46,5 +55,6 @@ gulp.task("copyREADME", ["clean"], function (){
 });
 
 gulp.task("default", [
-    "clean", "gatherScripts", "gatherCSS", "addExample", "copyLICENSE", "copyREADME"
+    "clean", "gatherScripts", "gatherCSS", "addExample", "copyLICENSE", "copyREADME",
+    "exportCacheXML"
 ]);

@@ -36,7 +36,8 @@
         <a onclick="rSoon(this)">7</a>,
         <a onclick="rSoon(this)">8</a>,
         <a onclick="rSoon(this)">9</a>,
-        <a onclick="rSoon(this)">10</a>
+        <a onclick="rSoon(this)">10</a>,
+        <a onclick="rSoon(this)">11</a>
     </div>
     <div id="mdx"></div>
     <form id="mdxForm" onsubmit="return false;">
@@ -69,6 +70,11 @@
                 {
                     basicMDX: "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].Members ON 1 FROM [HoleFoods]",
                     DrillDownExpression: "NONEMPTYCROSSJOIN([Outlet].[H1].[Region].Members,[Outlet].[H1].[Country].Members)"
+                },
+                {
+                    basicMDX: "SELECT NON EMPTY [Outlet]" +
+                    ".[H1].[Region].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].Members ON 1 FROM [HoleFoods]",
+                    DrillDownExpression: "NONEMPTYCROSSJOIN([DateOfSale].[Actual].[YearSold].Members,[Product].[P1].[Product Category].Members)"
                 }
             ][v],
             setup;
@@ -105,6 +111,8 @@
 
         mdxTo.innerHTML = "<b>Basic MDX:</b> <i>" + (typeof req === "object" ? req.basicMDX : req)
             + "</i>";
+
+        console.log(setup);
 
         var lp = new LightPivotTable(setup); // create widget
 

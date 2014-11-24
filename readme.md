@@ -29,6 +29,11 @@ Build the project, and then include <code>build/css/lightPivotTable.css</code> a
 <code>build/js/lightPivotTable.js</code> files into your project. Usage is shown in
 <code>build/example/index.html</code> example.
 
+To integrate light pivot widget into DeepSee, just perform build and then import <code>
+build/LightPivotTable.xml</code> into namespace you want. Make sure that MDX2JSON source is
+installed and configured. Also you may need to change the widget property "MDX2JSON source" to make
+it work with another MDX2JSON source.
+
 ## Build
 
 You need [NodeJS](http://nodejs.org/) to perform any build tasks.
