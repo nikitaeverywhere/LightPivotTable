@@ -15,6 +15,8 @@ var DataSource = function (config) {
 
     this.ACTION = config.action || "MDX";
 
+    this.FILTERS = [];
+
 };
 
 /**
@@ -79,15 +81,30 @@ DataSource.prototype._convert = function (data) {
 };
 
 /**
+ * @param {string} spec - an MDX specification of the filter.
+ */
+DataSource.prototype.setFilter = function (spec) {
+
+    this.FILTERS.push(spec);
+
+};
+
+/**
  * @param {function} callback
  */
 DataSource.prototype.getCurrentData = function (callback) {
 
     var _ = this,
-        __ = this._convert;
+        __ = this._convert,
+        mdx = this.BASIC_MDX,
+        mdxParser = new MDXParser();
+
+    for (var i in this.FILTERS) {
+        mdx = mdxParser.applyFilter(mdx, this.FILTERS[i]);
+    }
 
     this._post(this.SOURCE_URL + "/" + this.ACTION, {
-        MDX: this.BASIC_MDX
+        MDX: mdx
     }, function (data) {
         (data.Info || {}).action = _.ACTION;
         if (_.ACTION === "MDXDrillthrough") {

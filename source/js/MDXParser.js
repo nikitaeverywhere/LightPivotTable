@@ -116,3 +116,13 @@ MDXParser.prototype.customDrillThrough = function (basicMDX, filters) {
     return query;
 
 };
+
+/**
+ * @param {string} basicMDX
+ * @param {string} filterSpec
+ */
+MDXParser.prototype.applyFilter = function (basicMDX, filterSpec) {
+
+    return basicMDX + " %FILTER " + filterSpec;
+
+};

@@ -40,6 +40,27 @@ LightPivotTable.prototype.refresh = function () {
 
 };
 
+/**
+ * Performs resizing.
+ */
+LightPivotTable.prototype.updateSizes = function () {
+
+    this.pivotView.updateSizes();
+
+};
+
+/**
+ * Ability to set filter. Manual refresh is required.
+ * Example: spec = "[DateOfSale].[Actual].[YearSold].&[2009]"; *.refresh();
+ *
+ * @param {string} spec - an MDX specification of the filter.
+ */
+LightPivotTable.prototype.setFilter = function (spec) {
+
+    this.dataSource.setFilter(spec);
+
+};
+
 LightPivotTable.prototype.pushDataSource = function (config) {
 
     var newDataSource;

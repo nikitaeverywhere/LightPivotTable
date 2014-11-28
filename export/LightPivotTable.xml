@@ -11,7 +11,7 @@
 
     <Class name="DeepSee.LightPivotTable">
         <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-        <TimeChanged>63515,72475.367191</TimeChanged>
+        <TimeChanged>63519,69139.707264</TimeChanged>
         <TimeCreated>63515,61322.546099</TimeCreated>
 
         <Parameter name="INCLUDEFILES">
@@ -109,8 +109,6 @@
         }
     }
 
-    var _ = this;
-
     setTimeout(function() { // onCreate fired when scripts are ready, but this.parent is missed.
 
         // !ultra-bydlocode (get the widget object)
@@ -132,6 +130,8 @@
                             break;
                         }
                     }
+                    //console.log(info);
+                    //console.log(_.getConnectedController());
                     setup = {
                         container: container,
                         dataSource: {
@@ -141,12 +141,13 @@
                     }
                     post(source + "/DataSource", { DataSource: info["dataSource"] }, function (data) {
 
+                        //console.log(data);
                         if (data["rowAxisOptions"] && data["rowAxisOptions"]["drilldownSpec"]) {
                             console.log(data["rowAxisOptions"]["drilldownSpec"]);
                             setup.DrillDownExpression = data["rowAxisOptions"]["drilldownSpec"];
                         }
 
-                        new LightPivotTable(setup);
+                        _.LightPivotTable = new LightPivotTable(setup);
 
                     });
                 }
@@ -161,10 +162,63 @@
     set ..renderFlag = ..renderFlag + 1
 
     &html<
-        <div data-source="#(..settings("dataSource"))#" class="lpt-container" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%;">
+        <div data-source="#(..settings("dataSource"))#" class="lpt-container" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;">
 
         </div>
     >
+]]></Implementation>
+        </Method>
+
+        <Method name="notifyViewHandler">
+            <Description>
+                Notification that the dataController associated with this dataView has raised an event.</Description>
+            <FormalSpec>reason,data1,data2,data3</FormalSpec>
+            <Language>javascript</Language>
+            <ClientMethod>1</ClientMethod>
+            <Implementation><![CDATA[
+    if (!this.LightPivotTable) return;
+
+    var controller = this.getConnectedController();
+
+    if (reason === "dataChange") {
+
+        // updateFilters
+        for (var i in controller.filters) {
+            this.LightPivotTable.setFilter(controller.filters[i].spec);
+        }
+
+        this.LightPivotTable.refresh();
+
+    }
+]]></Implementation>
+        </Method>
+
+        <Method name="adjustContentSize">
+            <Description>
+                Notification from the containing widget that the page is loaded or the widget is resized.
+                Subclass can implement this, if they wish.</Description>
+            <FormalSpec>load,width,height</FormalSpec>
+            <Language>javascript</Language>
+            <ClientMethod>1</ClientMethod>
+            <Implementation><![CDATA[
+    if (!load && this.LightPivotTable) {
+        this.LightPivotTable.updateSizes();
+    }
+
+    // cheat-codes to make instrument panel visible
+
+    var outContainer = document.getElementById(this.id),
+        inContainer;
+
+    if (outContainer) {
+        for (var i in outContainer.childNodes) {
+            if (outContainer.childNodes[i].className === "lpt-container") {
+                inContainer = outContainer.childNodes[i];
+                inContainer.style.height = outContainer.clientHeight + "px";
+                break;
+            }
+        }
+    }
 ]]></Implementation>
         </Method>
     </Class>

@@ -73,6 +73,12 @@ PivotView.prototype._sizesChanged = function () {
 
 };
 
+PivotView.prototype.updateSizes = function () {
+
+    this._sizesChanged();
+
+};
+
 PivotView.prototype._updateTablesPosition = function (seek) {
 
     for (var i = 0; i < this.tablesStack.length; i++) {
