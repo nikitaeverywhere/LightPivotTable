@@ -67,8 +67,10 @@ PivotView.prototype._sizesChanged = function () {
                 this.fixSizes(t[u].base, t[u].clone);
             }
         }
-        t.v.clone.style.width = "";
-        t.v.clone.style.zIndex = 1;
+        if (t.v.clone) {
+            t.v.clone.style.width = "";
+            t.v.clone.style.zIndex = 1;
+        }
     }
 
 };
