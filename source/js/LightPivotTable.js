@@ -61,6 +61,15 @@ LightPivotTable.prototype.setFilter = function (spec) {
 
 };
 
+/**
+ * Clear all filters that was set before.
+ */
+LightPivotTable.prototype.clearFilters = function () {
+
+    this.dataSource.clearFilters();
+
+};
+
 LightPivotTable.prototype.pushDataSource = function (config) {
 
     var newDataSource;

@@ -89,6 +89,12 @@ DataSource.prototype.setFilter = function (spec) {
 
 };
 
+DataSource.prototype.clearFilters = function () {
+
+    this.FILTERS = [];
+
+};
+
 /**
  * @param {function} callback
  */
@@ -102,6 +108,8 @@ DataSource.prototype.getCurrentData = function (callback) {
     for (var i in this.FILTERS) {
         mdx = mdxParser.applyFilter(mdx, this.FILTERS[i]);
     }
+
+    console.log("MDX: " + mdx);
 
     this._post(this.SOURCE_URL + "/" + this.ACTION, {
         MDX: mdx

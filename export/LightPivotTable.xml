@@ -11,7 +11,7 @@
 
     <Class name="DeepSee.LightPivotTable">
         <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-        <TimeChanged>63519,69139.707264</TimeChanged>
+        <TimeChanged>63520,75672.654316</TimeChanged>
         <TimeCreated>63515,61322.546099</TimeCreated>
 
         <Parameter name="INCLUDEFILES">
@@ -57,6 +57,37 @@
     }
 
     return controller;
+]]></Implementation>
+        </Method>
+
+        <Method name="notifyViewHandler">
+            <FormalSpec>reason,data1,data2,data3</FormalSpec>
+            <Language>javascript</Language>
+            <ClientMethod>1</ClientMethod>
+            <Implementation><![CDATA[
+    if (!this.LightPivotTable) return;
+
+    var controller = this.getConnectedController();
+
+    if (reason === "dataChange") {
+
+        this.LightPivotTable.clearFilters();
+
+        // updateFilters
+        for (var i in controller.filters) {
+            this.LightPivotTable.setFilter(controller.filters[i].spec);
+        }
+
+        this.LightPivotTable.refresh();
+
+    }
+]]></Implementation>
+        </Method>
+
+        <Method name="renderContents">
+            <Language>javascript</Language>
+            <ClientMethod>1</ClientMethod>
+            <Implementation><![CDATA[    this.getConnectedController(); // to receive notifications
 ]]></Implementation>
         </Method>
 
@@ -169,34 +200,7 @@
 ]]></Implementation>
         </Method>
 
-        <Method name="notifyViewHandler">
-            <Description>
-                Notification that the dataController associated with this dataView has raised an event.</Description>
-            <FormalSpec>reason,data1,data2,data3</FormalSpec>
-            <Language>javascript</Language>
-            <ClientMethod>1</ClientMethod>
-            <Implementation><![CDATA[
-    if (!this.LightPivotTable) return;
-
-    var controller = this.getConnectedController();
-
-    if (reason === "dataChange") {
-
-        // updateFilters
-        for (var i in controller.filters) {
-            this.LightPivotTable.setFilter(controller.filters[i].spec);
-        }
-
-        this.LightPivotTable.refresh();
-
-    }
-]]></Implementation>
-        </Method>
-
         <Method name="adjustContentSize">
-            <Description>
-                Notification from the containing widget that the page is loaded or the widget is resized.
-                Subclass can implement this, if they wish.</Description>
             <FormalSpec>load,width,height</FormalSpec>
             <Language>javascript</Language>
             <ClientMethod>1</ClientMethod>
