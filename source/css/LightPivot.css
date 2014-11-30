@@ -4,6 +4,7 @@
     height: 100%;
     border-radius: 5px;
     background: white;
+    font-size: 13px;
     overflow: hidden;
 }
 
@@ -154,7 +155,6 @@
 .lpt > .tableContainer td, .lpt > .tableContainer th {
     border-radius: 3px;
     padding: .4em;
-    text-align: center;
 }
 
 .lpt > .tableContainer tbody.fixedHeader th:last-child:hover {
@@ -166,6 +166,7 @@
 .lpt th {
     /*background: #C0CDFF;*/
     background: #F0F0F0;
+    text-align: left;
     box-shadow: inset 0 -5px 10px rgb(216, 216, 216);
 }
 
@@ -187,6 +188,7 @@
     /*background: #E1E8FF;*/
     background: #FFFFFF;
     box-shadow: inset 0 0 2px rgb(216, 216, 216);
+    text-align: right;
     -webkit-transition: all .3s ease;
     -moz-transition: all .3s ease;
     -o-transition: all .3s ease;
