@@ -61,7 +61,7 @@
 }
 
 .lpt .backButton:hover:before,.lpt .backButton:hover:after {
-    background: #C768FF;
+    background: #FF9B47;
 }
 
 .lpt table tr:first-child th:first-child {
@@ -82,8 +82,8 @@
 }
 
 .lpt .drillDownIcon:hover {
-    background: #e2c8ff;
-    border-color: #C768FF;
+    background: #FFEEAA;
+    border-color: #FF9B47;
 }
 
 .lpt .drillDownIcon:after {
@@ -110,7 +110,7 @@
 }
 
 .lpt .drillDownIcon:hover:before {
-    background-color: #C768FF;
+    background-color: #FF9B47;
 }
 
 .lpt .central > div {
