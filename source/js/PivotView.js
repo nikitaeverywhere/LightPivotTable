@@ -178,7 +178,7 @@ PivotView.prototype._cellClickHandler = function (x, y) {
         + encodeURIComponent(this.controller.CONFIG["drillDownTarget"]) + "&SETTINGS=FILTER:"
         + encodeURIComponent(f1 + "~" + f2) + ";";
     } else {
-        this.controller.showDrillThrough([f1, f2]);
+        this.controller.showDrillThrough(f2 ? [f1, f2] : [f1]);
     }
 
 };
