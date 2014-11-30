@@ -11,7 +11,7 @@
 
     <Class name="DeepSee.LightPivotTable">
         <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-        <TimeChanged>63521,73483.405523</TimeChanged>
+        <TimeChanged>63522,308.015025</TimeChanged>
         <TimeCreated>63515,61322.546099</TimeCreated>
 
         <Parameter name="INCLUDEFILES">
@@ -185,9 +185,14 @@
                     post(source + "/DataSource", { DataSource: info["dataSource"] }, function (data) {
 
                         //console.log(data);
-                        if (data["rowAxisOptions"] && data["rowAxisOptions"]["drilldownSpec"]) {
-                            console.log(data["rowAxisOptions"]["drilldownSpec"]);
-                            setup.DrillDownExpression = data["rowAxisOptions"]["drilldownSpec"];
+                        if (data["rowAxisOptions"]) {
+                            if (data["rowAxisOptions"]["drilldownSpec"]) {
+                                console.log(data["rowAxisOptions"]["drilldownSpec"]);
+                                setup.DrillDownExpression = data["rowAxisOptions"]["drilldownSpec"];
+                            }
+                            if (data["rowAxisOptions"]["levelFormat"] || data["columnAxisOptions"] && data["columnAxisOptions"]["levelFormat"]) {
+                                setup["formatNumbers"] = data["columnAxisOptions"]["levelFormat"] || data["rowAxisOptions"]["levelFormat"];
+                            }
                         }
 
                         _.LightPivotTable = new LightPivotTable(setup);
