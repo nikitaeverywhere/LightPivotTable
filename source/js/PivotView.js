@@ -173,6 +173,8 @@ PivotView.prototype._cellClickHandler = function (x, y) {
         console.warn("Unable to get filters for cell (%d, %d)", x, y);
     }
 
+    if (!f1) return;
+
     if (this.controller.CONFIG["drillDownTarget"]) {
         window.location = location.origin + location.pathname + "?DASHBOARD="
         + encodeURIComponent(this.controller.CONFIG["drillDownTarget"]) + "&SETTINGS=FILTER:"

@@ -1,4 +1,9 @@
-var DataController = function (dataSource, dataChangeTrigger) {
+/**
+ * @param {LightPivotTable} controller
+ * @param {function} dataChangeTrigger
+ * @constructor
+ */
+var DataController = function (controller, dataChangeTrigger) {
 
     if (dataChangeTrigger && typeof dataChangeTrigger !== "function") {
         throw new Error("dataChangeTrigger parameter must be a function");
@@ -6,8 +11,12 @@ var DataController = function (dataSource, dataChangeTrigger) {
 
     this._dataStack = [];
 
+    this.controller = controller;
+
     this.pushData();
     this.dataChangeTrigger = dataChangeTrigger;
+
+    this.SUMMARY_SHOWN = false;
 
 };
 
@@ -85,14 +94,14 @@ DataController.prototype.setData = function (data) {
 
 DataController.prototype.resetRawData = function () {
 
-    var data;
+    var data, summary, y, x;
 
     if (!(data = this._dataStack[this._dataStack.length - 1].data)) {
         console.error("Unable to create raw data for given data set.");
         return;
     }
 
-    var rd0 = [], rd1 = [], num = 2, rawData = [];
+    var rd0 = [], rd1 = [], groupNum = 2, rawData = [];
 
     var transpose = function (a) {
         return Object.keys(a[0]).map(function (c) {
@@ -118,9 +127,9 @@ DataController.prototype.resetRawData = function () {
         var cnum;
 
         for (var i in c) {
-            cnum = num;
+            cnum = groupNum;
             if (c[i].children) {
-                num++;
+                groupNum++;
                 dim1raw(a, c[i].children, arr.concat({
                     group: cnum,
                     source: c[i],
@@ -129,12 +138,12 @@ DataController.prototype.resetRawData = function () {
                 }));
             } else {
                 a.push(arr.concat({
-                    group: num,
+                    group: groupNum,
                     source: c[i],
                     isCaption: true,
                     value: c[i].caption || ""
                 }));
-                num++;
+                groupNum++;
             }
         }
 
@@ -149,9 +158,9 @@ DataController.prototype.resetRawData = function () {
         yw = (rd1[0] || []).length;
 
     // render columns, rows and data
-    for (var y = 0; y < xh + yh; y++) {
+    for (y = 0; y < xh + yh; y++) {
         if (!rawData[y]) rawData[y] = [];
-        for (var x = 0; x < yw + xw; x++) {
+        for (x = 0; x < yw + xw; x++) {
             if (x < yw) {
                 if (y < xh) {
                     rawData[y][x] = {
@@ -176,6 +185,40 @@ DataController.prototype.resetRawData = function () {
 
     data.info.topHeaderRowsNumber = xh;
     data.info.leftHeaderColumnsNumber = yw;
+    this.SUMMARY_SHOWN = false;
+
+    if (this.controller.CONFIG["showSummary"] && rawData.length - xh > 1 // xh - see above
+        && (rawData[rawData.length - 1][0] || {})["isCaption"]) {
+        this.SUMMARY_SHOWN = true;
+        rawData.push(summary = []);
+        x = rawData.length - 2;
+        for (var i in rawData[x]) {
+            if (rawData[x][i].isCaption) {
+                summary[i] = {
+                    group: groupNum,
+                    isCaption: true,
+                    source: {},
+                    value: "Σ"
+                }
+            } else {
+                summary[i] = {
+                    value: (function countSummaryByColumn(array, iStart, iEnd, column) {
+                        var sum = 0;
+                        for (var i = iStart; i < iEnd; i++) {
+                            if (!isFinite(array[i][column]["value"])) {
+                                sum = 0;
+                                break;
+                            }
+                            sum += parseFloat(array[i][column]["value"]) || 0;
+                        }
+                        return sum || "";
+                    })(rawData, xh, rawData.length - xh, i)
+                }
+            }
+        }
+        groupNum++;
+    }
+
     data.rawData = data._rawDataOrigin = rawData;
 
     return data.rawData;
@@ -206,9 +249,14 @@ DataController.prototype.sortByColumn = function (columnIndex) {
         order = this.SORT_STATE.order = 0;
     }
 
-    var newRawData = data._rawDataOrigin.slice(data.info.topHeaderRowsNumber),
+    var newRawData = data._rawDataOrigin.slice(
+            data.info.topHeaderRowsNumber,
+            data._rawDataOrigin.length - (this.SUMMARY_SHOWN ? 1 : 0)
+        ),
         xIndex = data.info.leftHeaderColumnsNumber + columnIndex,
         order = this.SORT_STATE.order === -1 ? 1 : this.SORT_STATE.order === 1 ? 0 : -1;
+
+
 
     this.SORT_STATE.order = order;
     this.SORT_STATE.column = columnIndex;
@@ -228,7 +276,10 @@ DataController.prototype.sortByColumn = function (columnIndex) {
     });
 
     data.rawData = data._rawDataOrigin.slice(0, data.info.topHeaderRowsNumber)
-        .concat(newRawData);
+        .concat(newRawData)
+        .concat(this.SUMMARY_SHOWN ? [data._rawDataOrigin[data._rawDataOrigin.length - 1]] : []);
+
+    console.log(data.rawData);
 
     this._trigger();
 

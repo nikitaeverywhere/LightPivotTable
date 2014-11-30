@@ -17,7 +17,11 @@ gulp.task("gatherScripts", ["clean"], function () {
     return gulp.src("source/js/*.js")
         .pipe(concat("lightPivotTable.js"))
         .pipe(wrap("LightPivotTable = (function(){<%= contents %> return LightPivotTable;}());"))
-        .pipe(uglify())
+        .pipe(uglify({
+            output: {
+                ascii_only: true
+            }
+        }))
         .pipe(gulp.dest("build/js/"));
 });
 

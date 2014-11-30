@@ -11,7 +11,7 @@
 
     <Class name="DeepSee.LightPivotTable">
         <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-        <TimeChanged>63521,5059.885023</TimeChanged>
+        <TimeChanged>63521,73483.405523</TimeChanged>
         <TimeCreated>63515,61322.546099</TimeCreated>
 
         <Parameter name="INCLUDEFILES">
@@ -20,6 +20,10 @@
 
         <Property name="DataSource">
             <Type>%String</Type>
+        </Property>
+
+        <Property name="ShowSummary">
+            <Type>%Boolean</Type>
         </Property>
 
         <Method name="%OnGetPortletName">
@@ -43,7 +47,8 @@
             <Implementation><![CDATA[
     kill pInfo // $LB(name,value,type,caption,title)
 
-    set pInfo($I(pInfo)) = $LB("dataSource","/SAMPLES","%String",$$$Text("MDX2JSON source","%DeepSee"),"THIS IS TITLE")
+    set pInfo($I(pInfo)) = $LB("DataSource", "/SAMPLES", "%String", $$$Text("MDX2JSON source", "%DeepSee"), "Set the URL of MDX2JSON source. Example: ""/SAMPLES""")
+    set pInfo($I(pInfo)) = $LB("ShowSummary", 1, "%Boolean", $$$Text("Show summary?", "%DeepSee"), "Show summary row")
 
     quit $$$OK
 ]]></Implementation>
@@ -175,6 +180,8 @@
                         }
                     }
                     if (info["drillDownDataSource"]) setup["drillDownTarget"] = info["drillDownDataSource"];
+                    setup["showSummary"] = !!parseInt(container.getAttribute("show-summary"));
+
                     post(source + "/DataSource", { DataSource: info["dataSource"] }, function (data) {
 
                         //console.log(data);
@@ -197,10 +204,22 @@
             <Implementation><![CDATA[
     set ..renderFlag = ..renderFlag + 1
 
-    set ..DataSource = $get(..settings("dataSource"))
+    // copy ..settings into properties
+    #dim propName As %String = $order(..settings(""))
+    while (propName '= "")
+    {
+        if ("" '= $get(..settings(propName)))
+            try
+            {
+                set $property($this, propName) = ..settings(propName)
+            }
+            catch {}
+
+        set propName = $order(..settings(propName))
+    }
 
     &html<
-        <div data-source="#(..DataSource)#" class="lpt-container" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;">
+        <div data-source="#(..DataSource)#" show-summary="#(..ShowSummary)#" class="lpt-container" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;">
 
         </div>
     >
