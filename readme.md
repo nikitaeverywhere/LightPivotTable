@@ -57,4 +57,4 @@ Also anytime you can build project and then check <code>build/example/index.html
 
 Run <code>gulp</code> command and then check <code>build/example/index.html</code>.
 
-![Light pivot table](https://cloud.githubusercontent.com/assets/4989256/4876290/ce0918ea-62be-11e4-9583-fa9d78450716.png)
+![Light pivot table](https://cloud.githubusercontent.com/assets/4989256/5239656/500bc7ea-78f2-11e4-99ec-6204ec0de90c.png)
