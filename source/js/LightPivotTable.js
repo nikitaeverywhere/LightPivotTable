@@ -101,6 +101,7 @@ LightPivotTable.prototype.dataChangeTrigger = function () {
 LightPivotTable.prototype.tryDrillDown = function (filter) {
 
     var _ = this,
+        oldDataSource,
         ds = {};
 
     // clone dataSource config object
@@ -114,7 +115,11 @@ LightPivotTable.prototype.tryDrillDown = function (filter) {
         ds.basicMDX = this.mdxParser.drillDown(this.dataSource.BASIC_MDX, filter) || this.dataSource.BASIC_MDX;
     }
 
+    oldDataSource = this.dataSource;
+
     this.pushDataSource(ds);
+
+    this.dataSource.FILTERS = oldDataSource.FILTERS;
 
     this.dataSource.getCurrentData(function (data) {
         if (_.dataController.isValidData(data) && data.dataArray.length > 0) {
@@ -134,6 +139,7 @@ LightPivotTable.prototype.tryDrillDown = function (filter) {
 LightPivotTable.prototype.showDrillThrough = function (filters) {
 
     var _ = this,
+        oldDataSource,
         ds = {};
 
     // clone dataSource config object
@@ -148,7 +154,11 @@ LightPivotTable.prototype.showDrillThrough = function (filters) {
         ds.basicMDX = this.mdxParser.drillThrough(ds.basicMDX) || ds.basicMDX;
     }
 
+    oldDataSource = this.dataSource;
+
     this.pushDataSource(ds);
+
+    this.dataSource.FILTERS = oldDataSource.FILTERS;
 
     this.dataSource.getCurrentData(function (data) {
         if (_.dataController.isValidData(data) && data.dataArray.length > 0) {
