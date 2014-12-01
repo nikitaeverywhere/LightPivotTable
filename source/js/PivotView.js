@@ -454,6 +454,15 @@ PivotView.prototype.renderRawData = function (data) {
 
             if (td) {
                 var span = document.createElement("span");
+                if (!isFinite(data[y][x].value)) {
+                    if (!data[y][x].value.toString().match(/[0-9],?[0-9]?%/i))
+                        td.className = "formatLeft";
+                }
+                if (data[y][x].style) {
+                    for (i in data[y][x].style) {
+                        td.style[i] = data[y][x].style[i];
+                    }
+                }
                 td.appendChild(span);
                 tr.appendChild(td);
                 if (x >= headLeftColsNum && y >= headRowsNum) {

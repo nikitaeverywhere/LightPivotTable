@@ -212,7 +212,10 @@ DataController.prototype.resetRawData = function () {
                             sum += parseFloat(array[i][column]["value"]) || 0;
                         }
                         return sum || "";
-                    })(rawData, xh, rawData.length - xh, i)
+                    })(rawData, xh, rawData.length - xh, i),
+                    style: {
+                        "font-weight": 900
+                    }
                 }
             }
         }

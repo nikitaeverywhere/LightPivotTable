@@ -8,6 +8,10 @@
     overflow: hidden;
 }
 
+.lpt .formatLeft {
+    text-align: left;
+}
+
 .lpt .central {
     position: absolute;
     left: 0;
