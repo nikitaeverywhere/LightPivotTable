@@ -198,7 +198,7 @@ DataController.prototype.resetRawData = function () {
                     group: groupNum,
                     isCaption: true,
                     source: {},
-                    value: "Σ"
+                    value: navigator.language === "ru" ? "Всего" : "Total"
                 }
             } else {
                 summary[i] = {
@@ -212,7 +212,7 @@ DataController.prototype.resetRawData = function () {
                             sum += parseFloat(array[i][column]["value"]) || 0;
                         }
                         return sum || "";
-                    })(rawData, xh, rawData.length - xh, i),
+                    })(rawData, xh, rawData.length - 1, i),
                     style: {
                         "font-weight": 900
                     }
