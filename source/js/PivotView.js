@@ -319,6 +319,52 @@ PivotView.prototype.displayMessage = function (html) {
 };
 
 /**
+ * Poor function that provides number formatting.
+ *
+ * @param {string} mask - String like "#'###.##"
+ * @param {number} value
+ * @returns {string}
+ */
+PivotView.prototype.formatNumber = function (mask, value) {
+
+    var begin = true,
+        fp = mask.match(/#+|[^#]+/g),
+        integerPart, fractionalPart,
+        last = -1, ip1, fp1;
+
+    ip1 = integerPart = parseInt(value).toString();
+    fp1 = fractionalPart = (parseFloat(value) - parseInt(integerPart))
+        .toString()
+        .concat((new Array(this.controller.CONFIG["formatNumbers"].length))
+            .join("0"));
+    for (var i = fp.length - 1; i > -1; i--) {
+        if (fp[i][0] !== "#") continue;
+        if (begin) {
+            fp[i] = fractionalPart.substr(2, fp[i].length); // flooring
+            begin = false;
+        } else {
+            fp[i] = integerPart
+                .substr(Math.max(integerPart.length - fp[i].length, 0), integerPart.length);
+            integerPart = integerPart.substr(0, integerPart.length - fp[i].length);
+            last = i;
+        }
+        if (integerPart.length === 0) {
+            fp = fp.slice(i, fp.length);
+            break;
+        }
+    }
+    if (fp.join("") === "4.0.") {
+        console.log(ip1, fp1);
+    }
+    if (last !== -1 && integerPart.length !== 0) {
+        fp[0] = integerPart + fp[0];
+    }
+
+    return fp.join("");
+
+};
+
+/**
  * Raw data - plain 2-dimensional array of data to render.
  *
  * group - makes able to group cells together. Cells with same group number will be gathered.
@@ -346,7 +392,6 @@ PivotView.prototype.renderRawData = function (data) {
         timeToBreak = false,
         _ = this,
         x, y, tr, td,
-        integerPart, fractionalPart, formatParts, fp,
         headColsNum = 0, headLeftColsNum = 0,
         headRowsNum = 0, headLeftRowsNum = 0;
 
@@ -360,10 +405,6 @@ PivotView.prototype.renderRawData = function (data) {
         element.addEventListener(event, trigger);
 
     };
-
-    if (this.controller.CONFIG["formatNumbers"]) {
-        formatParts = this.controller.CONFIG["formatNumbers"].match(/#+|[^#]+/g);
-    }
 
     // compute headColsNum & headLeftColsNum
     for (y = 0; y < data.length; y++) {
@@ -467,40 +508,12 @@ PivotView.prototype.renderRawData = function (data) {
                 tr.appendChild(td);
                 if (x >= headLeftColsNum && y >= headRowsNum) {
 
-                    // todo: reorganize
                     if (this.controller.CONFIG["formatNumbers"] && data[y][x].value
                         && isFinite(data[y][x].value)) {
-                        var begin = true,
-                            last = -1, ip1, fp1;
-                        ip1 = integerPart = parseInt(data[y][x].value).toString();
-                        fp1 = fractionalPart = (parseFloat(data[y][x].value) - parseInt(integerPart))
-                            .toString()
-                            .concat((new Array(this.controller.CONFIG["formatNumbers"].length))
-                                .join("0"));
-                        fp = formatParts.slice();
-                        for (var i = fp.length - 1; i > -1; i--) {
-                            if (fp[i][0] !== "#") continue;
-                            if (begin) {
-                                fp[i] = fractionalPart.substr(2, fp[i].length); // flooring
-                                begin = false;
-                            } else {
-                                fp[i] = integerPart
-                                    .substr(Math.max(integerPart.length - fp[i].length, 0), integerPart.length);
-                                integerPart = integerPart.substr(0, integerPart.length - fp[i].length);
-                                last = i;
-                            }
-                            if (integerPart.length === 0) {
-                                fp = fp.slice(i, fp.length);
-                                break;
-                            }
-                        }
-                        if (fp.join("") === "4.0.") {
-                            console.log(ip1, fp1);
-                        }
-                        if (last !== -1 && integerPart.length !== 0) {
-                            fp[0] = integerPart + fp[0];
-                        }
-                        span.textContent = fp.join("");
+                        span.textContent = this.formatNumber(
+                            this.controller.CONFIG["formatNumbers"],
+                            data[y][x].value
+                        );
                     } else {
                         span.textContent = data[y][x].value;
                     }
