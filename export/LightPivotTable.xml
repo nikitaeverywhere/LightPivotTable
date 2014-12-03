@@ -11,7 +11,7 @@
 
     <Class name="DeepSee.LightPivotTable">
         <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-        <TimeChanged>63522,308.015025</TimeChanged>
+        <TimeChanged>63524,69651.14693</TimeChanged>
         <TimeCreated>63515,61322.546099</TimeCreated>
 
         <Parameter name="INCLUDEFILES">
@@ -47,7 +47,7 @@
             <Implementation><![CDATA[
     kill pInfo // $LB(name,value,type,caption,title)
 
-    set pInfo($I(pInfo)) = $LB("DataSource", "/SAMPLES", "%String", $$$Text("MDX2JSON source", "%DeepSee"), "Set the URL of MDX2JSON source. Example: ""/SAMPLES""")
+    set pInfo($I(pInfo)) = $LB("DataSource", "/" _ $NAMESPACE, "%String", $$$Text("MDX2JSON source", "%DeepSee"), "Set the URL of MDX2JSON source. Example: ""/SAMPLES""")
     set pInfo($I(pInfo)) = $LB("ShowSummary", 1, "%Boolean", $$$Text("Show summary?", "%DeepSee"), "Show summary row")
 
     quit $$$OK
