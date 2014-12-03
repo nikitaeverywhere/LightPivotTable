@@ -43,7 +43,7 @@ MDXParser.prototype.drillDown = function (mdx, filter, expression) {
         return "";
     }
 
-    var parts = mdx.split(/(select)(.*?)(from)/ig); // split by SELECT queries
+    var parts = mdx.split(/(select\s*)(.*?)(\s*from)/ig); // split by SELECT queries
 
     if (parts.length < 4) {
         this._warnMDX(mdx);
