@@ -282,8 +282,6 @@ DataController.prototype.sortByColumn = function (columnIndex) {
         .concat(newRawData)
         .concat(this.SUMMARY_SHOWN ? [data._rawDataOrigin[data._rawDataOrigin.length - 1]] : []);
 
-    console.log(data.rawData);
-
     this._trigger();
 
 };

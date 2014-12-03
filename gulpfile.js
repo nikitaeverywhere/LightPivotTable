@@ -6,7 +6,17 @@ var gulp = require("gulp"),
     wrap = require("gulp-wrap"),
     minifyCSS = require("gulp-minify-css"),
     htmlReplace = require("gulp-html-replace"),
-    replace = require('gulp-replace');
+    header = require("gulp-header"),
+    replace = require("gulp-replace"),
+    pkg = require("./package.json");
+
+var banner = [
+    "/** <%= pkg.name %>: <%= pkg.description %>",
+    " ** @author <%= pkg.author %>",
+    " ** @version <%= pkg.version %>",
+    " **/",
+    ""
+].join("\n");
 
 gulp.task("clean", function () {
     return gulp.src("build", {read: false})
@@ -22,6 +32,7 @@ gulp.task("gatherScripts", ["clean"], function () {
                 ascii_only: true
             }
         }))
+        .pipe(header(banner, { pkg: pkg }))
         .pipe(gulp.dest("build/js/"));
 });
 

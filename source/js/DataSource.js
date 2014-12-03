@@ -109,7 +109,7 @@ DataSource.prototype.getCurrentData = function (callback) {
         mdx = mdxParser.applyFilter(mdx, this.FILTERS[i]);
     }
 
-    console.log("MDX: " + mdx);
+    console.log("Request MDX: " + mdx);
 
     this._post(this.SOURCE_URL + "/" + this.ACTION, {
         MDX: mdx

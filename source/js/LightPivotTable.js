@@ -1,3 +1,9 @@
+/**
+ * Light pivot table global object.
+ *
+ * @param {object} configuration
+ * @constructor
+ */
 var LightPivotTable = function (configuration) {
 
     var _ = this;
@@ -16,7 +22,7 @@ var LightPivotTable = function (configuration) {
      * @type {DataController}
      */
     this.dataController = new DataController(this, function () {
-        _.dataChangeTrigger.call(_);
+        _.dataIsChanged.call(_);
     });
 
     this.init();
@@ -70,6 +76,10 @@ LightPivotTable.prototype.clearFilters = function () {
 
 };
 
+/**
+ * @param {object} config - part of dataSource configuration. Usually a part of config given to LPT.
+ * @returns {DataSource}
+ */
 LightPivotTable.prototype.pushDataSource = function (config) {
 
     var newDataSource;
@@ -92,12 +102,20 @@ LightPivotTable.prototype.popDataSource = function () {
 
 };
 
-LightPivotTable.prototype.dataChangeTrigger = function () {
+/**
+ * Data change handler.
+ */
+LightPivotTable.prototype.dataIsChanged = function () {
 
     this.pivotView.renderRawData(this.dataController.getData().rawData);
 
 };
 
+/**
+ * Try to DrillDown with given filter.
+ *
+ * @param {string} filter
+ */
 LightPivotTable.prototype.tryDrillDown = function (filter) {
 
     var _ = this,
@@ -108,8 +126,8 @@ LightPivotTable.prototype.tryDrillDown = function (filter) {
     for (var i in _.CONFIG.dataSource) { ds[i] = _.CONFIG.dataSource[i]; }
 
     if (this.CONFIG.DrillDownExpression && this._dataSourcesStack.length < 2) {
-        ds.basicMDX = this.mdxParser.customDrillDown(
-            this.dataSource.BASIC_MDX, this.CONFIG.DrillDownExpression, filter
+        ds.basicMDX = this.mdxParser.drillDown(
+            this.dataSource.BASIC_MDX, filter, this.CONFIG.DrillDownExpression
         ) || this.dataSource.BASIC_MDX;
     } else {
         ds.basicMDX = this.mdxParser.drillDown(this.dataSource.BASIC_MDX, filter) || this.dataSource.BASIC_MDX;
@@ -134,9 +152,11 @@ LightPivotTable.prototype.tryDrillDown = function (filter) {
 };
 
 /**
+ * Try to DrillThrough with given filters.
+ *
  * @param {string[]} [filters]
  */
-LightPivotTable.prototype.showDrillThrough = function (filters) {
+LightPivotTable.prototype.tryDrillThrough = function (filters) {
 
     var _ = this,
         oldDataSource,
@@ -145,19 +165,12 @@ LightPivotTable.prototype.showDrillThrough = function (filters) {
     // clone dataSource config object
     for (var i in _.CONFIG.dataSource) { ds[i] = _.CONFIG.dataSource[i]; }
     ds.action = "MDXDrillthrough";
-    if (filters instanceof Array) {
-        console.log("BASIC MDX: " + this.dataSource.BASIC_MDX, "\n\nFILTERS: " + filters);
-        ds.basicMDX = this.mdxParser.customDrillThrough(this.dataSource.BASIC_MDX, filters)
-            || this.dataSource.basicMDX;
-    } else {
-        ds.basicMDX = this.dataSource.BASIC_MDX;
-        ds.basicMDX = this.mdxParser.drillThrough(ds.basicMDX) || ds.basicMDX;
-    }
+
+    ds.basicMDX = this.mdxParser.drillThrough(this.dataSource.BASIC_MDX, filters)
+        || this.dataSource.basicMDX;
 
     oldDataSource = this.dataSource;
-
     this.pushDataSource(ds);
-
     this.dataSource.FILTERS = oldDataSource.FILTERS;
 
     this.dataSource.getCurrentData(function (data) {

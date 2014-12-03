@@ -154,7 +154,7 @@ PivotView.prototype._backClickHandler = function (event) {
 
 PivotView.prototype._drillThroughClickHandler = function (event) {
 
-    this.controller.showDrillThrough();
+    this.controller.tryDrillThrough();
 
     event.cancelBubble = true;
     event.stopPropagation();
@@ -164,7 +164,7 @@ PivotView.prototype._drillThroughClickHandler = function (event) {
 PivotView.prototype._cellClickHandler = function (x, y) {
 
     var data = this.controller.dataController.getData(),
-        f1, f2;
+        f = [], f1, f2;
 
     try {
         f1 = data.rawData[y][data.info.leftHeaderColumnsNumber - 1].source.path;
@@ -173,14 +173,15 @@ PivotView.prototype._cellClickHandler = function (x, y) {
         console.warn("Unable to get filters for cell (%d, %d)", x, y);
     }
 
-    if (!f1) return;
+    if (f1) f.push(f1);
+    if (f2) f.push(f2);
 
     if (this.controller.CONFIG["drillDownTarget"]) {
         window.location = location.origin + location.pathname + "?DASHBOARD="
         + encodeURIComponent(this.controller.CONFIG["drillDownTarget"]) + "&SETTINGS=FILTER:"
-        + encodeURIComponent(f1 + "~" + f2) + ";";
+        + encodeURIComponent(f.join("~")) + ";";
     } else {
-        this.controller.showDrillThrough(f2 ? [f1, f2] : [f1]);
+        this.controller.tryDrillThrough(f);
     }
 
 };
