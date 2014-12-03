@@ -12,6 +12,7 @@ var LightPivotTable = function (configuration) {
 
     this._dataSourcesStack = [];
 
+    this.DRILL_LEVEL = -1;
     this.CONFIG = configuration;
 
     this.mdxParser = new MDXParser();
@@ -84,6 +85,7 @@ LightPivotTable.prototype.pushDataSource = function (config) {
 
     var newDataSource;
 
+    this.DRILL_LEVEL++;
     this._dataSourcesStack.push(newDataSource = new DataSource(config));
     this.dataSource = newDataSource;
 
@@ -95,6 +97,7 @@ LightPivotTable.prototype.popDataSource = function () {
 
     if (this._dataSourcesStack.length < 2) return;
 
+    this.DRILL_LEVEL--;
     this._dataSourcesStack.pop();
     this.dataController.popData();
 
@@ -125,9 +128,13 @@ LightPivotTable.prototype.tryDrillDown = function (filter) {
     // clone dataSource config object
     for (var i in _.CONFIG.dataSource) { ds[i] = _.CONFIG.dataSource[i]; }
 
-    if (this.CONFIG.DrillDownExpression && this._dataSourcesStack.length < 2) {
+    if (this.CONFIG.DrillDownExpression && !(this.CONFIG.DrillDownExpression instanceof Array)) {
+        this.CONFIG.DrillDownExpression = [this.CONFIG.DrillDownExpression];
+    }
+
+    if ((this.CONFIG.DrillDownExpression || [])[this.DRILL_LEVEL]) {
         ds.basicMDX = this.mdxParser.drillDown(
-            this.dataSource.BASIC_MDX, filter, this.CONFIG.DrillDownExpression
+            this.dataSource.BASIC_MDX, filter, this.CONFIG.DrillDownExpression[this.DRILL_LEVEL]
         ) || this.dataSource.BASIC_MDX;
     } else {
         ds.basicMDX = this.mdxParser.drillDown(this.dataSource.BASIC_MDX, filter) || this.dataSource.BASIC_MDX;

@@ -501,7 +501,7 @@ PivotView.prototype.renderRawData = function (data) {
                         td.className = "formatLeft";
                 }
                 if (data[y][x].style) {
-                    for (i in data[y][x].style) {
+                    for (var i in data[y][x].style) {
                         td.style[i] = data[y][x].style[i];
                     }
                 }
