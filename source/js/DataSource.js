@@ -4,18 +4,30 @@
  * Must implement methods.
  *
  * @param {Object} config
+ * @param {Object} globalConfig
  * @constructor
  */
-var DataSource = function (config) {
+var DataSource = function (config, globalConfig) {
 
     this.SOURCE_URL = config.MDX2JSONSource ||
         location.host + ":" + location.port + "/" + (location.pathname.split("/") || [])[1];
 
     this.BASIC_MDX = config.basicMDX;
 
+    this.GLOBAL_CONFIG = globalConfig;
+
+    /**
+     * Name of data source pivot.
+     *
+     * @type {string}
+     */
+    this.DATA_SOURCE_PIVOT = config["pivot"] || "";
+
     this.ACTION = config.action || "MDX";
 
     this.FILTERS = [];
+
+    this.BASIC_FILTERS = [];
 
 };
 
@@ -71,7 +83,6 @@ DataSource.prototype._convert = function (data) {
             dataArray: data["Data"],
             info: data["Info"]
         };
-        //console.log(o);
         return o;
     } catch (e) {
         console.error("Error while parsing data:", e);
@@ -103,17 +114,49 @@ DataSource.prototype.getCurrentData = function (callback) {
     var _ = this,
         __ = this._convert,
         mdx = this.BASIC_MDX,
-        mdxParser = new MDXParser();
+        mdxParser = new MDXParser(),
+        ready = {
+            state: 0,
+            data: {},
+            pivotData: {}
+        };
 
-    for (var i in this.FILTERS) {
-        mdx = mdxParser.applyFilter(mdx, this.FILTERS[i]);
-    }
+    var setupPivotOptions = function () {
 
-    console.log("Request MDX: " + mdx);
+        var data = ready.pivotData;
 
-    this._post(this.SOURCE_URL + "/" + this.ACTION, {
-        MDX: mdx
-    }, function (data) {
+        if (data["rowAxisOptions"]) {
+            if (data["rowAxisOptions"]["drilldownSpec"]) {
+                _.GLOBAL_CONFIG["DrillDownExpression"] =
+                    _.GLOBAL_CONFIG["DrillDownExpression"]
+                    || data["rowAxisOptions"]["drilldownSpec"].split("^");
+            }
+            if (data["rowAxisOptions"]["levelFormat"]
+                || data["columnAxisOptions"]
+                && data["columnAxisOptions"]["levelFormat"]) {
+                _.GLOBAL_CONFIG["formatNumbers"] =
+                    _.GLOBAL_CONFIG["formatNumbers"]
+                    || data["columnAxisOptions"]["levelFormat"]
+                    || data["rowAxisOptions"]["levelFormat"];
+            }
+        }
+
+        if (data["filters"] && data["filters"].length > 0) {
+            for (var i in data["filters"]) {
+                if (data["filters"][i]["spec"]) {
+                    _.BASIC_FILTERS.push(data["filters"][i]["spec"]);
+                }
+            }
+        }
+
+    };
+
+    var handleDataReady = function () {
+
+        var data = ready.data;
+
+        console.log("Retrieved data:", ready);
+
         (data.Info || {}).action = _.ACTION;
         if (_.ACTION === "MDXDrillthrough") {
             callback((function (data) {
@@ -159,6 +202,39 @@ DataSource.prototype.getCurrentData = function (callback) {
             console.error("Not implemented URL action: " + _.ACTION);
             callback({ error: "Not implemented URL action: " + data || true });
         }
-    });
+
+    };
+
+    var requestData = function () {
+
+        var filters = _.BASIC_FILTERS.concat(_.FILTERS);
+
+        for (var i in filters) {
+            mdx = mdxParser.applyFilter(mdx, filters[i]);
+        }
+
+        console.log("Requesting MDX: " + mdx);
+
+        _._post(_.SOURCE_URL + "/" + _.ACTION, {
+            MDX: mdx
+        }, function (data) {
+            ready.data = data;
+            ready.state++;
+            handleDataReady();
+        });
+    };
+
+    if (this.DATA_SOURCE_PIVOT) {
+        this._post(this.SOURCE_URL + "/DataSource", {
+            DataSource: this.DATA_SOURCE_PIVOT
+        }, function (data) {
+            ready.pivotData = data;
+            ready.state++;
+            setupPivotOptions();
+            requestData();
+        });
+    } else {
+        requestData();
+    }
 
 };
