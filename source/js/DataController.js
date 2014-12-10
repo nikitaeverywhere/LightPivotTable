@@ -92,13 +92,18 @@ DataController.prototype.setData = function (data) {
 
 };
 
+/**
+ * Renders table data (pseudo-table object) from data retrieved from MDX2JSON source.
+ *
+ * @returns {Object}
+ */
 DataController.prototype.resetRawData = function () {
 
     var data, summary, y, x;
 
     if (!(data = this._dataStack[this._dataStack.length - 1].data)) {
         console.error("Unable to create raw data for given data set.");
-        return;
+        return null;
     }
 
     var rd0 = [], rd1 = [], groupNum = 2, rawData = [];
@@ -114,6 +119,14 @@ DataController.prototype.resetRawData = function () {
     var dim0raw = function (a, c, arr) {
 
         dim1raw(rd0, c, arr);
+
+        // @hotfix https://github.com/intersystems-ru/Cache-MDX2JSON/issues/29
+        var i, maxLen = 0;
+        for (i in rd0) { if (rd0[i].length > maxLen) maxLen = rd0[i].length; }
+        for (i in rd0) { for (var u = rd0[i].length; u < maxLen; u++) {
+            rd0[i].push(rd0[i][rd0[i].length - 1]);
+        }}
+
         rd0 = transpose(rd0);
 
     };
@@ -151,6 +164,8 @@ DataController.prototype.resetRawData = function () {
 
     if (data.dimensions[0].length) dim0raw(rd0, data.dimensions[0]);
     if (data.dimensions[1].length) dim1raw(rd1, data.dimensions[1]);
+
+    console.log(rd0, rd1);
 
     var xw = (rd0[0] || []).length,
         yh = rd1.length || data.info.rowCount || 0,
