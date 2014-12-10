@@ -199,6 +199,10 @@
     transition: all .3s ease;
 }
 
+.lpt th, .lpt td {
+    white-space: nowrap;
+}
+
 .lpt tr:hover td {
     /*background: #ffe6cf;*/
     background: #FFF7D7;
