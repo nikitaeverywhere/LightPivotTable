@@ -165,8 +165,6 @@ DataController.prototype.resetRawData = function () {
     if (data.dimensions[0].length) dim0raw(rd0, data.dimensions[0]);
     if (data.dimensions[1].length) dim1raw(rd1, data.dimensions[1]);
 
-    console.log(rd0, rd1);
-
     var xw = (rd0[0] || []).length,
         yh = rd1.length || data.info.rowCount || 0,
         xh = rd0.length || data.info.colCount || 0,
@@ -181,7 +179,9 @@ DataController.prototype.resetRawData = function () {
                     rawData[y][x] = {
                         group: 1,
                         isCaption: true,
-                        value: (data["info"] || {})["cubeName"] || ""
+                        value: this.controller.CONFIG["caption"]
+                               || (data["info"] || {})["cubeName"]
+                               || ""
                     };
                 } else {
                     rawData[y][x] = rd1[y-xh][x];

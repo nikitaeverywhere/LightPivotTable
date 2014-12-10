@@ -11,7 +11,7 @@
 
     <Class name="DeepSee.LightPivotTable">
         <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-        <TimeChanged>63531,76537.988508</TimeChanged>
+        <TimeChanged>63531,81826.837798</TimeChanged>
         <TimeCreated>63515,61322.546099</TimeCreated>
 
         <Parameter name="INCLUDEFILES">
@@ -105,6 +105,7 @@
             <ClientMethod>1</ClientMethod>
             <Implementation><![CDATA[
     var container = document.getElementById(this.id),
+        controller,
         source,
         setup,
         _ = this,
@@ -151,6 +152,8 @@
 
     setTimeout(function() { // onCreate fired when scripts are ready, but this.parent is missed.
 
+        controller = _.getConnectedController();
+
         // !ultra-bydlocode (get the widget object)
         while (widget["parent"]) {
             widget = widget["parent"];
@@ -171,7 +174,6 @@
                         }
                     }
                     //console.log(info);
-                    //console.log(AA = _.getConnectedController());
                     setup = {
                         container: container,
                         dataSource: {
@@ -180,6 +182,7 @@
                             basicMDX: info["mdx"]
                         }
                     }
+                    if (controller && controller["data"] && controller["data"]["rowCaptions"] && typeof controller["data"]["rowCaptions"][0] === "string") setup.caption = controller["data"]["rowCaptions"][0];
                     if (info["drillDownDataSource"]) setup["drillDownTarget"] = info["drillDownDataSource"];
                     setup["showSummary"] = !!parseInt(container.getAttribute("show-summary"));
 

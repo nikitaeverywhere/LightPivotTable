@@ -90,10 +90,11 @@
                 MDX2JSONSource: "http://localhost:57772/SAMPLES", // MDX2JSON server address
                 basicMDX: typeof req === "object" ? req.basicMDX : req
             }
-            //, DrillDownExpression; "<spec>" - drillDown expression split by "^"
+            //, caption: "My table" // if set, table basi caption will be replaced by this text
+            //, DrillDownExpression: "<spec>" // @deprecated drillDown expression split by "^"
             //, showSummary: true // show summary by columns
-            //, formatNumbers: "#,###.##"
-            //, drillDownTarget: "<dashboard name>" - undocumented, deepSee only
+            //, formatNumbers: "#,###.##" // @deprecated
+            //, drillDownTarget: "<dashboard name>" // undocumented, deepSee only
         };
 
         if (req.DrillDownExpression) { // set custom DrillDown on variant 10
