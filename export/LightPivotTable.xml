@@ -11,7 +11,7 @@
 
     <Class name="DeepSee.LightPivotTable">
         <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-        <TimeChanged>63531,81826.837798</TimeChanged>
+        <TimeChanged>63531,82258.204784</TimeChanged>
         <TimeCreated>63515,61322.546099</TimeCreated>
 
         <Parameter name="INCLUDEFILES">
@@ -183,6 +183,7 @@
                         }
                     }
                     if (controller && controller["data"] && controller["data"]["rowCaptions"] && typeof controller["data"]["rowCaptions"][0] === "string") setup.caption = controller["data"]["rowCaptions"][0];
+                    if (controller && controller["data"] && !setup.caption) setup.caption = controller["data"]["defaultCaption"] || "";
                     if (info["drillDownDataSource"]) setup["drillDownTarget"] = info["drillDownDataSource"];
                     setup["showSummary"] = !!parseInt(container.getAttribute("show-summary"));
 
