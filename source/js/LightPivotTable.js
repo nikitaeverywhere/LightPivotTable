@@ -192,6 +192,23 @@ LightPivotTable.prototype.tryDrillThrough = function (filters) {
 
 };
 
+/**
+ * Crash-safe function to get properties of pivot.
+ *
+ * @param {string[]} path
+ * @returns {*|undefined}
+ */
+LightPivotTable.prototype.getPivotProperty = function (path) {
+    if (!this.CONFIG["pivotProperties"]) return undefined;
+    if (!(path instanceof Array)) path = [];
+    var obj = this.CONFIG["pivotProperties"]; path = path.reverse();
+    while (path.length
+           && typeof obj !== "undefined") {
+        obj = obj[path.pop()];
+    }
+    return obj;
+};
+
 LightPivotTable.prototype.init = function () {
 
     this.refresh();

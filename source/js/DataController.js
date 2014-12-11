@@ -99,7 +99,8 @@ DataController.prototype.setData = function (data) {
  */
 DataController.prototype.resetRawData = function () {
 
-    var data, summary, y, x;
+    var data, summary, y, x,
+        _ = this;
 
     if (!(data = this._dataStack[this._dataStack.length - 1].data)) {
         console.error("Unable to create raw data for given data set.");
@@ -160,6 +161,49 @@ DataController.prototype.resetRawData = function () {
             }
         }
 
+    };
+
+    var parseColumnFormatting = function (rawData) {
+        if (!_.controller.CONFIG["pivotProperties"]) return rawData;
+        var x, y, i, xEnd = rawData[0].length,
+            colLevels = _.controller.getPivotProperty(["columnLevels"]),
+            formatColumn = {
+                // "<spec>": { style: "<style>" }
+            };
+        var fillLevels = function (obj) {
+            if (typeof obj === "undefined") return;
+            for (var i in obj["childLevels"]) {
+                if (obj["childLevels"][i]["spec"] && obj["childLevels"][i]["levelStyle"]) {
+                    formatColumn[obj["childLevels"][i]["spec"]] =
+                        { style: obj["childLevels"][i]["levelStyle"] };
+                }
+                fillLevels(obj["childLevels"][i]);
+            }
+        };
+        for (i in colLevels) {
+            fillLevels(colLevels[i]);
+        }
+        for (y = 0; y < rawData.length; y++) {
+            for (x = 0; x < xEnd; x++) {
+                if (!rawData[y][x].isCaption) {
+                    xEnd = x; break;
+                }
+                if (rawData[y][x].source && rawData[y][x].source["path"]) {
+                    for (i in formatColumn) {
+                        if (rawData[y][x].source["path"].indexOf(i) >= 0) {
+                            for (var yy = y + 1; yy < rawData.length; yy++) {
+                                if (!rawData[yy][x].isCaption) {
+                                    rawData[yy][x].style = (rawData[yy][x].style || "")
+                                        + formatColumn[i].style || "";
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return rawData;
     };
 
     if (data.dimensions[0].length) dim0raw(rd0, data.dimensions[0]);
@@ -228,14 +272,14 @@ DataController.prototype.resetRawData = function () {
                         }
                         return sum || "";
                     })(rawData, xh, rawData.length - 1, i),
-                    style: {
-                        "font-weight": 900
-                    }
+                    style: "font-weight: 900;"
                 }
             }
         }
         groupNum++;
     }
+
+    rawData = parseColumnFormatting(rawData);
 
     data.rawData = data._rawDataOrigin = rawData;
 

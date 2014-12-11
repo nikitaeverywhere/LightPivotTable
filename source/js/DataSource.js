@@ -125,6 +125,8 @@ DataSource.prototype.getCurrentData = function (callback) {
 
         var data = ready.pivotData;
 
+        _.GLOBAL_CONFIG["pivotProperties"] = ready.pivotData;
+
         if (data["rowAxisOptions"]) {
             if (data["rowAxisOptions"]["drilldownSpec"]) {
                 _.GLOBAL_CONFIG["DrillDownExpression"] =
