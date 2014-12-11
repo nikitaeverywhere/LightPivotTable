@@ -39,8 +39,9 @@ var setup = { // Object that contain settings. Any setting may be missed.
             MDX2JSONSource: "http://localhost:57772/SAMPLES", // MDX2JSON source server address
             basicMDX: "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0, NON EMPTY [Outlet].[H1].[Region].Members ON 1 FROM [HoleFoods]" // basic MDX which are going to be rendered when widget loads
         }
+        , caption: "My table" // if set, table basic caption will be replaced by this text
         , showSummary: true // show summary by columns
-        , formatNumbers: "#,###.##" // number formatting mask
+        , formatNumbers: "#,###.##" // number formatting mask // @deprecated
         , drillDownTarget: "dashboard name.dashboard" // custom drilldown target, DeepSee only.
     },
     lp = new LightPivotTable(setup);
