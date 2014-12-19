@@ -50,9 +50,7 @@ var setup = { // Object that contain settings. Any setting may be missed.
         [ , hideButtons: true // hides "back" and "drillThrough" buttons ]
         [ , triggerEvent: "touchstart" // all "click" events will be replaced by this event ]
         [ , caption: "My table" // if set, table basic caption will be replaced by this text ]
-        [ , DrillDownExpression: "<spec>" // @deprecated drillDown expression split by "^" ]
         [ , showSummary: true // show summary by columns ]
-        [ , formatNumbers: "#,###.##" // @deprecated ]
         [ , drillDownTarget: "<dashboard name>" // deepSee only - dashboard to open ]
     },
     lp = new LightPivotTable(setup);
