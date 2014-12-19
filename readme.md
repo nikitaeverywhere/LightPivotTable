@@ -34,15 +34,26 @@ Build the project, and then include <code>build/css/lightPivotTable.css</code> a
 Then use global object <i>LightPivotTable</i>:
 ```js
 var setup = { // Object that contain settings. Any setting may be missed.
-        container: document.getElementById("pivot"), // HTMLElement on DOM which will contain table.
-        dataSource: {
-            MDX2JSONSource: "http://localhost:57772/SAMPLES", // MDX2JSON source server address
-            basicMDX: "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0, NON EMPTY [Outlet].[H1].[Region].Members ON 1 FROM [HoleFoods]" // basic MDX which are going to be rendered when widget loads
+        container: document.getElementById("pivot") // HTMLElement which will contain table.
+        , dataSource: {
+            MDX2JSONSource: "http://localhost:57772/SAMPLES", // MDX2JSON server address
+            basicMDX: typeof req === "object" ? req.basicMDX : req
+            [ , namespace: "SAMPLES" ] // current namespace : default namespace
+            [ , username: "USER" ] // user name : default user
+            [ , password: "" ] // user password : default password
         }
-        , caption: "My table" // if set, table basic caption will be replaced by this text
-        , showSummary: true // show summary by columns
-        , formatNumbers: "#,###.##" // number formatting mask // @deprecated
-        , drillDownTarget: "dashboard name.dashboard" // custom drilldown target, DeepSee only.
+        [ , triggers: { // provide your functions here to handle certain events
+             onDrillDown: function ({Object { level: {number}, mdx: {string} }}) {}
+            , onDrillThrough: function ({Object { level: {number}, mdx: {string} }}) {}
+            , back: function ({Object { level: {number} }}) {}
+        } ]
+        [ , hideButtons: true // hides "back" and "drillThrough" buttons ]
+        [ , triggerEvent: "touchstart" // all "click" events will be replaced by this event ]
+        [ , caption: "My table" // if set, table basic caption will be replaced by this text ]
+        [ , DrillDownExpression: "<spec>" // @deprecated drillDown expression split by "^" ]
+        [ , showSummary: true // show summary by columns ]
+        [ , formatNumbers: "#,###.##" // @deprecated ]
+        [ , drillDownTarget: "<dashboard name>" // deepSee only - dashboard to open ]
     },
     lp = new LightPivotTable(setup);
     

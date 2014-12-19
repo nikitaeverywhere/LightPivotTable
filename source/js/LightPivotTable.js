@@ -9,11 +9,18 @@ var LightPivotTable = function (configuration) {
     var _ = this;
 
     if (typeof configuration !== "object") configuration = {};
+    this.normalizeConfiguration(configuration);
 
     this._dataSourcesStack = [];
 
     this.DRILL_LEVEL = -1;
     this.CONFIG = configuration;
+
+    /**
+     * @see this.init
+     * @type {object}
+     */
+    this.CONTROLS = {};
 
     this.mdxParser = new MDXParser();
     this.pivotView = new PivotView(this, configuration.container);
@@ -151,6 +158,12 @@ LightPivotTable.prototype.tryDrillDown = function (filter) {
             _.pivotView.pushTable();
             _.dataController.pushData();
             _.dataController.setData(data);
+            if (typeof _.CONFIG.triggers["drillDown"] === "function") {
+                _.CONFIG.triggers["drillDown"].call(_, {
+                    level: _.DRILL_LEVEL,
+                    mdx: ds.basicMDX
+                });
+            }
         } else {
             _.popDataSource();
         }
@@ -185,6 +198,12 @@ LightPivotTable.prototype.tryDrillThrough = function (filters) {
             _.pivotView.pushTable();
             _.dataController.pushData();
             _.dataController.setData(data);
+            if (typeof _.CONFIG.triggers["drillThrough"] === "function") {
+                _.CONFIG.triggers["drillThrough"].call(_, {
+                    level: _.DRILL_LEVEL,
+                    mdx: ds.basicMDX
+                });
+            }
         } else {
             _.popDataSource();
         }
@@ -209,7 +228,27 @@ LightPivotTable.prototype.getPivotProperty = function (path) {
     return obj;
 };
 
+/**
+ * Fill up to normal config structure to avoid additional checks and issues.
+ *
+ * @param config
+ */
+LightPivotTable.prototype.normalizeConfiguration = function (config) {
+    if (!config["triggers"]) config.triggers = {};
+    if (!config["dataSource"]) config.dataSource = {};
+};
+
 LightPivotTable.prototype.init = function () {
+
+    var _ = this;
+
+    this.CONTROLS.drillThrough = function () {
+        _.pivotView._drillThroughClickHandler.call(_.pivotView);
+    };
+
+    this.CONTROLS.back = function () {
+        _.pivotView._backClickHandler.call(_.pivotView);
+    };
 
     this.refresh();
 

@@ -144,11 +144,19 @@ PivotView.prototype._rowClickHandler = function (rowIndex, cellData) {
 
 PivotView.prototype._backClickHandler = function (event) {
 
-    event.cancelBubble = true;
-    event.stopPropagation();
+    if (event) {
+        event.cancelBubble = true;
+        event.stopPropagation();
+    }
 
     this.popTable();
     this.controller.popDataSource();
+
+    if (typeof this.controller.CONFIG.triggers["back"] === "function") {
+        this.controller.CONFIG.triggers["back"].call(this.controller, {
+            level: this.controller.DRILL_LEVEL
+        });
+    }
 
 };
 
@@ -156,8 +164,10 @@ PivotView.prototype._drillThroughClickHandler = function (event) {
 
     this.controller.tryDrillThrough();
 
-    event.cancelBubble = true;
-    event.stopPropagation();
+    if (event) {
+        event.cancelBubble = true;
+        event.stopPropagation();
+    }
 
 };
 
@@ -376,6 +386,8 @@ PivotView.prototype.formatNumber = function (mask, value) {
  */
 PivotView.prototype.renderRawData = function (data) {
 
+    var clickEvent = this.controller.CONFIG["triggerEvent"] || "click";
+
     if (!data || !data[0] || !data[0][0]) {
         this.elements.tableContainer.innerHTML = "<h1>Unable to render data</h1><p>"
             + JSON.stringify(data) + "</p>";
@@ -459,10 +471,11 @@ PivotView.prototype.renderRawData = function (data) {
                         return i - y;
                     })(data[y][x].group);
 
-                    if (x === 0 && y === 0 && _.tablesStack.length > 1) {
+                    if (!_.controller.CONFIG["hideButtons"] && x === 0 && y === 0
+                            && _.tablesStack.length > 1) {
                         var elt = document.createElement("div");
                         elt.className = "backButton";
-                        addTrigger(elt, "click", function (event) {
+                        addTrigger(elt, clickEvent, function (event) {
                             _._backClickHandler.call(_, event);
                         });
                         td.insertBefore(elt, td.childNodes[td.childNodes.length - 1] || null);
@@ -477,7 +490,7 @@ PivotView.prototype.renderRawData = function (data) {
             if (td && x >= headLeftColsNum && y === headColsNum - 1) {
                 // clickable cells (sort option)
                 (function (x) {
-                    addTrigger(td, "click", function () {
+                    addTrigger(td, clickEvent, function () {
                         var colNum = x - headLeftColsNum;
                         _._columnClickHandler.call(_, colNum);
                     });
@@ -487,7 +500,7 @@ PivotView.prototype.renderRawData = function (data) {
             // add _rowClickHandler to th's last column
             if (td && x === headLeftColsNum - 1 && y >= headRowsNum) {
                 (function (y, x) {
-                    addTrigger(td, "click", function () {
+                    addTrigger(td, clickEvent, function () {
                         var rowNum = y - headRowsNum;
                         _._rowClickHandler.call(_, rowNum, data[y][x]);
                     });
@@ -522,7 +535,7 @@ PivotView.prototype.renderRawData = function (data) {
                         span.textContent = data[y][x].value;
                     }
 
-                    (function (x, y) {addTrigger(td, "click", function () {
+                    (function (x, y) {addTrigger(td, clickEvent, function () {
                         _._cellClickHandler.call(_, x, y);
                     })})(x, y);
                 } else {
@@ -530,10 +543,11 @@ PivotView.prototype.renderRawData = function (data) {
                 }
             }
 
-            if (x === 0 && y === 0 && _.controller.dataController.getData().info.action === "MDX") {
+            if (!_.controller.CONFIG["hideButtons"] && x === 0 && y === 0
+                    && _.controller.dataController.getData().info.action === "MDX") {
                 var element = document.createElement("div");
                 element.className = "drillDownIcon";
-                addTrigger(element, "click", function (event) {
+                addTrigger(element, clickEvent, function (event) {
                     _._drillThroughClickHandler.call(_, event);
                 });
                 td.insertBefore(element, td.childNodes[td.childNodes.length - 1] || null);
