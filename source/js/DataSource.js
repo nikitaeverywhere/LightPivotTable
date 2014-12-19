@@ -1,6 +1,6 @@
 /**
  * Data source.
- * 
+ *
  * Must implement methods.
  *
  * @param {Object} config
@@ -11,7 +11,9 @@ var DataSource = function (config, globalConfig) {
 
     this.SOURCE_URL = config.MDX2JSONSource ||
         location.host + ":" + location.port + "/" + (location.pathname.split("/") || [])[1];
-
+    this.NAMESPACE = config["namespace"];
+    this.USERNAME = config["username"];
+    this.PASSWORD = config["password"];
     this.BASIC_MDX = config.basicMDX;
 
     this.GLOBAL_CONFIG = globalConfig;
@@ -38,7 +40,6 @@ var DataSource = function (config, globalConfig) {
  * @private
  */
 DataSource.prototype._post = function (url, data, callback) {
-
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url);
     xhr.onreadystatechange = function () {
@@ -54,12 +55,15 @@ DataSource.prototype._post = function (url, data, callback) {
                 }
             })());
         } else if (xhr.readyState === 4 && xhr.status !== 200) {
-            callback({ error: xhr.responseText
-                || "Error while trying to retrieve data from server." });
+            callback({
+                error: xhr.responseText || "Error while trying to retrieve data from server."
+            });
         }
     };
+    if (this.USERNAME && this.PASSWORD) {
+        xhr.setRequestHeader("Authorization", "Basic " + btoa(this.USERNAME + ":" + this.PASSWORD));
+    }
     xhr.send(JSON.stringify(data));
-    
 };
 
 /**
@@ -217,7 +221,7 @@ DataSource.prototype.getCurrentData = function (callback) {
 
         console.log("Requesting MDX: " + mdx);
 
-        _._post(_.SOURCE_URL + "/" + _.ACTION, {
+        _._post(_.SOURCE_URL + "/" + _.ACTION + (_.NAMESPACE ? "?Namespace=" + _.NAMESPACE : ""), {
             MDX: mdx
         }, function (data) {
             ready.data = data;
@@ -227,7 +231,8 @@ DataSource.prototype.getCurrentData = function (callback) {
     };
 
     if (this.DATA_SOURCE_PIVOT) {
-        this._post(this.SOURCE_URL + "/DataSource", {
+        this._post(this.SOURCE_URL + "/DataSource"
+                       + (_.NAMESPACE ? "?Namespace=" + _.NAMESPACE : ""), {
             DataSource: this.DATA_SOURCE_PIVOT
         }, function (data) {
             ready.pivotData = data;

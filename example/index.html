@@ -89,6 +89,9 @@
             dataSource: {
                 MDX2JSONSource: "http://localhost:57772/SAMPLES", // MDX2JSON server address
                 basicMDX: typeof req === "object" ? req.basicMDX : req
+                //[ , namespace: "SAMPLES" ] // current namespace : default namespace
+                //[ , username: "USER" ] // user name : default user
+                //[ , password: "" ] // user password : default password
             }
             //, caption: "My table" // if set, table basic caption will be replaced by this text
             //, DrillDownExpression: "<spec>" // @deprecated drillDown expression split by "^"
