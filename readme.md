@@ -43,8 +43,8 @@ var setup = { // Object that contain settings. Any setting may be missed.
             [ , password: "" ] // user password : default password
         }
         [ , triggers: { // provide your functions here to handle certain events
-             onDrillDown: function ({Object { level: {number}, mdx: {string} }}) {}
-            , onDrillThrough: function ({Object { level: {number}, mdx: {string} }}) {}
+             drillDown: function ({Object { level: {number}, mdx: {string} }}) {}
+            , drillThrough: function ({Object { level: {number}, mdx: {string} }}) {}
             , back: function ({Object { level: {number} }}) {}
         } ]
         [ , hideButtons: true // hides "back" and "drillThrough" buttons ]
