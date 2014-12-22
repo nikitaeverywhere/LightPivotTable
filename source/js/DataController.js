@@ -286,12 +286,13 @@ DataController.prototype.resetRawData = function () {
             } else {
                 summary[i] = {
                     // very hard workaround (applying "avg" last column spec)
-                    //value: ((rawData[x].length - 1 === parseInt(i)
-                    //        && _.controller.CONFIG["_temp_lastColSpec"]
-                    //        && _.controller.CONFIG["_temp_lastColSpec"]["levelSummary"] === "avg")
-                    //            ? countAverageByColumn
-                    //            : countSummaryByColumn)(rawData, xh, rawData.length - 1, i),
-                    value: (countSummaryByColumn)(rawData, xh, rawData.length - 1, i),
+                    value: ((rawData[x].length - 1 === parseInt(i)
+                            && _.controller.CONFIG["_temp_lastColSpec"]
+                            && _.controller.CONFIG["_temp_lastColSpec"]["levelSummary"] === "avg")
+                                ? countAverageByColumn
+                                : countSummaryByColumn)(rawData, xh, rawData.length - 1, i),
+                    // end
+                    //value: (countSummaryByColumn)(rawData, xh, rawData.length - 1, i),
                     style: "font-weight: 900;"
                 }
             }

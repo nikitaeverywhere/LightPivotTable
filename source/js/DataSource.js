@@ -156,20 +156,21 @@ DataSource.prototype.getCurrentData = function (callback) {
         }
 
         // temporary hard workaround (getting last column specs)
-        //_.GLOBAL_CONFIG["_temp_lastColSpec"] = (function (lev) {
-        //    var tc = lev,
-        //        f = function (lev) {
-        //            if (lev["childLevels"] && lev["childLevels"].length > 0) {
-        //                for (var i in lev["childLevels"]) {
-        //                    f(lev["childLevels"][i]);
-        //                }
-        //            } else {
-        //                tc = lev;
-        //            }
-        //        };
-        //    if (lev) f(lev);
-        //    return tc;
-        //})(data["columnLevels"][data["columnLevels"].length - 1]);
+        _.GLOBAL_CONFIG["_temp_lastColSpec"] = (function (lev) {
+            var tc = lev,
+                f = function (lev) {
+                    if (lev["childLevels"] && lev["childLevels"].length > 0) {
+                        for (var i in lev["childLevels"]) {
+                            f(lev["childLevels"][i]);
+                        }
+                    } else {
+                        tc = lev;
+                    }
+                };
+            if (lev) f(lev);
+            return tc;
+        })(data["columnLevels"][data["columnLevels"].length - 1]);
+        // end
 
     };
 
