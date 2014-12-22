@@ -171,10 +171,15 @@ PivotView.prototype._drillThroughClickHandler = function (event) {
 
 };
 
-PivotView.prototype._cellClickHandler = function (x, y) {
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {event} event
+ */
+PivotView.prototype._cellClickHandler = function (x, y, event) {
 
     var data = this.controller.dataController.getData(),
-        f = [], f1, f2;
+        f = [], f1, f2, callbackRes;
 
     try {
         f1 = data.rawData[y][data.info.leftHeaderColumnsNumber - 1].source.path;
@@ -191,7 +196,15 @@ PivotView.prototype._cellClickHandler = function (x, y) {
         + encodeURIComponent(this.controller.CONFIG["drillDownTarget"]) + "&SETTINGS=FILTER:"
         + encodeURIComponent(f.join("~")) + ";";
     } else {
-        this.controller.tryDrillThrough(f);
+        if (typeof this.controller.CONFIG.triggers["cellDrillThrough"] === "function") {
+            callbackRes = this.controller.CONFIG.triggers["cellDrillThrough"]({
+                event: event,
+                filters: f
+            });
+            if (callbackRes !== false) this.controller.tryDrillThrough(f);
+        } else {
+            this.controller.tryDrillThrough(f);
+        }
     }
 
 };
@@ -535,8 +548,8 @@ PivotView.prototype.renderRawData = function (data) {
                         span.textContent = data[y][x].value;
                     }
 
-                    (function (x, y) {addTrigger(td, clickEvent, function () {
-                        _._cellClickHandler.call(_, x, y);
+                    (function (x, y) {addTrigger(td, clickEvent, function (event) {
+                        _._cellClickHandler.call(_, x, y, event);
                     })})(x, y);
                 } else {
                     span.textContent = data[y][x].value;

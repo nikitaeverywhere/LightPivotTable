@@ -46,6 +46,8 @@ var setup = { // Object that contain settings. Any setting may be missed.
              drillDown: function ({Object { level: {number}, mdx: {string} }}) {}
             , drillThrough: function ({Object { level: {number}, mdx: {string} }}) {}
             , back: function ({Object { level: {number} }}) {}
+            // if cellDrillThrough callback returns boolean false, DrillThrough won't be performed.
+            , cellDrillThrough: function ({Object { event: {event}, filters: {string[]} }}) {}
         } ]
         [ , hideButtons: true // hides "back" and "drillThrough" buttons ]
         [ , triggerEvent: "touchstart" // all "click" events will be replaced by this event ]
@@ -56,6 +58,11 @@ var setup = { // Object that contain settings. Any setting may be missed.
     lp = new LightPivotTable(setup);
     
 console.log(lp.CONTROLS); // object with functions that can be triggered to control pivot table
+/* Available controls:
+ * lp.CONTROLS.drillThrough() - Perform drillThrough for current location.
+ * lp.CONTROLS.customDrillThrough(["filterSpec1", ...]) - Perform drillThrough with filters.
+ * lp.CONTROLS.back() - Back to the parent level.
+ */
 
 lp.setFilter("[DateOfSale].[Actual].[YearSold].&[2009]");
 lp.refresh();

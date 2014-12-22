@@ -246,6 +246,14 @@ LightPivotTable.prototype.init = function () {
         _.pivotView._drillThroughClickHandler.call(_.pivotView);
     };
 
+    this.CONTROLS.customDrillThrough = function (filters) {
+        if (!(filters instanceof Array)) {
+            console.error("Parameter \"filters\" must be array of strings.");
+            return;
+        }
+        _.tryDrillThrough.call(_, filters);
+    };
+
     this.CONTROLS.back = function () {
         _.pivotView._backClickHandler.call(_.pivotView);
     };
