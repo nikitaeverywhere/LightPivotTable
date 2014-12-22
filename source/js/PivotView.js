@@ -271,7 +271,7 @@ PivotView.prototype.fixHeaders = function (tableElement) {
     }
     fhy = fhy.cloneNode(false);
     fhy.className = "fixedHeader";
-    fhy.style.top = temp.offsetTop - 2 + "px";
+    fhy.style.top = temp.offsetTop + "px";
     c1 = getChildrenByTagName(temp, "tr");
     for (var i in c1) {
         fhy.appendChild(d1 = c1[i].cloneNode(false));

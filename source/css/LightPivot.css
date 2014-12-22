@@ -214,3 +214,22 @@
 .lpt tbody > tr > th {
     cursor: pointer;
 }
+
+/* DeepSee theme */
+
+.lpt {
+    border-radius: 0;
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+}
+
+.lpt table {
+    border-collapse: collapse;
+}
+
+.lpt .tableContainer th, .lpt .tableContainer td {
+    box-shadow: none;
+    border-radius: 0;
+    padding: 3px 6px 3px 6px;
+    border: 1px solid rgb(208, 208, 208);
+}

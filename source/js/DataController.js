@@ -246,6 +246,30 @@ DataController.prototype.resetRawData = function () {
     data.info.leftHeaderColumnsNumber = yw;
     this.SUMMARY_SHOWN = false;
 
+    var countSummaryByColumn = function (array, iStart, iEnd, column) {
+        var sum = 0;
+        for (var i = iStart; i < iEnd; i++) {
+            if (!isFinite(array[i][column]["value"])) {
+                sum = 0;
+                break;
+            }
+            sum += parseFloat(array[i][column]["value"]) || 0;
+        }
+        return sum || "";
+    };
+
+    var countAverageByColumn = function (array, iStart, iEnd, column) {
+        var sum = 0;
+        for (var i = iStart; i < iEnd; i++) {
+            if (!isFinite(array[i][column]["value"])) {
+                sum = 0;
+                break;
+            }
+            sum += parseFloat(array[i][column]["value"]) || 0;
+        }
+        return sum/(iEnd - iStart) || "";
+    };
+
     if (this.controller.CONFIG["showSummary"] && rawData.length - xh > 1 // xh - see above
         && (rawData[rawData.length - 1][0] || {})["isCaption"]) {
         this.SUMMARY_SHOWN = true;
@@ -261,17 +285,13 @@ DataController.prototype.resetRawData = function () {
                 }
             } else {
                 summary[i] = {
-                    value: (function countSummaryByColumn(array, iStart, iEnd, column) {
-                        var sum = 0;
-                        for (var i = iStart; i < iEnd; i++) {
-                            if (!isFinite(array[i][column]["value"])) {
-                                sum = 0;
-                                break;
-                            }
-                            sum += parseFloat(array[i][column]["value"]) || 0;
-                        }
-                        return sum || "";
-                    })(rawData, xh, rawData.length - 1, i),
+                    // very hard workaround (applying "avg" last column spec)
+                    //value: ((rawData[x].length - 1 === parseInt(i)
+                    //        && _.controller.CONFIG["_temp_lastColSpec"]
+                    //        && _.controller.CONFIG["_temp_lastColSpec"]["levelSummary"] === "avg")
+                    //            ? countAverageByColumn
+                    //            : countSummaryByColumn)(rawData, xh, rawData.length - 1, i),
+                    value: (countSummaryByColumn)(rawData, xh, rawData.length - 1, i),
                     style: "font-weight: 900;"
                 }
             }
