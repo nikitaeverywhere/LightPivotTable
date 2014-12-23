@@ -154,7 +154,13 @@ LightPivotTable.prototype.tryDrillDown = function (filter) {
     this.dataSource.FILTERS = oldDataSource.FILTERS;
 
     this.dataSource.getCurrentData(function (data) {
-        if (_.dataController.isValidData(data) && data.dataArray.length > 0) {
+        if (_.dataController.isValidData(data)
+            && data.dataArray.length > 0
+            && data.dimensions[1]
+            && data.dimensions[1][0]
+            && (data.dimensions[1][0]["caption"]
+                || data.dimensions[1][0]["dimension"]
+                || data.dimensions[1][0]["path"])) {
             _.pivotView.pushTable();
             _.dataController.pushData();
             _.dataController.setData(data);
