@@ -359,7 +359,7 @@ PivotView.prototype.formatNumber = function (mask, value) {
     ip1 = integerPart = parseInt(value).toString();
     fp1 = fractionalPart = (parseFloat(value) - parseInt(integerPart))
         .toString()
-        .concat((new Array(this.controller.CONFIG["formatNumbers"].length))
+        .concat((new Array(mask.length))
             .join("0"));
     for (var i = fp.length - 1; i > -1; i--) {
         if (fp[i][0] !== "#") continue;
@@ -545,7 +545,18 @@ PivotView.prototype.renderRawData = function (data) {
                             data[y][x].value
                         );
                     } else {
-                        span.textContent = data[y][x].value;
+                        if (Number(data[y][x].value) === data[y][x].value) { // if number
+                            // perform default formatting
+                            if (data[y][x].value % 1 === 0) { // if integer
+                                span.textContent =
+                                    this.formatNumber("#,###,###.##", data[y][x].value)
+                                        .replace(/\..*/, "");
+                            } else { // if float
+                                span.textContent = this.formatNumber("#,###,###.##", data[y][x].value);
+                            }
+                        } else {
+                            span.textContent = data[y][x].value;
+                        }
                     }
 
                     (function (x, y) {addTrigger(td, clickEvent, function (event) {
