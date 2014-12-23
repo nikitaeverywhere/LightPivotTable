@@ -119,7 +119,7 @@ DataController.prototype.resetRawData = function () {
 
     var dim0raw = function (a, c, arr) {
 
-        dim1raw(rd0, c, arr);
+        dim1raw(rd0, c, arr, true);
 
         // @hotfix https://github.com/intersystems-ru/Cache-MDX2JSON/issues/29
         var i, maxLen = 0;
@@ -132,31 +132,44 @@ DataController.prototype.resetRawData = function () {
 
     };
 
-    var dim1raw = function (a, c, arr) {
+    var applyHeaderStyle = function (cellObject, isHorizontal) {
+        if (!_.controller.CONFIG["pivotProperties"]) return;
+        if (_.controller.CONFIG["pivotProperties"]["columnHeaderStyle"] && isHorizontal) {
+            cellObject.style = _.controller.CONFIG["pivotProperties"]["columnHeaderStyle"];
+        } else if (_.controller.CONFIG["pivotProperties"]["rowHeaderStyle"] && !isHorizontal) {
+            cellObject.style = _.controller.CONFIG["pivotProperties"]["rowHeaderStyle"];
+        }
+    };
+
+    var dim1raw = function (a, c, arr, hor) {
 
         if (!arr) {
             arr = [];
         }
 
-        var cnum;
+        var cnum, obj;
 
         for (var i in c) {
             cnum = groupNum;
             if (c[i].children) {
                 groupNum++;
-                dim1raw(a, c[i].children, arr.concat({
+                obj = {
                     group: cnum,
                     source: c[i],
                     isCaption: true,
                     value: c[i].caption || ""
-                }));
+                };
+                applyHeaderStyle(obj, hor);
+                dim1raw(a, c[i].children, arr.concat(obj), hor);
             } else {
-                a.push(arr.concat({
+                obj = {
                     group: groupNum,
                     source: c[i],
                     isCaption: true,
                     value: c[i].caption || ""
-                }));
+                };
+                applyHeaderStyle(obj, hor);
+                a.push(arr.concat(obj));
                 groupNum++;
             }
         }
