@@ -11,7 +11,7 @@
 
     <Class name="DeepSee.LightPivotTable">
         <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-        <TimeChanged>63531,82258.204784</TimeChanged>
+        <TimeChanged>63544,74499.681602</TimeChanged>
         <TimeCreated>63515,61322.546099</TimeCreated>
 
         <Parameter name="INCLUDEFILES">
@@ -20,6 +20,10 @@
 
         <Property name="DataSource">
             <Type>%String</Type>
+        </Property>
+
+        <Property name="ExportCSV">
+            <Type>%Boolean</Type>
         </Property>
 
         <Property name="ShowSummary">
@@ -48,7 +52,8 @@
     kill pInfo // $LB(name,value,type,caption,title)
 
     set pInfo($I(pInfo)) = $LB("DataSource", "/" _ $NAMESPACE, "%String", $$$Text("MDX2JSON source", "%DeepSee"), "Set the URL of MDX2JSON source. Example: ""/SAMPLES""")
-    set pInfo($I(pInfo)) = $LB("ShowSummary", 1, "%Boolean", $$$Text("Show summary?", "%DeepSee"), "Show summary row")
+    set pInfo($I(pInfo)) = $LB("ShowSummary", 1, "%Boolean", $$$Text("Show summary", "%DeepSee"), "Show summary row")
+    set pInfo($I(pInfo)) = $LB("ExportCSV", 1, "%Boolean", $$$Text("Export to CSV", "%DeepSee"), "Show export to CSV format button")
 
     quit $$$OK
 ]]></Implementation>
@@ -105,13 +110,45 @@
             <ClientMethod>1</ClientMethod>
             <Implementation><![CDATA[
     var container = document.getElementById(this.id),
-        controller,
+        basicContainer = container,
+        self = this;
+
+    if (!container) {
+        console.error("Light pivot table: Unable to get widget with ID=" + this.id);
+        setTimeout(function () { self.onCreate.call(self); }, 1);
+        return;
+    }
+
+    for (i in container.childNodes) {
+        if (container.childNodes[i].className === "lpt-container") {
+            container = container.childNodes[i];
+            break;
+        }
+    }
+
+    var controller,
         source,
         setup,
         _ = this,
         widget = this, // It's lie. It changes later.
         widgetKey,
-        i, info = {};
+        i, info = {},
+        exportToExcel = !!parseInt(container.getAttribute("export-csv"));
+
+    if (exportToExcel) {
+        var widgetHead = document.getElementById(basicContainer.getAttribute("id").replace(/\/.*/, "/header"));
+        if (widgetHead) {
+            var f,
+                widgetTr = (f = function (el) {var r; if (el.tagName === "TR") return el; for (var i in el.childNodes) { r = f(el.childNodes[i]); if (r) return r; } return null; })(widgetHead);
+            if (widgetTr) {
+                var td = document.createElement("TD");
+                td.selfW = _;
+                td.setAttribute("style", "padding-right:6px;vertical-align:bottom;");
+                td.innerHTML = "<div class=\"zendiv\" onclick=\"this.parentNode.selfW.exportCSV.call(this.parentNode.selfW)\"><img class=\"imageLink\" src=\"deepsee/ds2_action_44.png\" title=\"Export to CSV format\"></div>";
+                widgetTr.appendChild(td);
+            }
+        }
+    }
 
     var post = function (url, data, callback) {
 
@@ -137,18 +174,6 @@
         xhr.send(JSON.stringify(data));
 
     };
-
-    if (!container) {
-        console.error("Light pivot table: Unable to get widget with ID=" + this.id);
-        return;
-    }
-
-    for (i in container.childNodes) {
-        if (container.childNodes[i].className === "lpt-container") {
-            container = container.childNodes[i];
-            break;
-        }
-    }
 
     setTimeout(function() { // onCreate fired when scripts are ready, but this.parent is missed.
 
@@ -195,6 +220,41 @@
 ]]></Implementation>
         </Method>
 
+        <Method name="exportCSV">
+            <Description>
+                Firing this method will cause CSV-file download</Description>
+            <Language>javascript</Language>
+            <ClientMethod>1</ClientMethod>
+            <Implementation><![CDATA[
+    if (!this.LightPivotTable) return;
+    //console.log(this.LightPivotTable);
+    var link = document.createElement("a"),
+        csvData = [],
+        rawData = this.LightPivotTable.dataController.getData(),
+        row, cell;
+
+    if (!rawData || !(rawData.rawData instanceof Array)) return;
+    rawData = rawData.rawData;
+
+    for (var y = 0; y < rawData.length; y++) {
+        row = [];
+        for (var x = 0; x < rawData[y].length; x++) {
+            cell = (rawData[y][x].value || "").toString();
+            if (isFinite(cell)) cell = cell.replace(/\./g, ",");
+            if (cell.indexOf("\"") > -1 || cell.indexOf(";") > -1) {
+                cell = "\"" + cell.replace(/"/g, "\"\"") + "\"";
+            }
+            row.push(cell);
+        }
+        csvData.push(row.join(";"));
+    }
+
+    link.setAttribute("href", "data:application/csv;charset=UTF-8,\uFEFF"+encodeURIComponent(csvData.join("\r\n")));
+    link.setAttribute("download", "EXPORT.csv");
+    link.click();
+]]></Implementation>
+        </Method>
+
         <Method name="%DrawHTML">
             <Implementation><![CDATA[
     set ..renderFlag = ..renderFlag + 1
@@ -214,7 +274,7 @@
     }
 
     &html<
-        <div data-source="#(..DataSource)#" show-summary="#(..ShowSummary)#" class="lpt-container" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;">
+        <div export-csv="#(..ExportCSV)#" data-source="#(..DataSource)#" show-summary="#(..ShowSummary)#" class="lpt-container" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;">
 
         </div>
     >
