@@ -11,7 +11,7 @@
 
     <Class name="DeepSee.LightPivotTable">
         <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-        <TimeChanged>63544,74499.681602</TimeChanged>
+        <TimeChanged>63544,68431.722256</TimeChanged>
         <TimeCreated>63515,61322.546099</TimeCreated>
 
         <Parameter name="INCLUDEFILES">
@@ -221,15 +221,13 @@
         </Method>
 
         <Method name="exportCSV">
-            <Description>
-                Firing this method will cause CSV-file download</Description>
             <Language>javascript</Language>
             <ClientMethod>1</ClientMethod>
             <Implementation><![CDATA[
     if (!this.LightPivotTable) return;
     //console.log(this.LightPivotTable);
     var link = document.createElement("a"),
-        csvData = [],
+        csvData = [], preservedGroups = {},
         rawData = this.LightPivotTable.dataController.getData(),
         row, cell;
 
@@ -239,6 +237,14 @@
     for (var y = 0; y < rawData.length; y++) {
         row = [];
         for (var x = 0; x < rawData[y].length; x++) {
+            if (rawData[y][x].group) {
+                if (preservedGroups.hasOwnProperty(rawData[y][x].group)) {
+                    row.push("");
+                    continue;
+                } else {
+                    preservedGroups[rawData[y][x].group] = true;
+                }
+            }
             cell = (rawData[y][x].value || "").toString();
             if (isFinite(cell)) cell = cell.replace(/\./g, ",");
             if (cell.indexOf("\"") > -1 || cell.indexOf(";") > -1) {
