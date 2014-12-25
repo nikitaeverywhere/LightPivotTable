@@ -528,11 +528,6 @@ PivotView.prototype.renderRawData = function (data) {
                     if (!data[y][x].value.toString().match(/[0-9],?[0-9]?%/i))
                         td.className = "formatLeft";
                 }
-                //if (data[y][x].style) {
-                //    for (var i in data[y][x].style) {
-                //        td.style[i] = data[y][x].style[i];
-                //    }
-                //}
                 if (data[y][x].style) {
                     td.setAttribute("style", data[y][x].style);
                 }
