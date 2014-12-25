@@ -309,7 +309,9 @@ PivotView.prototype.fixHeaders = function (tableElement) {
     // append new elements
     tableElement.appendChild(fhx);
     tableElement.appendChild(fhy);
-    tableElement.appendChild(hHead);
+    if ((this.controller.dataController.getData() || { dimensions: [0, 0] }).dimensions[1].length) {
+        tableElement.appendChild(hHead);
+    }
 
     // call scroll handler because of render may be performed anytime
     this._scrollListener();
