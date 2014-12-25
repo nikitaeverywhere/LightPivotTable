@@ -46,6 +46,7 @@ DataController.prototype.pushData = function () {
 
     this._dataStack.push(d = {
         data: null,
+        SUMMARY_SHOWN: this.SUMMARY_SHOWN,
         SORT_STATE: {
             column: null,
             order: -1
@@ -66,6 +67,7 @@ DataController.prototype.popData = function () {
     this._dataStack.pop();
 
     //this.data = d.data;
+    this.SUMMARY_SHOWN = d.SUMMARY_SHOWN;
     this.SORT_STATE = d.SORT_STATE;
 
 };
@@ -258,6 +260,7 @@ DataController.prototype.resetRawData = function () {
     data.info.topHeaderRowsNumber = xh;
     data.info.leftHeaderColumnsNumber = yw;
     this.SUMMARY_SHOWN = false;
+    this._dataStack[this._dataStack.length - 1].SUMMARY_SHOWN = false;
 
     var countSummaryByColumn = function (array, iStart, iEnd, column) {
         var sum = 0;
@@ -286,6 +289,7 @@ DataController.prototype.resetRawData = function () {
     if (this.controller.CONFIG["showSummary"] && rawData.length - xh > 1 // xh - see above
         && (rawData[rawData.length - 1][0] || {})["isCaption"]) {
         this.SUMMARY_SHOWN = true;
+        this._dataStack[this._dataStack.length - 1].SUMMARY_SHOWN = true;
         rawData.push(summary = []);
         x = rawData.length - 2;
         for (var i in rawData[x]) {
@@ -351,8 +355,6 @@ DataController.prototype.sortByColumn = function (columnIndex) {
         ),
         xIndex = data.info.leftHeaderColumnsNumber + columnIndex,
         order = this.SORT_STATE.order === -1 ? 1 : this.SORT_STATE.order === 1 ? 0 : -1;
-
-
 
     this.SORT_STATE.order = order;
     this.SORT_STATE.column = columnIndex;
