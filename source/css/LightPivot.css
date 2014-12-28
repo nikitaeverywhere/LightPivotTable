@@ -220,6 +220,15 @@
     background: #F0F0F0;
 }
 
+.lpt .lpt-headerValue.back:hover {
+    cursor: pointer;
+    background: #FFF7D7;
+}
+.lpt .lpt-headerValue.back:before {
+    content: "< ";
+    font-weight: 900;
+}
+
 /* new */
 .lpt .lpt-tableBlock table {
     table-layout: fixed;
@@ -230,38 +239,52 @@
     box-sizing: border-box;
 }
 
-.lpt .tableContainer .lpt-topSection, .lpt .tableContainer .lpt-bottomSection {
+.lpt .lpt-topSection, .lpt .lpt-bottomSection {
     position: relative;
-    overflow: hidden;
 }
 
-.lpt .tableContainer .lpt-header {
+.lpt .lpt-header {
     display: table;
     position: relative;
     float: left;
+    z-index: 2;
+    box-shadow: 0 0 0 1px rgb(208, 208, 208);
+    white-space: nowrap;
     /*width: 100px;*/
 }
 
-.lpt .tableContainer .lpt-topHeader {
+.lpt .lpt-topHeader {
     position: relative;
     overflow: hidden;
+    z-index: 1;
+    box-shadow: 0 0 0 1px rgb(208, 208, 208);
     /*margin-left: 100px;*/
 }
 
-.lpt .tableContainer .lpt-leftHeader {
+.lpt .lpt-leftHeader {
     position: relative;
     overflow: hidden;
     float: left;
     /*width: 100px;*/
 }
 
-.lpt .tableContainer .lpt-tableBlock {
+.lpt .lpt-leftHeader.bordered {
+    z-index: 1;
+    box-shadow: 0 0 0 1px rgb(208, 208, 208);
+}
+
+.lpt .lpt-leftHeader th:last-child:hover {
+    cursor: pointer;
+    background: #FFF7D7;
+}
+
+.lpt .lpt-tableBlock {
     position: relative;
     overflow: auto;
     /*margin-left: 100px;*/
 }
 
-.lpt .tableContainer .lpt-headerValue {
+.lpt .lpt-headerValue {
     display: table-cell;
     font-weight: bold;
     border-right: none;
@@ -278,11 +301,11 @@
     /*border-top: none;*/
 /*}*/
 
-.lpt .tableContainer .lpt-leftHeader th {
+.lpt .lpt-leftHeader th {
     border-right: none;
 }
 
-.lpt .tableContainer .lpt-topHeader th {
+.lpt .lpt-topHeader th {
     border-bottom: none;
 }
 

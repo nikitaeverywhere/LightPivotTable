@@ -435,8 +435,6 @@ PivotView.prototype.recalculateSizes = function (container) {
             addExtraLeftHeaderCell = lTableHead.offsetHeight > containerHeight - headerH,
             cell, cellWidths = [], i;
 
-        console.log( lTableHead.offsetHeight, leftHeader.offsetHeight);
-
         headerContainer.style.width = headerW + "px";
         for (i in topTableTr.childNodes) {
             if (tableTr.childNodes[i].tagName !== "TD") continue;
@@ -457,11 +455,11 @@ PivotView.prototype.recalculateSizes = function (container) {
             cell.style.paddingLeft = headerW + "px"; // lucky random
         }
 
-        console.log(addExtraLeftHeaderCell);
         if (addExtraLeftHeaderCell) {
             lTableHead.appendChild(
                 document.createElement("tr").appendChild(cell = document.createElement("th"))
             );
+            leftHeader.className = "lpt-leftHeader bordered";
             cell.colSpan = lTableHead.childNodes.length;
             cell.style.paddingTop = headerH + "px"; // lucky random
         }
@@ -497,7 +495,8 @@ PivotView.prototype.renderRawData = function (data) {
 
     this.removeMessage();
 
-    var CLICK_EVENT = this.controller.CONFIG["triggerEvent"] || "click",
+    var _ = this,
+        CLICK_EVENT = this.controller.CONFIG["triggerEvent"] || "click",
         renderedGroups = {}, // keys of rendered groups; key = group, value = { x, y, element }
         rawData = data["rawData"],
         info = data["info"],
@@ -518,7 +517,7 @@ PivotView.prototype.renderRawData = function (data) {
         x, y, tr = null, th, td;
 
     var renderHeader = function (xFrom, xTo, yFrom, yTo, targetElement) {
-        var vertical = targetElement === LHTable;
+        var vertical = targetElement === LHTHead;
         for (y = yFrom; y < yTo; y++) {
             for (x = xFrom; x < xTo; x++) {
                 if (renderedGroups.hasOwnProperty(rawData[y][x].group)) { // recalculate c/r 'span
@@ -530,6 +529,13 @@ PivotView.prototype.renderRawData = function (data) {
                     if (!tr) tr = document.createElement("tr");
                     tr.appendChild(th = document.createElement("th"));
                     th.textContent = rawData[y][x].value;
+                    if (vertical && x === xTo - 1) {
+                        th.addEventListener(CLICK_EVENT, (function (index, data) {
+                            return function () {
+                                _._rowClickHandler.call(_, index, data);
+                            };
+                        })(y, rawData[y][x]));
+                    }
                     if (rawData[y][x].group) renderedGroups[rawData[y][x].group] = {
                         x: x,
                         y: y,
@@ -546,6 +552,12 @@ PivotView.prototype.renderRawData = function (data) {
 
     // fill header
     header.textContent = rawData[0][0].value;
+    if (this.tablesStack.length > 1 && !this.controller.CONFIG["hideButtons"]) {
+        header.className += "back ";
+        header.addEventListener(CLICK_EVENT, function (e) {
+            _._backClickHandler.call(_, e);
+        });
+    }
 
     // render topHeader
     renderHeader(
@@ -571,6 +583,7 @@ PivotView.prototype.renderRawData = function (data) {
         for (x = info.leftHeaderColumnsNumber; x < rawData[0].length; x++) {
             tr.appendChild(td = document.createElement("td"));
             td.textContent = rawData[y][x].value || "";
+            if (rawData[y][x].style) td.setAttribute("style", rawData[y][x].style);
         }
         mainTBody.appendChild(tr);
     }
@@ -586,7 +599,7 @@ PivotView.prototype.renderRawData = function (data) {
     pivotHeader.className = "lpt-header";
     pivotTopSection.className = "lpt-topSection";
     pivotBottomSection.className = "lpt-bottomSection";
-    header.className = "lpt-headerValue";
+    header.className += "lpt-headerValue";
     mainTable.appendChild(mainTBody);
     tableBlock.appendChild(mainTable);
     LHTable.appendChild(LHTHead);

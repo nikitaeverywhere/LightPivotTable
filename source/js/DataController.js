@@ -310,7 +310,7 @@ DataController.prototype.resetRawData = function () {
                                 : countSummaryByColumn)(rawData, xh, rawData.length - 1, i),
                     // end
                     //value: (countSummaryByColumn)(rawData, xh, rawData.length - 1, i),
-                    style: "font-weight: 900;"
+                    style: "font-weight: bold;"
                 }
             }
         }
