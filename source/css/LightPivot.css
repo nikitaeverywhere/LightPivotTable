@@ -239,6 +239,11 @@
     box-sizing: border-box;
 }
 
+.lpt td {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
 .lpt .lpt-topSection, .lpt .lpt-bottomSection {
     position: relative;
     overflow: hidden;
@@ -313,6 +318,7 @@
 }
 
 .lpt .lpt-topHeader th {
+    min-width: 100px;
     /*border-bottom: none;*/
 }
 

@@ -587,7 +587,7 @@ PivotView.prototype.renderRawData = function (data) {
     console.log("Data to render: ", data);
 
     // fill header
-    header.textContent = rawData[0][0].value;
+    header.textContent = info.leftHeaderColumnsNumber ? rawData[0][0].value : "";
     if (this.tablesStack.length > 1 && !this.controller.CONFIG["hideButtons"]) {
         header.className += "back ";
         header.addEventListener(CLICK_EVENT, function (e) {
@@ -617,9 +617,18 @@ PivotView.prototype.renderRawData = function (data) {
     for (y = info.topHeaderRowsNumber; y < rawData.length; y++) {
         tr = document.createElement("tr");
         for (x = info.leftHeaderColumnsNumber; x < rawData[0].length; x++) {
+
             tr.appendChild(td = document.createElement("td"));
             td.textContent = rawData[y][x].value || "";
             if (rawData[y][x].style) td.setAttribute("style", rawData[y][x].style);
+
+            // add handlers
+            td.addEventListener("click", (function (x, y) {
+                return function (event) {
+                    _._cellClickHandler.call(_, x, y, event);
+                };
+            })(x, y));
+
         }
         mainTBody.appendChild(tr);
     }
