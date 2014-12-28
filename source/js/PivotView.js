@@ -418,7 +418,8 @@ PivotView.prototype.recalculateSizes = function (container) {
         var header = container.getElementsByClassName("lpt-headerValue")[0],
             headerContainer = container.getElementsByClassName("lpt-header")[0],
             topHeader = container.getElementsByClassName("lpt-topHeader")[0],
-            topTableTr = topHeader.getElementsByTagName("tr")[0],
+            topTableTr = topHeader.getElementsByTagName("tr")
+                [topHeader.getElementsByTagName("tr").length - 1],
             leftHeader = container.getElementsByClassName("lpt-leftHeader")[0],
             tableBlock = container.getElementsByClassName("lpt-tableBlock")[0],
             tableTr = tableBlock.getElementsByTagName("tr")[0],
