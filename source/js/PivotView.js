@@ -430,10 +430,10 @@ PivotView.prototype.recalculateSizes = function (container) {
             tableBlock = container.getElementsByClassName("lpt-tableBlock")[0],
             tableTr = tableBlock.getElementsByTagName("tr")[0];
 
-        if (tTableHead.childNodes[0].lastChild["_extraCell"]) {
+        if (tTableHead.childNodes[0] && tTableHead.childNodes[0].lastChild["_extraCell"]) {
             tTableHead.childNodes[0].removeChild(tTableHead.childNodes[0].lastChild);
         }
-        if (lTableHead.lastChild["_extraTr"]) {
+        if (lTableHead.lastChild && lTableHead.lastChild["_extraTr"]) {
             lTableHead.removeChild(lTableHead.lastChild);
         }
 
