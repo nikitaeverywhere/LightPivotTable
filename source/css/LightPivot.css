@@ -2,10 +2,11 @@
     position: relative;
     width: 100%;
     height: 100%;
-    border-radius: 5px;
     background: white;
-    font-size: 13px;
     overflow: hidden;
+    border-radius: 0;
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
 }
 
 .lpt .formatLeft {
@@ -68,11 +69,11 @@
     background: #FF9B47;
 }
 
-.lpt table tr:first-child th:first-child {
-    position: relative;
-    white-space: nowrap;
-    vertical-align: bottom;
-}
+/*.lpt table tr:first-child th:first-child {*/
+    /*position: relative;*/
+    /*white-space: nowrap;*/
+    /*vertical-align: bottom;*/
+/*}*/
 
 .lpt .drillDownIcon {
     position: relative;
@@ -129,20 +130,20 @@
 }
 
 .lpt table {
-    position: relative;
+    border-collapse: collapse;
     width: 100%;
 }
 
-.lpt .fixedHeader {
-    position: absolute;
-    left: 0;
-    top: 0;
-    background: white;
-}
+/*.lpt .fixedHeader {*/
+    /*position: absolute;*/
+    /*left: 0;*/
+    /*top: 0;*/
+    /*background: white;*/
+/*}*/
 
 .lpt > .tableContainer {
     position: absolute;
-    overflow: auto;
+    overflow: hidden;
     width: 100%;
     height: 100%;
     -webkit-transition: left .5s ease;
@@ -151,86 +152,124 @@
     transition: left .5s ease;
 }
 
-.lpt > .tableContainer > table {
-    min-width: 100%;
-}
+/*.lpt > .tableContainer > table {*/
+    /*min-width: 100%;*/
+/*}*/
 
-.lpt > .tableContainer td, .lpt > .tableContainer th {
-    border-radius: 3px;
-    padding: .4em;
-}
+/*.lpt > .tableContainer td, .lpt > .tableContainer th {*/
+    /*border-radius: 3px;*/
+    /*padding: .4em;*/
+/*}*/
 
-.lpt > .tableContainer tbody.fixedHeader th:last-child:hover {
+/*.lpt > .tableContainer tbody.fixedHeader th:last-child:hover {*/
+    /*background: #FFEEAA;*/
+    /*box-shadow: inset 0 0 15px #FFFFFF;*/
+/*}*/
+
+/*.lpt th {*/
+    /*background: #F0F0F0;*/
+    /*text-align: left;*/
+    /*font-weight: bold;*/
+    /*box-shadow: inset 0 -5px 10px rgb(216, 216, 216);*/
+/*}*/
+
+/*.lpt thead tr:last-child th {*/
+    /*cursor: pointer;*/
+    /*-webkit-transition: all .3s ease;*/
+    /*-moz-transition: all .3s ease;*/
+    /*-o-transition: all .3s ease;*/
+    /*transition: all .3s ease;*/
+/*}*/
+
+/*.lpt thead tr:last-child th:first-child ~ th:hover {*/
     /*background: #e2c8ff;*/
-    background: #FFEEAA;
-    box-shadow: inset 0 0 15px #FFFFFF;
-}
+    /*background: #FFEEAA;*/
+    /*box-shadow: inset 0 0 15px #FFFFFF;*/
+/*}*/
 
-.lpt th {
-    /*background: #C0CDFF;*/
-    background: #F0F0F0;
-    text-align: left;
-    box-shadow: inset 0 -5px 10px rgb(216, 216, 216);
-}
-
-.lpt thead tr:last-child th {
-    cursor: pointer;
-    -webkit-transition: all .3s ease;
-    -moz-transition: all .3s ease;
-    -o-transition: all .3s ease;
-    transition: all .3s ease;
-}
-
-.lpt thead tr:last-child th:first-child ~ th:hover {
-    /*background: #e2c8ff;*/
-    background: #FFEEAA;
-    box-shadow: inset 0 0 15px #FFFFFF;
-}
-
-.lpt td {
+/*.lpt td {*/
     /*background: #E1E8FF;*/
-    background: #FFFFFF;
-    box-shadow: inset 0 0 2px rgb(216, 216, 216);
-    text-align: right;
-    -webkit-transition: all .3s ease;
-    -moz-transition: all .3s ease;
-    -o-transition: all .3s ease;
-    transition: all .3s ease;
-}
-
-.lpt th, .lpt td {
-    white-space: nowrap;
-}
+    /*background: #FFFFFF;*/
+    /*box-shadow: inset 0 0 2px rgb(216, 216, 216);*/
+    /*text-align: right;*/
+    /*-webkit-transition: all .3s ease;*/
+    /*-moz-transition: all .3s ease;*/
+    /*-o-transition: all .3s ease;*/
+    /*transition: all .3s ease;*/
+/*}*/
 
 .lpt tr:hover td {
-    /*background: #ffe6cf;*/
     background: #FFF7D7;
 }
 
 .lpt table td:hover {
-    /*background: #e2c8ff;*/
     background: #FFEEAA;
-}
-
-.lpt tbody > tr > th {
-    cursor: pointer;
 }
 
 /* DeepSee theme */
 
-.lpt {
-    border-radius: 0;
-    font-family: Arial, sans-serif;
-    font-size: 10pt;
-}
-
-.lpt table {
-    border-collapse: collapse;
-}
-
-.lpt .tableContainer th, .lpt .tableContainer td {
+.lpt th, .lpt td, .lpt .lpt-headerValue  {
     box-shadow: none;
+    text-align: left;
     border-radius: 0;
     padding: 3px 6px 3px 6px;
     border: 1px solid rgb(208, 208, 208);
+}
+
+.lpt th, .lpt .lpt-headerValue {
+    background: #F0F0F0;
+}
+
+/* new */
+.lpt .lpt-tableBlock table {
+    table-layout: fixed;
+}
+
+.lpt th, .lpt td {
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.lpt .tableContainer .lpt-topSection, .lpt .tableContainer .lpt-bottomSection {
+    position: relative;
+    overflow: hidden;
+}
+
+.lpt .tableContainer .lpt-header {
+    position: relative;
+    float: left;
+    /*width: 100px;*/
+}
+
+.lpt .tableContainer .lpt-topHeader {
+    position: relative;
+    overflow: hidden;
+    /*margin-left: 100px;*/
+}
+
+.lpt .tableContainer .lpt-leftHeader {
+    position: relative;
+    overflow: hidden;
+    float: left;
+    /*width: 100px;*/
+}
+
+.lpt .tableContainer .lpt-tableBlock {
+    position: relative;
+    overflow: auto;
+    /*margin-left: 100px;*/
+}
+
+.lpt .tableContainer .lpt-headerValue {
+    font-weight: bold;
+    border-right: none;
+    border-bottom: none;
+}
+
+.lpt .tableContainer .lpt-leftHeader th {
+    border-right: none;
+}
+
+.lpt .tableContainer .lpt-topHeader th {
+    border-bottom: none;
 }

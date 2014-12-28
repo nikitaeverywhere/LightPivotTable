@@ -209,6 +209,12 @@ PivotView.prototype._cellClickHandler = function (x, y, event) {
 
 };
 
+/**
+ * @deprecated
+ * @param baseElement
+ * @param elementToFix
+ * @returns {boolean}
+ */
 PivotView.prototype.fixSizes = function (baseElement, elementToFix) {
 
     if (!elementToFix.style) return false;
@@ -234,6 +240,7 @@ PivotView.prototype.fixSizes = function (baseElement, elementToFix) {
  * Create clones of headers with fixed sizes.
  *
  * @param {HTMLElement} tableElement
+ * @deprecated
  */
 PivotView.prototype.fixHeaders = function (tableElement) {
 
@@ -327,6 +334,7 @@ PivotView.prototype.displayMessage = function (html) {
 
     if (this.elements.messageElement && this.elements.messageElement.parentNode) {
         this.elements.messageElement.parentNode.removeChild(this.elements.messageElement);
+        this.elements.messageElement = null;
     }
 
     if (!html) return;
@@ -340,7 +348,17 @@ PivotView.prototype.displayMessage = function (html) {
     d2.appendChild(d3);
     d1.appendChild(d2);
     this.elements.messageElement = d1;
-    this.elements.tableContainer.appendChild(d1);
+    this.elements.base.appendChild(d1);
+
+};
+
+PivotView.prototype.removeMessage = function () {
+
+    if (this.elements.messageElement && this.elements.messageElement.parentNode) {
+        this.elements.messageElement.parentNode.removeChild(this.elements.messageElement);
+    }
+
+    this.elements.messageElement = null;
 
 };
 
@@ -391,6 +409,40 @@ PivotView.prototype.formatNumber = function (mask, value) {
 };
 
 /**
+ * @param {HTMLElement} container
+ */
+PivotView.prototype.recalculateSizes = function (container) {
+
+    try {
+
+        var header = container.getElementsByClassName("lpt-headerValue")[0],
+            headerContainer = container.getElementsByClassName("lpt-header")[0],
+            topHeader = container.getElementsByClassName("lpt-topHeader")[0],
+            topTableTr = topHeader.getElementsByTagName("tr")[0],
+            leftHeader = container.getElementsByClassName("lpt-leftHeader")[0],
+            tableBlock = container.getElementsByClassName("lpt-tableBlock")[0],
+            tableTr = tableBlock.getElementsByTagName("tr")[0],
+            headerW = leftHeader.offsetWidth,
+            headerH = topHeader.offsetHeight;
+
+        headerContainer.style.width = headerW + "px";
+        topHeader.style.marginLeft = headerW + "px";
+        tableBlock.style.marginLeft = headerW + "px";
+        leftHeader.style.height = container.offsetHeight - headerH + "px";
+        tableBlock.style.height = container.offsetHeight - headerH + "px";
+
+        for (var i in tableTr.childNodes) {
+            if (tableTr.childNodes[i].tagName !== "TD") continue;
+            tableTr.childNodes[i].style.width = topTableTr.childNodes[i].offsetWidth + "px";
+        }
+
+    } catch (e) {
+        console.error("Error when fixing sizes. Please, contact the developer.", "ERROR:", e);
+    }
+
+};
+
+/**
  * Raw data - plain 2-dimensional array of data to render.
  *
  * group - makes able to group cells together. Cells with same group number will be gathered.
@@ -401,187 +453,320 @@ PivotView.prototype.formatNumber = function (mask, value) {
  */
 PivotView.prototype.renderRawData = function (data) {
 
-    var clickEvent = this.controller.CONFIG["triggerEvent"] || "click";
-
-    if (!data || !data[0] || !data[0][0]) {
-        this.elements.tableContainer.innerHTML = "<h1>Unable to render data</h1><p>"
-            + JSON.stringify(data) + "</p>";
+    if (!data["rawData"] || !data["rawData"][0] || !data["rawData"][0][0]) {
+        this.displayMessage("<h1>Unable to render data</h1><p>" + JSON.stringify(data) + "</p>");
         return;
     }
 
-    if (this._scrollListener) {
-        this.elements.tableContainer.removeEventListener("scroll", this._scrollListener);
-        this._scrollListener = null;
-    }
+    this.removeMessage();
 
-    var table = document.createElement("table"),
-        thead = document.createElement("thead"),
-        tbody = document.createElement("tbody"),
-        timeToBreak = false,
-        _ = this,
-        x, y, tr, td,
-        headColsNum = 0, headLeftColsNum = 0,
-        headRowsNum = 0, headLeftRowsNum = 0;
+    var CLICK_EVENT = this.controller.CONFIG["triggerEvent"] || "click",
+        renderedGroups = {}, // keys of rendered groups; key = group, value = { x, y, element }
+        rawData = data["rawData"],
+        info = data["info"],
+        container = this.elements.tableContainer,
+        pivotTopSection = document.createElement("div"),
+        pivotBottomSection = document.createElement("div"),
+        pivotHeader = document.createElement("div"),
+        topHeader = document.createElement("div"),
+        header = document.createElement("div"),
+        leftHeader = document.createElement("div"),
+        tableBlock = document.createElement("div"),
+        THTable = document.createElement("table"),
+        THTHead = document.createElement("thead"),
+        LHTable = document.createElement("table"),
+        LHTHead = document.createElement("thead"),
+        mainTable = document.createElement("table"),
+        mainTbody = document.createElement("tbody"),
+        x, y, tr = null, th, td;
 
-    var addTrigger = function (element, event, trigger) {
-
-        element["triggerFunction"] = {
-            event: event,
-            trigger: trigger
-        };
-
-        element.addEventListener(event, trigger);
-
+    var renderHeader = function (xFrom, xTo, yFrom, yTo, targetElement) {
+        for (y = yFrom; y < yTo; y++) {
+            for (x = xFrom; x < xTo; x++) {
+                if (renderedGroups.hasOwnProperty(rawData[y][x].group)) { // recalculate c/r 'span
+                    renderedGroups[rawData[y][x].group].element.colSpan =
+                        x - renderedGroups[rawData[y][x].group].x + 1;
+                    renderedGroups[rawData[y][x].group].element.rowSpan =
+                        y - renderedGroups[rawData[y][x].group].y + 1;
+                } else { // create element
+                    if (!tr) tr = document.createElement("tr");
+                    tr.appendChild(th = document.createElement("th"));
+                    th.textContent = rawData[y][x].value;
+                    if (rawData[y][x].group) renderedGroups[rawData[y][x].group] = {
+                        x: x,
+                        y: y,
+                        element: th
+                    };
+                }
+            }
+            if (tr) targetElement.appendChild(tr);
+            tr = null;
+        }
     };
 
-    // compute headColsNum & headLeftColsNum
-    for (y = 0; y < data.length; y++) {
-        for (x = 0; x < data[y].length; x++) {
-            if (!data[y][x].isCaption) {
-                timeToBreak = true;
-                break;
-            }
-        }
-        if (timeToBreak) {
-            headLeftColsNum = x;
-            break;
-        } else headColsNum++;
-    }
+    console.log("Data to render: ", data);
 
-    // compute headRowsNum & headLeftRowsNum
-    for (y = 0; y < data.length; y++) {
-        if (!data[y][data[y].length - 1].isCaption) {
-            headRowsNum = y;
-            headLeftRowsNum = data.length - y;
-            break;
-        }
-    }
+    // fill header
+    header.textContent = rawData[0][0].value;
 
-    for (y = 0; y < data.length; y++) {
+    // render topHeader
+    renderHeader(
+        info.leftHeaderColumnsNumber,
+        rawData[0].length,
+        0,
+        info.topHeaderRowsNumber,
+        THTHead
+    );
+
+    // render leftHeader
+    renderHeader(
+        0,
+        info.leftHeaderColumnsNumber,
+        info.topHeaderRowsNumber,
+        rawData.length,
+        LHTHead
+    );
+
+    // render table
+    for (y = info.topHeaderRowsNumber; y < rawData.length; y++) {
         tr = document.createElement("tr");
-        for (x = 0; x < data[y].length; x++) {
-            if (data[y][x].group) {
-                if ((y > 0 && data[y - 1][x].group
-                        && data[y - 1][x].group === data[y][x].group)
-                    || (x > 0 && data[y][x - 1].group
-                        && data[y][x - 1].group === data[y][x].group)) {
-
-                    td = null;
-
-                } else {
-
-                    td = document.createElement(data[y][x].isCaption ? "th" : "td");
-                    td.colSpan = (function (g) {
-                        var i;
-                        for (i = x; i < data[y].length; i++) {
-                            if (data[y][i].group !== g) break;
-                        }
-                        return i - x;
-                    })(data[y][x].group);
-                    td.rowSpan = (function (g) {
-                        var i;
-                        for (i = y; i < data.length; i++) {
-                            if (data[i][x].group !== g) break;
-                        }
-                        return i - y;
-                    })(data[y][x].group);
-
-                    if (!_.controller.CONFIG["hideButtons"] && x === 0 && y === 0
-                            && _.tablesStack.length > 1) {
-                        var elt = document.createElement("div");
-                        elt.className = "backButton";
-                        addTrigger(elt, clickEvent, function (event) {
-                            _._backClickHandler.call(_, event);
-                        });
-                        td.insertBefore(elt, td.childNodes[td.childNodes.length - 1] || null);
-                    }
-
-                }
-            } else {
-                td = document.createElement(data[y][x].isCaption ? "th" : "td");
-            }
-
-            // add _columnClickHandler to last rows of th's
-            if (td && x >= headLeftColsNum && y === headColsNum - 1) {
-                // clickable cells (sort option)
-                (function (x) {
-                    addTrigger(td, clickEvent, function () {
-                        var colNum = x - headLeftColsNum;
-                        _._columnClickHandler.call(_, colNum);
-                    });
-                })(x);
-            }
-
-            // add _rowClickHandler to th's last column
-            if (td && x === headLeftColsNum - 1 && y >= headRowsNum) {
-                (function (y, x) {
-                    addTrigger(td, clickEvent, function () {
-                        var rowNum = y - headRowsNum;
-                        _._rowClickHandler.call(_, rowNum, data[y][x]);
-                    });
-                })(y, x);
-            }
-
-            if (td) {
-                var span = document.createElement("span");
-                if (!isFinite(data[y][x].value)) {
-                    if (!data[y][x].value.toString().match(/[0-9],?[0-9]?%/i))
-                        td.className = "formatLeft";
-                }
-                if (data[y][x].style) {
-                    td.setAttribute("style", data[y][x].style);
-                }
-                td.appendChild(span);
-                tr.appendChild(td);
-                if (x >= headLeftColsNum && y >= headRowsNum) {
-
-                    if (this.controller.CONFIG["formatNumbers"] && data[y][x].value
-                        && isFinite(data[y][x].value)) {
-                        span.textContent = this.formatNumber(
-                            this.controller.CONFIG["formatNumbers"],
-                            data[y][x].value
-                        );
-                    } else {
-                        if (Number(data[y][x].value) === data[y][x].value) { // if number
-                            // perform default formatting
-                            if (data[y][x].value % 1 === 0) { // if integer
-                                span.textContent =
-                                    this.formatNumber("#,###,###.##", data[y][x].value)
-                                        .replace(/\..*/, "");
-                            } else { // if float
-                                span.textContent = this.formatNumber("#,###,###.##", data[y][x].value);
-                            }
-                        } else {
-                            span.textContent = data[y][x].value;
-                        }
-                    }
-
-                    (function (x, y) {addTrigger(td, clickEvent, function (event) {
-                        _._cellClickHandler.call(_, x, y, event);
-                    })})(x, y);
-                } else {
-                    span.textContent = data[y][x].value;
-                }
-            }
-
-            if (!_.controller.CONFIG["hideButtons"] && x === 0 && y === 0
-                    && _.controller.dataController.getData().info.action === "MDX") {
-                var element = document.createElement("div");
-                element.className = "drillDownIcon";
-                addTrigger(element, clickEvent, function (event) {
-                    _._drillThroughClickHandler.call(_, event);
-                });
-                td.insertBefore(element, td.childNodes[td.childNodes.length - 1] || null);
-            }
-
+        for (x = info.leftHeaderColumnsNumber; x < rawData[0].length; x++) {
+            tr.appendChild(td = document.createElement("td"));
+            td.textContent = rawData[y][x].value || "";
         }
-        (y < headColsNum ? thead : tbody).appendChild(tr);
+        mainTbody.appendChild(tr);
     }
 
-    table.appendChild(thead);
-    table.appendChild(tbody);
-    this.elements.tableContainer.textContent = "";
-    this.elements.tableContainer.appendChild(table);
-    this.fixHeaders(table);
+    //for (y = 0; y < info.topHeaderRowsNumber; y++) {
+    //    for (x = info.leftHeaderColumnsNumber; x < rawData[y].length; x++) {
+    //        if (renderedGroups.hasOwnProperty(rawData[y][x].group)) { // recalculate col/row 'span
+    //            renderedGroups[rawData[y][x].group].element.colSpan =
+    //                x - renderedGroups[rawData[y][x].group].x;
+    //            renderedGroups[rawData[y][x].group].element.rowSpan =
+    //                y - renderedGroups[rawData[y][x].group].y;
+    //        } else { // create element
+    //            if (!tr) tr = document.createElement("tr");
+    //            tr.appendChild(th = document.createElement("th"));
+    //            th.textContent = rawData[y][x].value;
+    //            if (rawData[y][x].group) renderedGroups[rawData[y][x].group] = {
+    //                x: x,
+    //                y: y,
+    //                element: th
+    //            };
+    //        }
+    //    }
+    //    if (tr) THTHead.appendChild(tr);
+    //    tr = null;
+    //}
+
+    tableBlock.className = "lpt-tableBlock";
+    leftHeader.className = "lpt-leftHeader";
+    topHeader.className = "lpt-topHeader";
+    pivotHeader.className = "lpt-header";
+    pivotTopSection.className = "lpt-topSection";
+    pivotBottomSection.className = "lpt-bottomSection";
+    header.className = "lpt-headerValue";
+    mainTable.appendChild(mainTbody);
+    tableBlock.appendChild(mainTable);
+    LHTable.appendChild(LHTHead);
+    leftHeader.appendChild(LHTable);
+    THTable.appendChild(THTHead);
+    topHeader.appendChild(THTable);
+    pivotHeader.appendChild(header);
+    pivotTopSection.appendChild(pivotHeader);
+    pivotTopSection.appendChild(topHeader);
+    pivotBottomSection.appendChild(leftHeader);
+    pivotBottomSection.appendChild(tableBlock);
+    container.appendChild(pivotTopSection);
+    container.appendChild(pivotBottomSection);
+
+    this.recalculateSizes(container);
 
 };
+
+//PivotView.prototype.renderRawData = function (data) {
+//
+//    var clickEvent = this.controller.CONFIG["triggerEvent"] || "click";
+//
+//    if (!data || !data[0] || !data[0][0]) {
+//        this.elements.tableContainer.innerHTML = "<h1>Unable to render data</h1><p>"
+//            + JSON.stringify(data) + "</p>";
+//        return;
+//    }
+//
+//    if (this._scrollListener) {
+//        this.elements.tableContainer.removeEventListener("scroll", this._scrollListener);
+//        this._scrollListener = null;
+//    }
+//
+//    var table = document.createElement("table"),
+//        thead = document.createElement("thead"),
+//        tbody = document.createElement("tbody"),
+//        timeToBreak = false,
+//        _ = this,
+//        x, y, tr, td,
+//        headColsNum = 0, headLeftColsNum = 0,
+//        headRowsNum = 0, headLeftRowsNum = 0;
+//
+//    var addTrigger = function (element, event, trigger) {
+//
+//        element["triggerFunction"] = {
+//            event: event,
+//            trigger: trigger
+//        };
+//
+//        element.addEventListener(event, trigger);
+//
+//    };
+//
+//    // compute headColsNum & headLeftColsNum
+//    for (y = 0; y < data.length; y++) {
+//        for (x = 0; x < data[y].length; x++) {
+//            if (!data[y][x].isCaption) {
+//                timeToBreak = true;
+//                break;
+//            }
+//        }
+//        if (timeToBreak) {
+//            headLeftColsNum = x;
+//            break;
+//        } else headColsNum++;
+//    }
+//
+//    // compute headRowsNum & headLeftRowsNum
+//    for (y = 0; y < data.length; y++) {
+//        if (!data[y][data[y].length - 1].isCaption) {
+//            headRowsNum = y;
+//            headLeftRowsNum = data.length - y;
+//            break;
+//        }
+//    }
+//
+//    for (y = 0; y < data.length; y++) {
+//        tr = document.createElement("tr");
+//        for (x = 0; x < data[y].length; x++) {
+//            if (data[y][x].group) {
+//                if ((y > 0 && data[y - 1][x].group
+//                        && data[y - 1][x].group === data[y][x].group)
+//                    || (x > 0 && data[y][x - 1].group
+//                        && data[y][x - 1].group === data[y][x].group)) {
+//
+//                    td = null;
+//
+//                } else {
+//
+//                    td = document.createElement(data[y][x].isCaption ? "th" : "td");
+//                    td.colSpan = (function (g) {
+//                        var i;
+//                        for (i = x; i < data[y].length; i++) {
+//                            if (data[y][i].group !== g) break;
+//                        }
+//                        return i - x;
+//                    })(data[y][x].group);
+//                    td.rowSpan = (function (g) {
+//                        var i;
+//                        for (i = y; i < data.length; i++) {
+//                            if (data[i][x].group !== g) break;
+//                        }
+//                        return i - y;
+//                    })(data[y][x].group);
+//
+//                    if (!_.controller.CONFIG["hideButtons"] && x === 0 && y === 0
+//                            && _.tablesStack.length > 1) {
+//                        var elt = document.createElement("div");
+//                        elt.className = "backButton";
+//                        addTrigger(elt, clickEvent, function (event) {
+//                            _._backClickHandler.call(_, event);
+//                        });
+//                        td.insertBefore(elt, td.childNodes[td.childNodes.length - 1] || null);
+//                    }
+//
+//                }
+//            } else {
+//                td = document.createElement(data[y][x].isCaption ? "th" : "td");
+//            }
+//
+//            // add _columnClickHandler to last rows of th's
+//            if (td && x >= headLeftColsNum && y === headColsNum - 1) {
+//                // clickable cells (sort option)
+//                (function (x) {
+//                    addTrigger(td, clickEvent, function () {
+//                        var colNum = x - headLeftColsNum;
+//                        _._columnClickHandler.call(_, colNum);
+//                    });
+//                })(x);
+//            }
+//
+//            // add _rowClickHandler to th's last column
+//            if (td && x === headLeftColsNum - 1 && y >= headRowsNum) {
+//                (function (y, x) {
+//                    addTrigger(td, clickEvent, function () {
+//                        var rowNum = y - headRowsNum;
+//                        _._rowClickHandler.call(_, rowNum, data[y][x]);
+//                    });
+//                })(y, x);
+//            }
+//
+//            if (td) {
+//                var span = document.createElement("span");
+//                if (!isFinite(data[y][x].value)) {
+//                    if (!data[y][x].value.toString().match(/[0-9],?[0-9]?%/i))
+//                        td.className = "formatLeft";
+//                }
+//                if (data[y][x].style) {
+//                    td.setAttribute("style", data[y][x].style);
+//                }
+//                td.appendChild(span);
+//                tr.appendChild(td);
+//                if (x >= headLeftColsNum && y >= headRowsNum) {
+//
+//                    if (this.controller.CONFIG["formatNumbers"] && data[y][x].value
+//                        && isFinite(data[y][x].value)) {
+//                        span.textContent = this.formatNumber(
+//                            this.controller.CONFIG["formatNumbers"],
+//                            data[y][x].value
+//                        );
+//                    } else {
+//                        if (Number(data[y][x].value) === data[y][x].value) { // if number
+//                            // perform default formatting
+//                            if (data[y][x].value % 1 === 0) { // if integer
+//                                span.textContent =
+//                                    this.formatNumber("#,###,###.##", data[y][x].value)
+//                                        .replace(/\..*/, "");
+//                            } else { // if float
+//                                span.textContent = this.formatNumber("#,###,###.##", data[y][x].value);
+//                            }
+//                        } else {
+//                            span.textContent = data[y][x].value;
+//                        }
+//                    }
+//
+//                    (function (x, y) {addTrigger(td, clickEvent, function (event) {
+//                        _._cellClickHandler.call(_, x, y, event);
+//                    })})(x, y);
+//                } else {
+//                    span.textContent = data[y][x].value;
+//                }
+//            }
+//
+//            if (!_.controller.CONFIG["hideButtons"] && x === 0 && y === 0
+//                    && _.controller.dataController.getData().info.action === "MDX") {
+//                var element = document.createElement("div");
+//                element.className = "drillDownIcon";
+//                addTrigger(element, clickEvent, function (event) {
+//                    _._drillThroughClickHandler.call(_, event);
+//                });
+//                td.insertBefore(element, td.childNodes[td.childNodes.length - 1] || null);
+//            }
+//
+//        }
+//        (y < headColsNum ? thead : tbody).appendChild(tr);
+//    }
+//
+//    table.appendChild(thead);
+//    table.appendChild(tbody);
+//    this.elements.tableContainer.textContent = "";
+//    this.elements.tableContainer.appendChild(table);
+//    this.fixHeaders(table);
+//
+//};

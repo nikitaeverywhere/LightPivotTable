@@ -117,7 +117,7 @@ LightPivotTable.prototype.popDataSource = function () {
  */
 LightPivotTable.prototype.dataIsChanged = function () {
 
-    this.pivotView.renderRawData(this.dataController.getData().rawData);
+    this.pivotView.renderRawData(this.dataController.getData());
 
 };
 
