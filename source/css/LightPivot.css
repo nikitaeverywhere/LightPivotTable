@@ -240,6 +240,7 @@
 }
 
 .lpt td {
+    text-align: right;
     text-overflow: ellipsis;
     overflow: hidden;
 }

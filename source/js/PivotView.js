@@ -632,6 +632,7 @@ PivotView.prototype.renderRawData = function (data) {
         for (x = info.leftHeaderColumnsNumber; x < rawData[0].length; x++) {
 
             tr.appendChild(td = document.createElement("td"));
+            if (!isFinite(rawData[y][x].value)) td.className += " formatLeft";
             td.textContent = rawData[y][x].value || "";
             if (rawData[y][x].style) td.setAttribute("style", rawData[y][x].style);
 
