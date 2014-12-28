@@ -53,31 +53,33 @@ PivotView.prototype.init = function () {
     this.displayMessage("Loading...");
 
     window.addEventListener("resize", function () {
-        _._sizesChanged.call(_);
+        _.updateSizes.call(_);
     });
 
 };
 
-PivotView.prototype._sizesChanged = function () {
-
-    for (var i in this.tablesStack) {
-        var t = this.tablesStack[i]._headers;
-        if (t.c.clone) {
-            for (var u in t) {
-                this.fixSizes(t[u].base, t[u].clone);
-            }
-        }
-        if (t.v.clone) {
-            t.v.clone.style.width = "";
-            t.v.clone.style.zIndex = 1;
-        }
-    }
-
-};
+//PivotView.prototype._sizesChanged = function () {
+//
+//    for (var i in this.tablesStack) {
+//        var t = this.tablesStack[i]._headers;
+//        if (t.c.clone) {
+//            for (var u in t) {
+//                this.fixSizes(t[u].base, t[u].clone);
+//            }
+//        }
+//        if (t.v.clone) {
+//            t.v.clone.style.width = "";
+//            t.v.clone.style.zIndex = 1;
+//        }
+//    }
+//
+//};
 
 PivotView.prototype.updateSizes = function () {
 
-    this._sizesChanged();
+    for (var i in this.tablesStack) {
+        this.recalculateSizes(this.tablesStack[i].element);
+    }
 
 };
 
@@ -209,121 +211,121 @@ PivotView.prototype._cellClickHandler = function (x, y, event) {
 
 };
 
-/**
- * @deprecated
- * @param baseElement
- * @param elementToFix
- * @returns {boolean}
- */
-PivotView.prototype.fixSizes = function (baseElement, elementToFix) {
+///**
+// * @deprecated
+// * @param baseElement
+// * @param elementToFix
+// * @returns {boolean}
+// */
+//PivotView.prototype.fixSizes = function (baseElement, elementToFix) {
+//
+//    if (!elementToFix.style) return false;
+//
+//    for (var i in elementToFix.childNodes) {
+//        //this.fixSizes(baseElement.childNodes[i], elementToFix.childNodes[i]);
+//    }
+//
+//    if (baseElement["triggerFunction"]) {
+//        elementToFix.addEventListener(
+//            baseElement["triggerFunction"].event,
+//            baseElement["triggerFunction"].trigger
+//        );
+//    }
+//
+//    var style = window.getComputedStyle(baseElement, null);
+//    elementToFix.style.width = style.getPropertyValue("width");
+//    elementToFix.style.height = style.getPropertyValue("height");
+//
+//};
 
-    if (!elementToFix.style) return false;
-
-    for (var i in elementToFix.childNodes) {
-        this.fixSizes(baseElement.childNodes[i], elementToFix.childNodes[i]);
-    }
-
-    if (baseElement["triggerFunction"]) {
-        elementToFix.addEventListener(
-            baseElement["triggerFunction"].event,
-            baseElement["triggerFunction"].trigger
-        );
-    }
-
-    var style = window.getComputedStyle(baseElement, null);
-    elementToFix.style.width = style.getPropertyValue("width");
-    elementToFix.style.height = style.getPropertyValue("height");
-
-};
-
-/**
- * Create clones of headers with fixed sizes.
- *
- * @param {HTMLElement} tableElement
- * @deprecated
- */
-PivotView.prototype.fixHeaders = function (tableElement) {
-
-    var fhx, temp, hHead, fhy, c1, c2, d1, d2,
-        cth = this.tablesStack[this.tablesStack.length - 1]._headers;
-
-    var getChildrenByTagName = function (element, tagName) {
-        var cls = [];
-        for (var c in element.childNodes) {
-            if (element.childNodes[c].tagName === tagName.toUpperCase()) {
-                cls.push(element.childNodes[c]);
-            }
-        }
-        return cls;
-    };
-
-    if (!tableElement.parentNode) console.warn("Missing fix headers: before function call to " +
-        "fixHeaders() table element must be attached to DOM.");
-
-    // clone thead
-    temp = fhx = getChildrenByTagName(tableElement, "thead")[0];
-    if (!fhx) {
-        console.error("Unable to fix headers: no \"thead\" in basic table."); return false;
-    }
-    fhx = fhx.cloneNode(true);
-    fhx.className = "fixedHeader";
-    fhx.style.zIndex = 2;
-    cth.h.base = temp;
-    cth.h.clone = fhx;
-    this.fixSizes(temp, fhx);
-    fhx.style.width = "";
-
-    // clone top left corner
-    hHead = temp.childNodes[0].childNodes[0].cloneNode(true);
-    cth.c.base = temp.childNodes[0].childNodes[0];
-    cth.c.clone = hHead;
-    this.fixSizes(temp.childNodes[0].childNodes[0], hHead);
-    temp = document.createElement("thead");
-    temp.appendChild(document.createElement("tr")).appendChild(hHead);
-    temp.className = "fixedHeader";
-    temp.style.zIndex = 3;
-    hHead = temp;
-
-    // clone body headers
-    temp = fhy = getChildrenByTagName(tableElement, "tbody")[0];
-    if (!fhy) {
-        console.error("Unable to fix headers: no \"tbody\" in basic table."); return false;
-    }
-    fhy = fhy.cloneNode(false);
-    fhy.className = "fixedHeader";
-    fhy.style.top = temp.offsetTop + "px";
-    c1 = getChildrenByTagName(temp, "tr");
-    for (var i in c1) {
-        fhy.appendChild(d1 = c1[i].cloneNode(false));
-        c2 = getChildrenByTagName(c1[i], "th");
-        for (var u in c2) {
-            d1.appendChild(d2 = c2[u].cloneNode(true));
-        }
-    }
-    cth.v.base = temp;
-    cth.v.clone = fhy;
-    this.fixSizes(temp, fhy);
-    fhy.style.width = "";
-    fhy.style.zIndex = 1;
-
-    // add scroll listener
-    tableElement.parentNode.addEventListener("scroll", this._scrollListener = function () {
-            if (!tableElement.parentNode) return; // toFix
-            hHead.style.top = fhx.style.top = tableElement.parentNode.scrollTop + "px";
-            hHead.style.left = fhy.style.left = tableElement.parentNode.scrollLeft + "px";
-    }, false);
-
-    // append new elements
-    tableElement.appendChild(fhx);
-    tableElement.appendChild(fhy);
-    if ((this.controller.dataController.getData() || { dimensions: [0, 0] }).dimensions[1].length) {
-        tableElement.appendChild(hHead);
-    }
-
-    // call scroll handler because of render may be performed anytime
-    this._scrollListener();
-
-};
+///**
+// * Create clones of headers with fixed sizes.
+// *
+// * @param {HTMLElement} tableElement
+// * @deprecated
+// */
+//PivotView.prototype.fixHeaders = function (tableElement) {
+//
+//    var fhx, temp, hHead, fhy, c1, c2, d1, d2,
+//        cth = this.tablesStack[this.tablesStack.length - 1]._headers;
+//
+//    var getChildrenByTagName = function (element, tagName) {
+//        var cls = [];
+//        for (var c in element.childNodes) {
+//            if (element.childNodes[c].tagName === tagName.toUpperCase()) {
+//                cls.push(element.childNodes[c]);
+//            }
+//        }
+//        return cls;
+//    };
+//
+//    if (!tableElement.parentNode) console.warn("Missing fix headers: before function call to " +
+//        "fixHeaders() table element must be attached to DOM.");
+//
+//    // clone thead
+//    temp = fhx = getChildrenByTagName(tableElement, "thead")[0];
+//    if (!fhx) {
+//        console.error("Unable to fix headers: no \"thead\" in basic table."); return false;
+//    }
+//    fhx = fhx.cloneNode(true);
+//    fhx.className = "fixedHeader";
+//    fhx.style.zIndex = 2;
+//    cth.h.base = temp;
+//    cth.h.clone = fhx;
+//    this.fixSizes(temp, fhx);
+//    fhx.style.width = "";
+//
+//    // clone top left corner
+//    hHead = temp.childNodes[0].childNodes[0].cloneNode(true);
+//    cth.c.base = temp.childNodes[0].childNodes[0];
+//    cth.c.clone = hHead;
+//    this.fixSizes(temp.childNodes[0].childNodes[0], hHead);
+//    temp = document.createElement("thead");
+//    temp.appendChild(document.createElement("tr")).appendChild(hHead);
+//    temp.className = "fixedHeader";
+//    temp.style.zIndex = 3;
+//    hHead = temp;
+//
+//    // clone body headers
+//    temp = fhy = getChildrenByTagName(tableElement, "tbody")[0];
+//    if (!fhy) {
+//        console.error("Unable to fix headers: no \"tbody\" in basic table."); return false;
+//    }
+//    fhy = fhy.cloneNode(false);
+//    fhy.className = "fixedHeader";
+//    fhy.style.top = temp.offsetTop + "px";
+//    c1 = getChildrenByTagName(temp, "tr");
+//    for (var i in c1) {
+//        fhy.appendChild(d1 = c1[i].cloneNode(false));
+//        c2 = getChildrenByTagName(c1[i], "th");
+//        for (var u in c2) {
+//            d1.appendChild(d2 = c2[u].cloneNode(true));
+//        }
+//    }
+//    cth.v.base = temp;
+//    cth.v.clone = fhy;
+//    this.fixSizes(temp, fhy);
+//    fhy.style.width = "";
+//    fhy.style.zIndex = 1;
+//
+//    // add scroll listener
+//    tableElement.parentNode.addEventListener("scroll", this._scrollListener = function () {
+//            if (!tableElement.parentNode) return; // toFix
+//            hHead.style.top = fhx.style.top = tableElement.parentNode.scrollTop + "px";
+//            hHead.style.left = fhy.style.left = tableElement.parentNode.scrollLeft + "px";
+//    }, false);
+//
+//    // append new elements
+//    tableElement.appendChild(fhx);
+//    tableElement.appendChild(fhy);
+//    if ((this.controller.dataController.getData() || { dimensions: [0, 0] }).dimensions[1].length) {
+//        tableElement.appendChild(hHead);
+//    }
+//
+//    // call scroll handler because of render may be performed anytime
+//    this._scrollListener();
+//
+//};
 
 /**
  * Displays text which hovers table. Pass empty string to hide message.
@@ -426,18 +428,26 @@ PivotView.prototype.recalculateSizes = function (container) {
             leftHeader = container.getElementsByClassName("lpt-leftHeader")[0],
             lTableHead = leftHeader.getElementsByTagName("thead")[0],
             tableBlock = container.getElementsByClassName("lpt-tableBlock")[0],
-            tableTr = tableBlock.getElementsByTagName("tr")[0],
-            headerW = leftHeader.offsetWidth,
+            tableTr = tableBlock.getElementsByTagName("tr")[0];
+
+        if (tTableHead.childNodes[0].lastChild["_extraCell"]) {
+            tTableHead.childNodes[0].removeChild(tTableHead.childNodes[0].lastChild);
+        }
+        if (lTableHead.lastChild["_extraTr"]) {
+            lTableHead.removeChild(lTableHead.lastChild);
+        }
+
+        var headerW = leftHeader.offsetWidth,
             headerH = topHeader.offsetHeight,
             containerHeight = container.offsetHeight,
             mainHeaderWidth = headerContainer.offsetWidth,
             addExtraTopHeaderCell = tTableHead.offsetWidth > topHeader.offsetWidth,
             addExtraLeftHeaderCell = lTableHead.offsetHeight > containerHeight - headerH,
-            cell, cellWidths = [], i;
+            cell, tr, cellWidths = [], i;
 
         headerContainer.style.width = headerW + "px";
         for (i in topTableTr.childNodes) {
-            if (tableTr.childNodes[i].tagName !== "TD") continue;
+            if (!tableTr.childNodes[i] || tableTr.childNodes[i].tagName !== "TD") continue;
             cellWidths.push(topTableTr.childNodes[i].offsetWidth);
         }
 
@@ -445,6 +455,7 @@ PivotView.prototype.recalculateSizes = function (container) {
         topHeader.style.marginLeft = headerW + "px";
         tableBlock.style.marginLeft = headerW + "px";
         leftHeader.style.height = containerHeight - headerH + "px";
+        leftHeader.style.width = headerW + "px";
         if (mainHeaderWidth > headerW) leftHeader.style.width = mainHeaderWidth + "px";
         tableBlock.style.height = containerHeight - headerH + "px";
         headerContainer.style.height = headerH + "px";
@@ -453,12 +464,14 @@ PivotView.prototype.recalculateSizes = function (container) {
             tTableHead.childNodes[0].appendChild(cell = document.createElement("th"));
             cell.rowSpan = tTableHead.childNodes.length;
             cell.style.paddingLeft = headerW + "px"; // lucky random
+            cell["_extraCell"] = true;
         }
 
         if (addExtraLeftHeaderCell) {
-            lTableHead.appendChild(
-                document.createElement("tr").appendChild(cell = document.createElement("th"))
-            );
+            tr = document.createElement("tr");
+            tr.appendChild(cell = document.createElement("th"));
+            lTableHead.appendChild(tr);
+            tr["_extraTr"] = true;
             leftHeader.className = "lpt-leftHeader bordered";
             cell.colSpan = lTableHead.childNodes.length;
             cell.style.paddingTop = headerH + "px"; // lucky random
