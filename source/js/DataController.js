@@ -87,10 +87,47 @@ DataController.prototype.setData = function (data) {
 
     this._dataStack[this._dataStack.length - 1].data = data;
     //this.data = data;
+    this.resetDimensionProps();
     this.resetRawData();
 
     this._trigger();
     return data;
+
+};
+
+/**
+ * Sets properties of rows/columns.
+ *
+ * @returns {null}
+ */
+DataController.prototype.resetDimensionProps = function () {
+
+    var data, columnProps = [];
+
+    if (!(data = this._dataStack[this._dataStack.length - 1].data)) {
+        console.error("Unable to get dimension props for given data set.");
+        return null;
+    }
+
+    var parse = function (obj, props) {
+        var tObj;
+        if (obj["children"] && obj["children"].length > 0) {
+            for (var i in obj.children) {
+                tObj = obj.children[i];
+                if (tObj["format"]) props["format"] = tObj["format"];
+                if (tObj["style"]) props["style"] = (props["style"] || "") + tObj["style"];
+                if (tObj["total"]) props["total"] = tObj["total"];
+                if (tObj["type"]) props["type"] = tObj["type"];
+                parse(tObj, props);
+            }
+        } else {
+            columnProps.push(props);
+        }
+    };
+
+    parse({ children: data.dimensions[0] }, {});
+
+    data.columnProps = columnProps;
 
 };
 
@@ -262,7 +299,7 @@ DataController.prototype.resetRawData = function () {
     this.SUMMARY_SHOWN = false;
     this._dataStack[this._dataStack.length - 1].SUMMARY_SHOWN = false;
 
-    var countSummaryByColumn = function (array, iStart, iEnd, column) {
+    var totalSUM = function (array, iStart, iEnd, column) {
         var sum = 0;
         for (var i = iStart; i < iEnd; i++) {
             if (!isFinite(array[i][column]["value"])) {
@@ -274,7 +311,7 @@ DataController.prototype.resetRawData = function () {
         return sum || "";
     };
 
-    var countAverageByColumn = function (array, iStart, iEnd, column) {
+    var totalAVG = function (array, iStart, iEnd, column) {
         var sum = 0;
         for (var i = iStart; i < iEnd; i++) {
             if (!isFinite(array[i][column]["value"])) {
@@ -284,6 +321,18 @@ DataController.prototype.resetRawData = function () {
             sum += parseFloat(array[i][column]["value"]) || 0;
         }
         return sum/(iEnd - iStart) || "";
+    };
+
+    /**
+     * @param {number} columnIndex
+     * @returns {Function}
+     */
+    var getTotalFunction = function (columnIndex) {
+        if (!data["columnProps"][columnIndex]) return totalSUM;
+        switch (data["columnProps"][columnIndex].total) {
+            case "AVG": return totalAVG;
+            default: return totalSUM;
+        }
     };
 
     if (this.controller.CONFIG["showSummary"] && rawData.length - xh > 1 // xh - see above
@@ -303,11 +352,9 @@ DataController.prototype.resetRawData = function () {
             } else {
                 summary[i] = {
                     // very hard workaround (applying "avg" last column spec)
-                    value: ((rawData[x].length - 1 === parseInt(i)
-                            && _.controller.CONFIG["_temp_lastColSpec"]
-                            && _.controller.CONFIG["_temp_lastColSpec"]["levelSummary"] === "avg")
-                                ? countAverageByColumn
-                                : countSummaryByColumn)(rawData, xh, rawData.length - 1, i),
+                    value:
+                        getTotalFunction(parseInt(i) - data.info.leftHeaderColumnsNumber)
+                            (rawData, xh, rawData.length - 1, i),
                     // end
                     //value: (countSummaryByColumn)(rawData, xh, rawData.length - 1, i),
                     style: "font-weight: bold;"

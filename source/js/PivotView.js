@@ -511,6 +511,7 @@ PivotView.prototype.renderRawData = function (data) {
         renderedGroups = {}, // keys of rendered groups; key = group, value = { x, y, element }
         rawData = data["rawData"],
         info = data["info"],
+        columnProps = data["columnProps"],
         container = this.elements.tableContainer,
         pivotTopSection = document.createElement("div"),
         pivotBottomSection = document.createElement("div"),
@@ -632,8 +633,19 @@ PivotView.prototype.renderRawData = function (data) {
         for (x = info.leftHeaderColumnsNumber; x < rawData[0].length; x++) {
 
             tr.appendChild(td = document.createElement("td"));
-            if (!isFinite(rawData[y][x].value)) td.className += " formatLeft";
-            td.textContent = rawData[y][x].value || "";
+            if (!isFinite(rawData[y][x].value)) {
+                td.className += " formatLeft";
+                td.textContent = rawData[y][x].value || "";
+            } else { // number
+                if (columnProps[x - info.leftHeaderColumnsNumber].format) {
+                    td.textContent = this.formatNumber(
+                        columnProps[x - info.leftHeaderColumnsNumber].format,
+                        rawData[y][x].value || 0
+                    ) || "";
+                } else {
+                    td.textContent = rawData[y][x].value || "";
+                }
+            }
             if (rawData[y][x].style) td.setAttribute("style", rawData[y][x].style);
 
             // add handlers
