@@ -351,12 +351,8 @@ DataController.prototype.resetRawData = function () {
                 }
             } else {
                 summary[i] = {
-                    // very hard workaround (applying "avg" last column spec)
-                    value:
-                        getTotalFunction(parseInt(i) - data.info.leftHeaderColumnsNumber)
-                            (rawData, xh, rawData.length - 1, i),
-                    // end
-                    //value: (countSummaryByColumn)(rawData, xh, rawData.length - 1, i),
+                    value: getTotalFunction(parseInt(i) - data.info.leftHeaderColumnsNumber)
+                        (rawData, xh, rawData.length - 1, i),
                     style: "font-weight: bold;"
                 }
             }
