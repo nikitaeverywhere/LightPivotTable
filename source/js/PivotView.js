@@ -493,8 +493,6 @@ PivotView.prototype.renderRawData = function (data) {
         return;
     }
 
-    this.removeMessage();
-
     var _ = this,
         CLICK_EVENT = this.controller.CONFIG["triggerEvent"] || "click",
         renderedGroups = {}, // keys of rendered groups; key = group, value = { x, y, element }
@@ -516,32 +514,70 @@ PivotView.prototype.renderRawData = function (data) {
         mainTBody = document.createElement("tbody"),
         x, y, tr = null, th, td;
 
+    // clean previous content
+    this.removeMessage();
+    while (container.firstChild) { container.removeChild(container.firstChild); }
+
     var renderHeader = function (xFrom, xTo, yFrom, yTo, targetElement) {
-        var vertical = targetElement === LHTHead;
+
+        var vertical = targetElement === LHTHead,
+            rendered, separatelyGrouped;
+
         for (y = yFrom; y < yTo; y++) {
             for (x = xFrom; x < xTo; x++) {
-                if (renderedGroups.hasOwnProperty(rawData[y][x].group)) { // recalculate c/r 'span
-                    renderedGroups[rawData[y][x].group].element.colSpan =
-                        x - renderedGroups[rawData[y][x].group].x + 1;
-                    renderedGroups[rawData[y][x].group].element.rowSpan =
-                        y - renderedGroups[rawData[y][x].group].y + 1;
-                } else { // create element
+
+                separatelyGrouped = true;
+
+                // setup th
+                if (rendered = renderedGroups.hasOwnProperty(rawData[y][x].group)) {
+                    //console.log("Already rendered group " + rawData[y][x].group,
+                    //    renderedGroups[rawData[y][x].group].element,
+                    //    "modifying col/row 'span", "rendered on ("
+                    //    + renderedGroups[rawData[y][x].group].x + ";"
+                    //    + renderedGroups[rawData[y][x].group].y + "), now on (" +
+                    //    + x + "; " + y + ")");
+                    // recalculate c/r 'span
+                    if (x > 0 && rawData[y][x - 1].group === rawData[y][x].group) {
+                        separatelyGrouped = false;
+                        renderedGroups[rawData[y][x].group].element.colSpan =
+                            x - renderedGroups[rawData[y][x].group].x + 1;
+                    }
+                    if (y > 0 && rawData[y - 1][x].group === rawData[y][x].group) {
+                        separatelyGrouped = false;
+                        renderedGroups[rawData[y][x].group].element.rowSpan =
+                            y - renderedGroups[rawData[y][x].group].y + 1;
+                    }
+                    th = renderedGroups[rawData[y][x].group].element;
+                }
+
+                if (!rendered || separatelyGrouped) { // create element
                     if (!tr) tr = document.createElement("tr");
                     tr.appendChild(th = document.createElement("th"));
                     th.textContent = rawData[y][x].value;
-                    if (vertical && x === xTo - 1) {
-                        th.addEventListener(CLICK_EVENT, (function (index, data) {
-                            return function () {
-                                _._rowClickHandler.call(_, index, data);
-                            };
-                        })(y, rawData[y][x]));
-                    }
                     if (rawData[y][x].group) renderedGroups[rawData[y][x].group] = {
                         x: x,
                         y: y,
                         element: th
                     };
                 }
+
+                // add listeners
+                if (vertical && x === xTo - 1) {
+                    th.addEventListener(CLICK_EVENT, (function (index, data) {
+                        return function () {
+                            _._rowClickHandler.call(_, index, data);
+                        };
+                    })(y, rawData[y][x]));
+                }
+                if (!vertical && y === yTo - 1 && !th["_hasSortingListener"]) {
+                    th["_hasSortingListener"] = false;
+                    th.addEventListener(CLICK_EVENT, (function (i) {
+                        return function () {
+                            _._columnClickHandler.call(_, i);
+                        };
+                    })(x - info.leftHeaderColumnsNumber));
+                }
+
             }
             if (tr) targetElement.appendChild(tr);
             tr = null;

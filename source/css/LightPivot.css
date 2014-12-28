@@ -226,7 +226,7 @@
 }
 .lpt .lpt-headerValue.back:before {
     content: "< ";
-    font-weight: 900;
+    font-weight: bold;
 }
 
 /* new */
@@ -274,6 +274,11 @@
 }
 
 .lpt .lpt-leftHeader th:last-child:hover {
+    cursor: pointer;
+    background: #FFF7D7;
+}
+
+.lpt .lpt-topHeader tr:last-child th:hover {
     cursor: pointer;
     background: #FFF7D7;
 }
