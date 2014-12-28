@@ -241,6 +241,7 @@
 
 .lpt .lpt-topSection, .lpt .lpt-bottomSection {
     position: relative;
+    overflow: hidden;
 }
 
 .lpt .lpt-header {
@@ -256,8 +257,8 @@
 .lpt .lpt-topHeader {
     position: relative;
     overflow: hidden;
-    z-index: 1;
-    box-shadow: 0 0 0 1px rgb(208, 208, 208);
+    /*z-index: 1;*/
+    /*box-shadow: 0 0 0 1px rgb(208, 208, 208);*/
     /*margin-left: 100px;*/
 }
 
@@ -266,6 +267,10 @@
     overflow: hidden;
     float: left;
     /*width: 100px;*/
+}
+
+.lpt .lpt-leftHeader tr:first-child th {
+    border-top: none;
 }
 
 .lpt .lpt-leftHeader.bordered {
@@ -289,29 +294,26 @@
     /*margin-left: 100px;*/
 }
 
+.lpt .lpt-tableBlock tr:first-child td {
+    border-top: none;
+}
+
 .lpt .lpt-headerValue {
     display: table-cell;
     font-weight: bold;
     border-right: none;
-    border-bottom: none;
-    height: 100%;
+    /*border-bottom: none;*/
+    /*height: 100%;*/
+    box-sizing: border-box;
     vertical-align: bottom;
 }
-
-/*.lpt .lpt-topHeader th:first-child {*/
-    /*border-left: none;*/
-/*}*/
-
-/*.lpt .lpt-leftHeader tr:first-child th {*/
-    /*border-top: none;*/
-/*}*/
 
 .lpt .lpt-leftHeader th {
     border-right: none;
 }
 
 .lpt .lpt-topHeader th {
-    border-bottom: none;
+    /*border-bottom: none;*/
 }
 
 .lpt .lpt-leftHeader table {
