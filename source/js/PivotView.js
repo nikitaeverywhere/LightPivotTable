@@ -424,7 +424,8 @@ PivotView.prototype.recalculateSizes = function (container) {
             tableBlock = container.getElementsByClassName("lpt-tableBlock")[0],
             tableTr = tableBlock.getElementsByTagName("tr")[0],
             headerW = leftHeader.offsetWidth,
-            headerH = topHeader.offsetHeight;
+            headerH = topHeader.offsetHeight,
+            tableBlockParent;
 
         headerContainer.style.width = headerW + "px";
         topHeader.style.marginLeft = headerW + "px";
@@ -432,10 +433,13 @@ PivotView.prototype.recalculateSizes = function (container) {
         leftHeader.style.height = container.offsetHeight - headerH + "px";
         tableBlock.style.height = container.offsetHeight - headerH + "px";
 
+        tableBlockParent = tableBlock.parentNode;
+        tableBlockParent.removeChild(tableBlock);
         for (var i in tableTr.childNodes) {
             if (tableTr.childNodes[i].tagName !== "TD") continue;
             tableTr.childNodes[i].style.width = topTableTr.childNodes[i].offsetWidth + "px";
         }
+        tableBlockParent.appendChild(tableBlock);
 
     } catch (e) {
         console.error("Error when fixing sizes. Please, contact the developer.", "ERROR:", e);
