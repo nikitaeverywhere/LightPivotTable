@@ -413,33 +413,65 @@ PivotView.prototype.formatNumber = function (mask, value) {
  */
 PivotView.prototype.recalculateSizes = function (container) {
 
+    var containerParent = container.parentNode;
+
     try {
 
         var header = container.getElementsByClassName("lpt-headerValue")[0],
             headerContainer = container.getElementsByClassName("lpt-header")[0],
             topHeader = container.getElementsByClassName("lpt-topHeader")[0],
+            tTableHead = topHeader.getElementsByTagName("thead")[0],
             topTableTr = topHeader.getElementsByTagName("tr")
                 [topHeader.getElementsByTagName("tr").length - 1],
             leftHeader = container.getElementsByClassName("lpt-leftHeader")[0],
+            lTableHead = leftHeader.getElementsByTagName("thead")[0],
             tableBlock = container.getElementsByClassName("lpt-tableBlock")[0],
             tableTr = tableBlock.getElementsByTagName("tr")[0],
             headerW = leftHeader.offsetWidth,
             headerH = topHeader.offsetHeight,
-            tableBlockParent;
+            containerHeight = container.offsetHeight,
+            mainHeaderWidth = headerContainer.offsetWidth,
+            addExtraTopHeaderCell = tTableHead.offsetWidth > topHeader.offsetWidth,
+            addExtraLeftHeaderCell = lTableHead.offsetHeight > containerHeight - headerH,
+            cell, cellWidths = [], i;
+
+        console.log( lTableHead.offsetHeight, leftHeader.offsetHeight);
 
         headerContainer.style.width = headerW + "px";
+        for (i in topTableTr.childNodes) {
+            if (tableTr.childNodes[i].tagName !== "TD") continue;
+            cellWidths.push(topTableTr.childNodes[i].offsetWidth);
+        }
+
+        container.parentNode.removeChild(container); // detach
         topHeader.style.marginLeft = headerW + "px";
         tableBlock.style.marginLeft = headerW + "px";
-        leftHeader.style.height = container.offsetHeight - headerH + "px";
-        tableBlock.style.height = container.offsetHeight - headerH + "px";
+        leftHeader.style.height = containerHeight - headerH + "px";
+        if (mainHeaderWidth > headerW) leftHeader.style.width = mainHeaderWidth + "px";
+        tableBlock.style.height = containerHeight - headerH + "px";
+        headerContainer.style.height = headerH + "px";
 
-        tableBlockParent = tableBlock.parentNode;
-        tableBlockParent.removeChild(tableBlock);
-        for (var i in tableTr.childNodes) {
-            if (tableTr.childNodes[i].tagName !== "TD") continue;
-            tableTr.childNodes[i].style.width = topTableTr.childNodes[i].offsetWidth + "px";
+        if (addExtraTopHeaderCell) {
+            tTableHead.childNodes[0].appendChild(cell = document.createElement("th"));
+            cell.rowSpan = tTableHead.childNodes.length;
+            cell.style.paddingLeft = headerW + "px"; // lucky random
         }
-        tableBlockParent.appendChild(tableBlock);
+
+        console.log(addExtraLeftHeaderCell);
+        if (addExtraLeftHeaderCell) {
+            lTableHead.appendChild(
+                document.createElement("tr").appendChild(cell = document.createElement("th"))
+            );
+            cell.colSpan = lTableHead.childNodes.length;
+            cell.style.paddingTop = headerH + "px"; // lucky random
+        }
+
+        for (i in tableTr.childNodes) {
+            if (tableTr.childNodes[i].tagName !== "TD") continue;
+            tableTr.childNodes[i].style.width = cellWidths[i] + "px";
+        }
+
+        containerParent.appendChild(container); // attach
 
     } catch (e) {
         console.error("Error when fixing sizes. Please, contact the developer.", "ERROR:", e);
@@ -482,10 +514,11 @@ PivotView.prototype.renderRawData = function (data) {
         LHTable = document.createElement("table"),
         LHTHead = document.createElement("thead"),
         mainTable = document.createElement("table"),
-        mainTbody = document.createElement("tbody"),
+        mainTBody = document.createElement("tbody"),
         x, y, tr = null, th, td;
 
     var renderHeader = function (xFrom, xTo, yFrom, yTo, targetElement) {
+        var vertical = targetElement === LHTable;
         for (y = yFrom; y < yTo; y++) {
             for (x = xFrom; x < xTo; x++) {
                 if (renderedGroups.hasOwnProperty(rawData[y][x].group)) { // recalculate c/r 'span
@@ -539,30 +572,13 @@ PivotView.prototype.renderRawData = function (data) {
             tr.appendChild(td = document.createElement("td"));
             td.textContent = rawData[y][x].value || "";
         }
-        mainTbody.appendChild(tr);
+        mainTBody.appendChild(tr);
     }
 
-    //for (y = 0; y < info.topHeaderRowsNumber; y++) {
-    //    for (x = info.leftHeaderColumnsNumber; x < rawData[y].length; x++) {
-    //        if (renderedGroups.hasOwnProperty(rawData[y][x].group)) { // recalculate col/row 'span
-    //            renderedGroups[rawData[y][x].group].element.colSpan =
-    //                x - renderedGroups[rawData[y][x].group].x;
-    //            renderedGroups[rawData[y][x].group].element.rowSpan =
-    //                y - renderedGroups[rawData[y][x].group].y;
-    //        } else { // create element
-    //            if (!tr) tr = document.createElement("tr");
-    //            tr.appendChild(th = document.createElement("th"));
-    //            th.textContent = rawData[y][x].value;
-    //            if (rawData[y][x].group) renderedGroups[rawData[y][x].group] = {
-    //                x: x,
-    //                y: y,
-    //                element: th
-    //            };
-    //        }
-    //    }
-    //    if (tr) THTHead.appendChild(tr);
-    //    tr = null;
-    //}
+    tableBlock.addEventListener("scroll", function () {
+        topHeader.scrollLeft = tableBlock.scrollLeft;
+        leftHeader.scrollTop = tableBlock.scrollTop;
+    });
 
     tableBlock.className = "lpt-tableBlock";
     leftHeader.className = "lpt-leftHeader";
@@ -571,7 +587,7 @@ PivotView.prototype.renderRawData = function (data) {
     pivotTopSection.className = "lpt-topSection";
     pivotBottomSection.className = "lpt-bottomSection";
     header.className = "lpt-headerValue";
-    mainTable.appendChild(mainTbody);
+    mainTable.appendChild(mainTBody);
     tableBlock.appendChild(mainTable);
     LHTable.appendChild(LHTHead);
     leftHeader.appendChild(LHTable);

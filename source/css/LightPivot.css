@@ -236,6 +236,7 @@
 }
 
 .lpt .tableContainer .lpt-header {
+    display: table;
     position: relative;
     float: left;
     /*width: 100px;*/
@@ -261,10 +262,21 @@
 }
 
 .lpt .tableContainer .lpt-headerValue {
+    display: table-cell;
     font-weight: bold;
     border-right: none;
     border-bottom: none;
+    height: 100%;
+    vertical-align: bottom;
 }
+
+/*.lpt .lpt-topHeader th:first-child {*/
+    /*border-left: none;*/
+/*}*/
+
+/*.lpt .lpt-leftHeader tr:first-child th {*/
+    /*border-top: none;*/
+/*}*/
 
 .lpt .tableContainer .lpt-leftHeader th {
     border-right: none;
@@ -272,4 +284,8 @@
 
 .lpt .tableContainer .lpt-topHeader th {
     border-bottom: none;
+}
+
+.lpt .lpt-leftHeader table {
+    margin-bottom: 10em;
 }
