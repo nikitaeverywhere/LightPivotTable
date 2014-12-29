@@ -212,7 +212,7 @@
     box-shadow: none;
     text-align: left;
     border-radius: 0;
-    padding: 3px 6px 3px 6px;
+    padding: 3px 6px !important; /* DeepSee style overriding fix */
     border: 1px solid rgb(208, 208, 208);
 }
 
