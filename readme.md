@@ -98,4 +98,4 @@ Also anytime you can build project and then check <code>build/example/index.html
 
 Run <code>gulp</code> command and then check <code>build/example/index.html</code>.
 
-![Light pivot table](https://cloud.githubusercontent.com/assets/4989256/5239656/500bc7ea-78f2-11e4-99ec-6204ec0de90c.png)
+![Light pivot table](https://cloud.githubusercontent.com/assets/4989256/5570072/4c3a161e-8f84-11e4-929b-6577728df6ba.png)

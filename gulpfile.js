@@ -11,9 +11,12 @@ var gulp = require("gulp"),
     pkg = require("./package.json");
 
 var banner = [
-    "/** <%= pkg.name %>: <%= pkg.description %>",
+    "/** <%= pkg.name %>",
+    " ** <%= pkg.description %>",
     " ** @author <%= pkg.author %>",
     " ** @version <%= pkg.version %>",
+    " ** @license Apache 2.0",
+    " ** @see https://github.com/ZitRos/LightPivotTable",
     " **/",
     ""
 ].join("\n");
