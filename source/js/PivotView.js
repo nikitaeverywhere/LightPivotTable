@@ -548,7 +548,7 @@ PivotView.prototype.renderRawData = function (data) {
             if (rawData[y][x].style) td.setAttribute("style", rawData[y][x].style);
 
             // add handlers
-            td.addEventListener("click", (function (x, y, cell) {
+            td.addEventListener(CLICK_EVENT, (function (x, y, cell) {
                 return function (event) {
                     _._cellClickHandler.call(
                         _, cell, x, y, event, info.drillThroughHandler
