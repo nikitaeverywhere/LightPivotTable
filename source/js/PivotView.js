@@ -76,7 +76,7 @@ PivotView.prototype.init = function () {
 
     this.pushTable();
 
-    this.displayMessage("Loading...");
+    this.displayMessage(navigator.language === "ru" ? "Загрузка..." : "Loading...");
 
     window.addEventListener("resize", function () {
         _.updateSizes.call(_);
@@ -257,6 +257,14 @@ PivotView.prototype.removeMessage = function () {
 
 };
 
+PivotView.prototype.displayDataWait = function () {
+
+};
+
+PivotView.prototype.removeDataWait = function () {
+
+};
+
 /**
  * @param {HTMLElement} container
  */
@@ -270,8 +278,6 @@ PivotView.prototype.recalculateSizes = function (container) {
             headerContainer = container.getElementsByClassName("lpt-header")[0],
             topHeader = container.getElementsByClassName("lpt-topHeader")[0],
             tTableHead = topHeader.getElementsByTagName("thead")[0],
-            topTableTr = topHeader.getElementsByTagName("tr")
-                [topHeader.getElementsByTagName("tr").length - 1],
             leftHeader = container.getElementsByClassName("lpt-leftHeader")[0],
             lTableHead = leftHeader.getElementsByTagName("thead")[0],
             tableBlock = container.getElementsByClassName("lpt-tableBlock")[0],
@@ -294,9 +300,12 @@ PivotView.prototype.recalculateSizes = function (container) {
             cell, tr, cellWidths = [], i;
 
         headerContainer.style.width = headerW + "px";
-        for (i in topTableTr.childNodes) {
-            if (!tableTr.childNodes[i] || tableTr.childNodes[i].tagName !== "TD") continue;
-            cellWidths.push(topTableTr.childNodes[i].offsetWidth);
+        if (container["_primaryColumns"]) {
+            for (i in container["_primaryColumns"]) {
+                cellWidths.push(container["_primaryColumns"][i].offsetWidth);
+            }
+        } else {
+            console.warn("No _primaryColumns property in container, cell sizes won't be fixed.");
         }
 
         container.parentNode.removeChild(container); // detach
@@ -380,7 +389,7 @@ PivotView.prototype.renderRawData = function (data) {
         LHTHead = document.createElement("thead"),
         mainTable = document.createElement("table"),
         mainTBody = document.createElement("tbody"),
-        x, y, tr = null, th, td;
+        x, y, tr = null, th, td, primaryColumns = [];
 
     // clean previous content
     this.removeMessage();
@@ -432,6 +441,7 @@ PivotView.prototype.renderRawData = function (data) {
                 }
                 if (!vertical && y === yTo - 1 && !th["_hasSortingListener"]) {
                     th["_hasSortingListener"] = false;
+                    primaryColumns.push(th);
                     th.addEventListener(CLICK_EVENT, (function (i) {
                         return function () {
                             _._columnClickHandler.call(_, i);
@@ -526,6 +536,7 @@ PivotView.prototype.renderRawData = function (data) {
     pivotBottomSection.appendChild(tableBlock);
     container.appendChild(pivotTopSection);
     container.appendChild(pivotBottomSection);
+    container["_primaryColumns"] = primaryColumns;
 
     this.recalculateSizes(container);
 
