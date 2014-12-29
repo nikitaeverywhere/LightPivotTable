@@ -270,7 +270,8 @@ PivotView.prototype.removeDataWait = function () {
  */
 PivotView.prototype.recalculateSizes = function (container) {
 
-    var containerParent = container.parentNode;
+    var containerParent = container.parentNode,
+        DEFAULT_CELL_HEIGHT = 22;
 
     try {
 
@@ -356,7 +357,7 @@ PivotView.prototype.recalculateSizes = function (container) {
             if (pTableHead.childNodes[i].tagName !== "TR") continue;
             if (pTableHead.childNodes[i].firstChild) {
                 pTableHead.childNodes[i].firstChild.style.height =
-                    (columnHeights[i] || 0) + "px";
+                    (columnHeights[i] || DEFAULT_CELL_HEIGHT) + "px";
             }
         }
 
