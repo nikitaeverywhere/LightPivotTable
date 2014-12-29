@@ -22,103 +22,6 @@
     display: table;
 }
 
-.lpt .backButton {
-    width: 14px;
-    height: 14px;
-    top: 1px;
-    padding: 2px;
-    vertical-align: bottom;
-    display: inline-block;
-    position: relative;
-}
-
-.lpt .backButton:before, .lpt .backButton:after {
-    background: #333;
-    border-radius: 0.25em;
-    content: "";
-    display: block;
-    height: 0.25em;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: .8em;
-    transition: background .4s ease;
-}
-
-.lpt .backButton:before{
-    -moz-transform: rotate(45deg);
-    -ms-transform: rotate(45deg);
-    -o-transform: rotate(45deg);
-    -webkit-transform: rotate(45deg);
-    transform: rotate(45deg)
-}
-
-.lpt .backButton:after{
-    -moz-transform: rotate(-45deg);
-    -ms-transform: rotate(-45deg);
-    -o-transform: rotate(-45deg);
-    -webkit-transform: rotate(-45deg);
-    transform: rotate(-45deg)
-}
-
-.lpt .backButton:after {
-    margin-top: -.36em;
-}
-
-.lpt .backButton:hover:before,.lpt .backButton:hover:after {
-    background: #FF9B47;
-}
-
-/*.lpt table tr:first-child th:first-child {*/
-    /*position: relative;*/
-    /*white-space: nowrap;*/
-    /*vertical-align: bottom;*/
-/*}*/
-
-.lpt .drillDownIcon {
-    position: relative;
-    display: inline-block;
-    vertical-align: bottom;
-    width: 15px;
-    height: 14px;
-    border: 2px solid #000000;
-    border-radius: 4px;
-    margin-right: .3em;
-    transition: all .4s ease;
-}
-
-.lpt .drillDownIcon:hover {
-    background: #FFEEAA;
-    border-color: #FF9B47;
-}
-
-.lpt .drillDownIcon:after {
-    content: "";
-    width: 10px;
-    height: 2px;
-    background-color: #000000;
-    border-radius: 4px;
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    box-shadow: 0 8px 0 #000000;
-}
-
-.lpt .drillDownIcon:before {
-    content: "";
-    width: 8px;
-    height: 2px;
-    background-color: #000000;
-    border-radius: 4px;
-    position: absolute;
-    top: 6px;
-    left: 2px;
-}
-
-.lpt .drillDownIcon:hover:before {
-    background-color: #FF9B47;
-}
-
 .lpt .central > div {
     display: table-cell;
     vertical-align: middle;
@@ -134,13 +37,6 @@
     width: 100%;
 }
 
-/*.lpt .fixedHeader {*/
-    /*position: absolute;*/
-    /*left: 0;*/
-    /*top: 0;*/
-    /*background: white;*/
-/*}*/
-
 .lpt > .tableContainer {
     position: absolute;
     overflow: hidden;
@@ -151,52 +47,6 @@
     -o-transition: left .5s ease;
     transition: left .5s ease;
 }
-
-/*.lpt > .tableContainer > table {*/
-    /*min-width: 100%;*/
-/*}*/
-
-/*.lpt > .tableContainer td, .lpt > .tableContainer th {*/
-    /*border-radius: 3px;*/
-    /*padding: .4em;*/
-/*}*/
-
-/*.lpt > .tableContainer tbody.fixedHeader th:last-child:hover {*/
-    /*background: #FFEEAA;*/
-    /*box-shadow: inset 0 0 15px #FFFFFF;*/
-/*}*/
-
-/*.lpt th {*/
-    /*background: #F0F0F0;*/
-    /*text-align: left;*/
-    /*font-weight: bold;*/
-    /*box-shadow: inset 0 -5px 10px rgb(216, 216, 216);*/
-/*}*/
-
-/*.lpt thead tr:last-child th {*/
-    /*cursor: pointer;*/
-    /*-webkit-transition: all .3s ease;*/
-    /*-moz-transition: all .3s ease;*/
-    /*-o-transition: all .3s ease;*/
-    /*transition: all .3s ease;*/
-/*}*/
-
-/*.lpt thead tr:last-child th:first-child ~ th:hover {*/
-    /*background: #e2c8ff;*/
-    /*background: #FFEEAA;*/
-    /*box-shadow: inset 0 0 15px #FFFFFF;*/
-/*}*/
-
-/*.lpt td {*/
-    /*background: #E1E8FF;*/
-    /*background: #FFFFFF;*/
-    /*box-shadow: inset 0 0 2px rgb(216, 216, 216);*/
-    /*text-align: right;*/
-    /*-webkit-transition: all .3s ease;*/
-    /*-moz-transition: all .3s ease;*/
-    /*-o-transition: all .3s ease;*/
-    /*transition: all .3s ease;*/
-/*}*/
 
 .lpt tr:hover td {
     background: #FFF7D7;
@@ -220,6 +70,8 @@
     background: #F0F0F0;
 }
 
+/* back button */
+
 .lpt .lpt-headerValue.back:hover {
     cursor: pointer;
     background: #FFF7D7;
@@ -229,7 +81,7 @@
     font-weight: bold;
 }
 
-/* new */
+/* table */
 .lpt .lpt-tableBlock table {
     table-layout: fixed;
 }
@@ -257,15 +109,11 @@
     z-index: 2;
     box-shadow: 0 0 0 1px rgb(208, 208, 208);
     white-space: nowrap;
-    /*width: 100px;*/
 }
 
 .lpt .lpt-topHeader {
     position: relative;
     overflow: hidden;
-    /*z-index: 1;*/
-    /*box-shadow: 0 0 0 1px rgb(208, 208, 208);*/
-    /*margin-left: 100px;*/
 }
 
 .lpt .lpt-leftHeader {
