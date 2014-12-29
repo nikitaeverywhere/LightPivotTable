@@ -110,18 +110,20 @@ DataController.prototype.resetDimensionProps = function () {
     }
 
     var parse = function (obj, props) {
-        var tObj;
+        var tObj, clonedProps = {}, i;
+        for (i in props) clonedProps[i] = props[i];
         if (obj["children"] && obj["children"].length > 0) {
-            for (var i in obj.children) {
+            for (i in obj.children) {
                 tObj = obj.children[i];
-                if (tObj["format"]) props["format"] = tObj["format"];
-                if (tObj["style"]) props["style"] = (props["style"] || "") + tObj["style"];
-                if (tObj["total"]) props["total"] = tObj["total"];
-                if (tObj["type"]) props["type"] = tObj["type"];
-                parse(tObj, props);
+                if (tObj["format"]) clonedProps["format"] = tObj["format"];
+                if (tObj["style"]) clonedProps["style"] =
+                    (clonedProps["style"] || "") + tObj["style"];
+                if (tObj["total"]) clonedProps["total"] = tObj["total"];
+                if (tObj["type"]) clonedProps["type"] = tObj["type"];
+                parse(tObj, clonedProps);
             }
         } else {
-            columnProps.push(props);
+            columnProps.push(clonedProps);
         }
     };
 
