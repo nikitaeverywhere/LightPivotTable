@@ -281,6 +281,7 @@ DataController.prototype.resetRawData = function () {
                                || (data["info"] || {})["cubeName"]
                                || ""
                     };
+                    applyHeaderStyle(rawData[y][x], false);
                 } else {
                     rawData[y][x] = rd1[y-xh][x];
                 }
@@ -350,7 +351,8 @@ DataController.prototype.resetRawData = function () {
                     isCaption: true,
                     source: {},
                     value: navigator.language === "ru" ? "Всего" : "Total"
-                }
+                };
+                applyHeaderStyle(summary[i], false);
             } else {
                 summary[i] = {
                     value: getTotalFunction(parseInt(i) - data.info.leftHeaderColumnsNumber)

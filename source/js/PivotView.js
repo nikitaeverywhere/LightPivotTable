@@ -476,6 +476,7 @@ PivotView.prototype.renderRawData = function (data) {
 
     // fill header
     header.textContent = info.leftHeaderColumnsNumber ? rawData[0][0].value : "";
+    if (rawData[0][0].style) header.setAttribute("style", rawData[0][0].style);
     if (this.tablesStack.length > 1 && !this.controller.CONFIG["hideButtons"]) {
         header.className += "back ";
         header.addEventListener(CLICK_EVENT, function (e) {
