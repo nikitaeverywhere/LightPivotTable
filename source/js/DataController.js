@@ -96,6 +96,16 @@ DataController.prototype.setData = function (data) {
 };
 
 /**
+ * Handle drillThrough on current level.
+ * If handler returns boolean false, drillThrough won't be performed.
+ *
+ * @param {function} handler
+ */
+DataController.prototype.setDrillThroughHandler = function (handler) {
+    this._dataStack[this._dataStack.length - 1].data.info.drillThroughHandler = handler;
+};
+
+/**
  * Sets properties of rows/columns.
  *
  * @returns {null}

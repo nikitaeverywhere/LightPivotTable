@@ -47,7 +47,7 @@ var setup = { // Object that contain settings. Any setting may be missed.
             , drillThrough: function ({Object { level: {number}, mdx: {string} }}) {}
             , back: function ({Object { level: {number} }}) {}
             // if cellDrillThrough callback returns boolean false, DrillThrough won't be performed.
-            , cellDrillThrough: function ({Object { event: {event}, filters: {string[]} }}) {}
+            , cellDrillThrough: function ({Object { event: {event}, filters: {string[]}, cellData: {object} }}) {}
         } ]
         [ , hideButtons: true // hides "back" and "drillThrough" buttons ]
         [ , triggerEvent: "touchstart" // all "click" events will be replaced by this event ]

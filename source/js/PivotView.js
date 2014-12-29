@@ -191,14 +191,16 @@ PivotView.prototype._drillThroughClickHandler = function (event) {
 };
 
 /**
+ * @param {object} cell
  * @param {number} x
  * @param {number} y
  * @param {event} event
+ * @param {function} [drillThroughHandler]
  */
-PivotView.prototype._cellClickHandler = function (x, y, event) {
+PivotView.prototype._cellClickHandler = function (cell, x, y, event, drillThroughHandler) {
 
     var data = this.controller.dataController.getData(),
-        f = [], f1, f2, callbackRes;
+        f = [], f1, f2, callbackRes = true;
 
     try {
         f1 = data.rawData[y][data.info.leftHeaderColumnsNumber - 1].source.path;
@@ -218,12 +220,18 @@ PivotView.prototype._cellClickHandler = function (x, y, event) {
         if (typeof this.controller.CONFIG.triggers["cellDrillThrough"] === "function") {
             callbackRes = this.controller.CONFIG.triggers["cellDrillThrough"]({
                 event: event,
-                filters: f
+                filters: f,
+                cellData: cell
             });
-            if (callbackRes !== false) this.controller.tryDrillThrough(f);
-        } else {
-            this.controller.tryDrillThrough(f);
         }
+        if (typeof drillThroughHandler === "function") {
+            callbackRes = !(!(false !== drillThroughHandler({
+                event: event,
+                filters: f,
+                cellData: cell
+            })) || !(callbackRes !== false));
+        }
+        if (callbackRes !== false) this.controller.tryDrillThrough(f);
     }
 
 };
@@ -540,11 +548,13 @@ PivotView.prototype.renderRawData = function (data) {
             if (rawData[y][x].style) td.setAttribute("style", rawData[y][x].style);
 
             // add handlers
-            td.addEventListener("click", (function (x, y) {
+            td.addEventListener("click", (function (x, y, cell) {
                 return function (event) {
-                    _._cellClickHandler.call(_, x, y, event);
+                    _._cellClickHandler.call(
+                        _, cell, x, y, event, info.drillThroughHandler
+                    );
                 };
-            })(x, y));
+            })(x, y, rawData[y][x]));
 
         }
         mainTBody.appendChild(tr);

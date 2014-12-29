@@ -71,7 +71,7 @@ gulp.task("copyREADME", ["clean"], function (){
 gulp.task("exportCacheXML", [
         "clean", "addExample", "gatherScripts", "gatherCSS", "copyLICENSE", "copyREADME"
     ], function () {
-        return gulp.src("export/LightPivotTable.xml")
+        return gulp.src("export/LightPivotTable-DeepSeePortlet.xml")
             .pipe(
                 replace(/\{\{replace:css}}/,
                 fs.readFileSync("build/WEBModule/css/lightPivotTable.css"))
