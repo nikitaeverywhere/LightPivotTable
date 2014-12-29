@@ -40,6 +40,28 @@ var PivotView = function (controller, container) {
         "c": { base: undefined, clone: undefined }
     };
 
+    this.SCROLLBAR_WIDTH = (function () {
+        var outer = document.createElement("div");
+        outer.style.visibility = "hidden";
+        outer.style.width = "100px";
+        outer.style.msOverflowStyle = "scrollbar";
+
+        document.body.appendChild(outer);
+
+        var widthNoScroll = outer.offsetWidth;
+        outer.style.overflow = "scroll";
+
+        var inner = document.createElement("div");
+        inner.style.width = "100%";
+        outer.appendChild(inner);
+
+        var widthWithScroll = inner.offsetWidth;
+
+        outer.parentNode.removeChild(outer);
+
+        return widthNoScroll - widthWithScroll;
+    })();
+
     this.init();
 
 };
@@ -266,6 +288,7 @@ PivotView.prototype.recalculateSizes = function (container) {
             headerH = topHeader.offsetHeight,
             containerHeight = container.offsetHeight,
             mainHeaderWidth = headerContainer.offsetWidth,
+            hasVerticalScrollBar = tableBlock.scrollHeight > containerHeight - headerH,
             addExtraTopHeaderCell = tTableHead.offsetWidth > topHeader.offsetWidth,
             addExtraLeftHeaderCell = lTableHead.offsetHeight > containerHeight - headerH,
             cell, tr, cellWidths = [], i;
@@ -277,6 +300,11 @@ PivotView.prototype.recalculateSizes = function (container) {
         }
 
         container.parentNode.removeChild(container); // detach
+
+        if (hasVerticalScrollBar && cellWidths[cellWidths.length - 1]) {
+            cellWidths[cellWidths.length - 1] -= this.SCROLLBAR_WIDTH;
+        }
+
         topHeader.style.marginLeft = headerW + "px";
         tableBlock.style.marginLeft = headerW + "px";
         leftHeader.style.height = containerHeight - headerH + "px";
@@ -299,7 +327,8 @@ PivotView.prototype.recalculateSizes = function (container) {
             tr["_extraTr"] = true;
             leftHeader.className = "lpt-leftHeader bordered";
             cell.colSpan = lTableHead.childNodes.length;
-            cell.style.paddingTop = headerH + "px"; // lucky random
+            cell.textContent = "_"; // cheating
+            cell.style.lineHeight = headerH + "px"; // lucky random
         }
 
         for (i in tableTr.childNodes) {
