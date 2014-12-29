@@ -29,6 +29,7 @@ gulp.task("clean", function () {
 gulp.task("gatherScripts", ["clean"], function () {
     return gulp.src("source/js/*.js")
         .pipe(concat("lightPivotTable.js"))
+        .pipe(replace(/\/\*\{\{replace:version}}\*\//, "\"" + pkg["version"] + "\""))
         .pipe(wrap("LightPivotTable = (function(){<%= contents %> return LightPivotTable;}());"))
         .pipe(uglify({
             output: {

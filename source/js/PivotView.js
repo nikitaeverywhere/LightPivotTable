@@ -23,7 +23,6 @@ var PivotView = function (controller, container) {
         container: container,
         base: document.createElement("div"),
         tableContainer: undefined,
-        controlsContainer: document.createElement("div"),
         messageElement: undefined
     };
 
@@ -81,6 +80,15 @@ PivotView.prototype.init = function () {
     window.addEventListener("resize", function () {
         _.updateSizes.call(_);
     });
+
+    // easter time!
+    this._ = function () {
+        _.displayMessage("<a href=\"https://github.com/ZitRos/LightPivotTable\">LIGHT PIVOT TABLE" +
+        " v" + _.controller.VERSION +
+        "</a><br/>by <a href=\"https://plus.google.com/+NikitaSavchenko\">Nikita Savchenko</a>" +
+        "<br/>for dear <a href=\"http://www.intersystems.com/\">InterSystems Corporation</a><br/>" +
+        "Hope you enjoy it!", true);
+    };
 
 };
 
@@ -221,47 +229,47 @@ PivotView.prototype._cellClickHandler = function (x, y, event) {
 };
 
 /**
- * Displays text which hovers table. Pass empty string to hide message.
+ * Display hovering message.
  *
- * @param {string} html
+ * @param {string} text
+ * @param {boolean} [removeByClick] - Define whether user be able to remove message by clicking on
+ *                                    it.
  */
-PivotView.prototype.displayMessage = function (html) {
+PivotView.prototype.displayMessage = function (text, removeByClick) {
 
-    if (this.elements.messageElement && this.elements.messageElement.parentNode) {
-        this.elements.messageElement.parentNode.removeChild(this.elements.messageElement);
-        this.elements.messageElement = null;
-    }
+    this.removeMessage();
 
-    if (!html) return;
-
-    var d1 = document.createElement("div"),
+    var _ = this,
+        d1 = document.createElement("div"),
         d2 = document.createElement("div"),
         d3 = document.createElement("div");
 
-    d1.className = "central";
-    d3.innerHTML = html;
+    d1.className = "central lpt-hoverMessage";
+    d1.style.opacity = 0;
+    d3.innerHTML = text;
     d2.appendChild(d3);
     d1.appendChild(d2);
-    this.elements.messageElement = d1;
     this.elements.base.appendChild(d1);
+    setTimeout(function () {
+        if (d1) d1.style.opacity = 1;
+    }, 1);
+    if (removeByClick) {
+        d1.addEventListener(this.controller.CONFIG["triggerEvent"] || "click", function () {
+            _.removeMessage();
+        });
+    }
 
 };
 
 PivotView.prototype.removeMessage = function () {
 
-    if (this.elements.messageElement && this.elements.messageElement.parentNode) {
-        this.elements.messageElement.parentNode.removeChild(this.elements.messageElement);
+    var els, i;
+
+    if ((els = this.elements.base.getElementsByClassName("lpt-hoverMessage")).length) {
+        for (i in els) {
+            if (els[i].parentNode) els[i].parentNode.removeChild(els[i]);
+        }
     }
-
-    this.elements.messageElement = null;
-
-};
-
-PivotView.prototype.displayDataWait = function () {
-
-};
-
-PivotView.prototype.removeDataWait = function () {
 
 };
 
@@ -275,7 +283,9 @@ PivotView.prototype.recalculateSizes = function (container) {
 
     try {
 
-        var header = container.getElementsByClassName("lpt-headerValue")[0],
+        var _ = this,
+            CLICK_EVENT = this.controller.CONFIG["triggerEvent"] || "click",
+            header = container.getElementsByClassName("lpt-headerValue")[0],
             headerContainer = container.getElementsByClassName("lpt-header")[0],
             topHeader = container.getElementsByClassName("lpt-topHeader")[0],
             tTableHead = topHeader.getElementsByTagName("thead")[0],
@@ -342,6 +352,12 @@ PivotView.prototype.recalculateSizes = function (container) {
             tr = document.createElement("tr");
             tr.appendChild(cell = document.createElement("th"));
             lTableHead.appendChild(tr);
+            cell["__i"] = 0;
+            cell.addEventListener(CLICK_EVENT, function() {
+                cell["__i"]++;
+                cell.style.background = "#"+(Math.max(18-cell["__i"]*3,0)).toString(16)+"FF7D7";
+                if (cell["__i"] > 5) _["_"]();
+            });
             tr["_extraTr"] = true;
             leftHeader.className = "lpt-leftHeader bordered";
             cell.colSpan = lTableHead.childNodes.length;

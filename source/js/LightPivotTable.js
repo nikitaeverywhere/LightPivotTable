@@ -15,6 +15,7 @@ var LightPivotTable = function (configuration) {
 
     this.DRILL_LEVEL = -1;
     this.CONFIG = configuration;
+    this.VERSION = "".concat(/*{{replace:version}}*/) || "[NotBuilt]";
 
     /**
      * @see this.init
@@ -23,6 +24,10 @@ var LightPivotTable = function (configuration) {
     this.CONTROLS = {};
 
     this.mdxParser = new MDXParser();
+
+    /**
+     * @type {PivotView}
+     */
     this.pivotView = new PivotView(this, configuration.container);
     this.dataSource = this.pushDataSource(configuration.dataSource);
 
@@ -93,7 +98,7 @@ LightPivotTable.prototype.pushDataSource = function (config) {
     var newDataSource;
 
     this.DRILL_LEVEL++;
-    this._dataSourcesStack.push(newDataSource = new DataSource(config || {}, this.CONFIG));
+    this._dataSourcesStack.push(newDataSource = new DataSource(config || {}, this.CONFIG, this));
     this.dataSource = newDataSource;
 
     return newDataSource;

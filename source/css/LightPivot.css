@@ -177,3 +177,14 @@
 .lpt .lpt-leftHeader table {
     margin-bottom: 10em;
 }
+
+/* lpt-dataWait */
+.lpt .lpt-hoverMessage {
+    z-index: 999;
+    opacity: 0;
+    background: rgba(255, 255, 255, 0.8);
+    -webkit-transition: opacity 1s ease;
+    -moz-transition: opacity 1s ease;
+    -o-transition: opacity 1s ease;
+    transition: opacity 1s ease;
+}

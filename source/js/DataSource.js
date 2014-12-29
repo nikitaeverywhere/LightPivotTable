@@ -5,9 +5,10 @@
  *
  * @param {Object} config
  * @param {Object} globalConfig
+ * @param {LightPivotTable} lpt
  * @constructor
  */
-var DataSource = function (config, globalConfig) {
+var DataSource = function (config, globalConfig, lpt) {
 
     this.SOURCE_URL = config.MDX2JSONSource ||
         location.host + ":" + location.port + "/" + (location.pathname.split("/") || [])[1];
@@ -15,7 +16,7 @@ var DataSource = function (config, globalConfig) {
     this.USERNAME = config["username"];
     this.PASSWORD = config["password"];
     this.BASIC_MDX = config.basicMDX;
-
+    this.LPT = lpt;
     this.GLOBAL_CONFIG = globalConfig;
 
     /**
@@ -224,11 +225,16 @@ DataSource.prototype.getCurrentData = function (callback) {
         _._post(_.SOURCE_URL + "/" + _.ACTION + (_.NAMESPACE ? "?Namespace=" + _.NAMESPACE : ""), {
             MDX: mdx
         }, function (data) {
+            _.LPT.pivotView.removeMessage();
             ready.data = data;
             ready.state++;
             handleDataReady();
         });
     };
+
+    _.LPT.pivotView.displayMessage(
+        navigator.language === "ru" ? "Ожидание данных..." : "Waiting for data..."
+    );
 
     if (this.DATA_SOURCE_PIVOT) {
         this._post(this.SOURCE_URL + "/DataSource"
