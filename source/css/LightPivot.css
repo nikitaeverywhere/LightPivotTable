@@ -95,6 +95,7 @@
     text-align: right;
     text-overflow: ellipsis;
     overflow: hidden;
+    padding: 0 6px !important;
 }
 
 .lpt .lpt-topSection, .lpt .lpt-bottomSection {

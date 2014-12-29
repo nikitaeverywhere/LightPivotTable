@@ -266,7 +266,7 @@ PivotView.prototype.removeDataWait = function () {
 };
 
 /**
- * @param {HTMLElement} container
+ * @param container
  */
 PivotView.prototype.recalculateSizes = function (container) {
 
@@ -281,6 +281,7 @@ PivotView.prototype.recalculateSizes = function (container) {
             leftHeader = container.getElementsByClassName("lpt-leftHeader")[0],
             lTableHead = leftHeader.getElementsByTagName("thead")[0],
             tableBlock = container.getElementsByClassName("lpt-tableBlock")[0],
+            pTableHead = tableBlock.getElementsByTagName("tbody")[0],
             tableTr = tableBlock.getElementsByTagName("tr")[0];
 
         if (tTableHead.childNodes[0] && tTableHead.childNodes[0].lastChild["_extraCell"]) {
@@ -297,7 +298,7 @@ PivotView.prototype.recalculateSizes = function (container) {
             hasVerticalScrollBar = tableBlock.scrollHeight > containerHeight - headerH,
             addExtraTopHeaderCell = tTableHead.offsetWidth > topHeader.offsetWidth,
             addExtraLeftHeaderCell = lTableHead.offsetHeight > containerHeight - headerH,
-            cell, tr, cellWidths = [], i;
+            cell, tr, cellWidths = [], columnHeights = [], i;
 
         headerContainer.style.width = headerW + "px";
         if (container["_primaryColumns"]) {
@@ -306,6 +307,13 @@ PivotView.prototype.recalculateSizes = function (container) {
             }
         } else {
             console.warn("No _primaryColumns property in container, cell sizes won't be fixed.");
+        }
+        if (container["_primaryRows"]) {
+            for (i in container["_primaryRows"]) {
+                columnHeights.push(container["_primaryRows"][i].offsetHeight);
+            }
+        } else {
+            console.warn("No _primaryRows property in container, cell sizes won't be fixed.");
         }
 
         container.parentNode.removeChild(container); // detach
@@ -343,6 +351,13 @@ PivotView.prototype.recalculateSizes = function (container) {
         for (i in tableTr.childNodes) {
             if (tableTr.childNodes[i].tagName !== "TD") continue;
             tableTr.childNodes[i].style.width = cellWidths[i] + "px";
+        }
+        for (i in pTableHead.childNodes) {
+            if (pTableHead.childNodes[i].tagName !== "TR") continue;
+            if (pTableHead.childNodes[i].firstChild) {
+                pTableHead.childNodes[i].firstChild.style.height =
+                    (columnHeights[i] || 0) + "px";
+            }
         }
 
         containerParent.appendChild(container); // attach
@@ -389,7 +404,7 @@ PivotView.prototype.renderRawData = function (data) {
         LHTHead = document.createElement("thead"),
         mainTable = document.createElement("table"),
         mainTBody = document.createElement("tbody"),
-        x, y, tr = null, th, td, primaryColumns = [];
+        x, y, tr = null, th, td, primaryColumns = [], primaryRows = [];
 
     // clean previous content
     this.removeMessage();
@@ -434,6 +449,7 @@ PivotView.prototype.renderRawData = function (data) {
 
                 // add listeners
                 if (vertical && x === xTo - 1) {
+                    primaryRows.push(th);
                     th.addEventListener(CLICK_EVENT, (function (index, data) {
                         return function () {
                             _._rowClickHandler.call(_, index, data);
@@ -538,6 +554,7 @@ PivotView.prototype.renderRawData = function (data) {
     container.appendChild(pivotTopSection);
     container.appendChild(pivotBottomSection);
     container["_primaryColumns"] = primaryColumns;
+    container["_primaryRows"] = primaryRows;
 
     this.recalculateSizes(container);
 
