@@ -512,9 +512,13 @@ PivotView.prototype.renderRawData = function (data) {
                 td.className += " formatLeft";
                 td.textContent = rawData[y][x].value || "";
             } else { // number
-                td.textContent = rawData[y][x].value ? this.numeral(rawData[y][x].value).format(
-                    columnProps[x - info.leftHeaderColumnsNumber].format || ""
-                ) : "";
+                if (columnProps[x - info.leftHeaderColumnsNumber].format) {
+                    td.textContent = rawData[y][x].value ? this.numeral(rawData[y][x].value).format(
+                        columnProps[x - info.leftHeaderColumnsNumber].format
+                    ) : "";
+                } else {
+                    td.textContent = rawData[y][x].value || "";
+                }
             }
             if (rawData[y][x].style) td.setAttribute("style", rawData[y][x].style);
 
