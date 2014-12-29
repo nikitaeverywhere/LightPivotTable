@@ -96,6 +96,7 @@
     text-overflow: ellipsis;
     overflow: hidden;
     padding: 0 6px !important;
+    cursor: pointer;
 }
 
 .lpt .lpt-topSection, .lpt .lpt-bottomSection {
