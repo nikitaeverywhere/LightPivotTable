@@ -169,6 +169,7 @@
 
 .lpt .lpt-topHeader th {
     min-width: 100px;
+    text-align: center;
     /*border-bottom: none;*/
 }
 
