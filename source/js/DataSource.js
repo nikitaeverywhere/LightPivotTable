@@ -162,7 +162,7 @@ DataSource.prototype.getCurrentData = function (callback) {
 
         var data = ready.data;
 
-        console.log("Retrieved data:", ready);
+        //console.log("Retrieved data:", ready);
 
         (data.Info || {}).action = _.ACTION;
         if (_.ACTION === "MDXDrillthrough") {
@@ -220,7 +220,7 @@ DataSource.prototype.getCurrentData = function (callback) {
             mdx = mdxParser.applyFilter(mdx, filters[i]);
         }
 
-        console.log("Requesting MDX: " + mdx);
+        console.log("LPT MDX request:", mdx);
 
         _._post(_.SOURCE_URL + "/" + _.ACTION + (_.NAMESPACE ? "?Namespace=" + _.NAMESPACE : ""), {
             MDX: mdx

@@ -489,7 +489,7 @@ PivotView.prototype.renderRawData = function (data) {
         }
     };
 
-    console.log("Data to render: ", data);
+    //console.log("Data to render: ", data);
 
     // fill header
     header.textContent = info.leftHeaderColumnsNumber ? rawData[0][0].value : "";
