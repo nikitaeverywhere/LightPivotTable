@@ -90,7 +90,10 @@ gulp.task("zipRelease", ["exportCacheXML"], function () {
             comment: "Light pivot table v" + pkg["version"] + " by Nikita Savchenko\n\n" +
             "+ WEBModule folder holds JS and CSS files to integrate Light pivot table to any WEB " +
             "application;\n" +
-            "+ Cache folder holds XML file to import to InterSystems Cache."
+            "+ Cache folder holds XML file to import to InterSystems Cache.\n\n" +
+            "NOTE: MDX2JSON must be installed and configured for InterSystems Cache.\nYou can " +
+            "download and install it from here: https://github.com/intersystems-ru/Cache-MDX2JSON\n"
+            + "\nFor further information about installation and information, check README.md file."
         }))
         .pipe(gulp.dest("build"));
 });
