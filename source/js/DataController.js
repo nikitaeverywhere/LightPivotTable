@@ -410,6 +410,7 @@ DataController.prototype.resetRawData = function () {
                     group: groupNum,
                     isCaption: true,
                     source: {},
+                    noDrillDown: true,
                     value: navigator.language === "ru" ? "Всего" : "Total"
                 };
                 applyHeaderStyle(summary[i], false);

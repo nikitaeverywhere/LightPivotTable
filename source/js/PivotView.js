@@ -473,7 +473,7 @@ PivotView.prototype.renderRawData = function (data) {
                 }
 
                 // add listeners
-                if (vertical && x === xTo - 1) {
+                if (vertical && x === xTo - 1 && !rawData[y][x]["noDrillDown"]) {
                     primaryRows.push(th);
                     th.addEventListener(CLICK_EVENT, (function (index, data) {
                         return function () {
