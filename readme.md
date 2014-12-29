@@ -1,24 +1,26 @@
-Light pivot table for MDX2JSON source
+Light pivot table for InterSystems Caché
 ====================
 
-This is a lightweight and simple pivot table realization for 
-[MDX2JSON](https://github.com/intersystems-ru/Cache-MDX2JSON) source.
+Lightweight, fast and featured pivot table realization for
+[InterSystems Caché](http://www.intersystems.com).
 
 ## Features
 <ul>
-    <li>View any MDX;</li>
-    <li>Sort data in table;</li>
-    <li>Easy to configure and use;</li>
-    <li>Lightweight and speedy realization comparing to common DeepSee pivot table.</li>
+    <li>Whole basic functionality of standard pivot table;</li>
+    <li>Simple good looking design;</li>
+    <li>Lightweight and speedy realization comparing to common DeepSee pivot table;</li>
+    <li>Mobile platforms support;</li>
+    <li>Easiest integration to any WEB project;</li>
+    <li>And even more...</li>
 </ul>
 
 ## Installation
 
 <ol>
-    <li>Install and configure [MDX2JSON](https://github.com/intersystems-ru/Cache-MDX2JSON) on
+    <li>Install and configure [MDX2JSON](https://github.com/intersystems-ru/Cache-MDX2JSON) to
         your Caché instance;</li>
     <li>Build the project by running <code>gulp</code> command (see "Build" section below);</li>
-    <li>Edit a bit code in <code>build/example/index.html</code> (set MDX2JSONSource and basicMDX
+    <li>Edit a bit code in <code>build/WEBModule/index.html</code> (set MDX2JSONSource and basicMDX
     properties according to your needs);</li>
     <li>Use it!</li>
 </ol>
@@ -27,11 +29,11 @@ This is a lightweight and simple pivot table realization for
 
 #### Javascript
 
-Build the project, and then include <code>build/css/lightPivotTable.css</code> and
-<code>build/js/lightPivotTable.js</code> files into your project. Usage is shown in
-<code>build/example/index.html</code> example.
+Build the project, and then include <code>build/WEBModule/css/lightPivotTable.css</code> and
+<code>build/WEBModule/js/lightPivotTable.js</code> files into your project. Usage is shown in
+<code>build/WEBModule/index.html</code> example.
 
-Then use global object <i>LightPivotTable</i>:
+Then use global object constructed from <i>LightPivotTable</i>:
 ```js
 var setup = { // Object that contain settings. Any setting may be missed.
         container: document.getElementById("pivot") // HTMLElement which will contain table.
@@ -96,6 +98,6 @@ Also anytime you can build project and then check <code>build/example/index.html
 
 ## Preview
 
-Run <code>gulp</code> command and then check <code>build/example/index.html</code>.
+Run <code>gulp</code> command and then check <code>build/WEBModule/index.html</code>.
 
 ![Light pivot table](https://cloud.githubusercontent.com/assets/4989256/5570072/4c3a161e-8f84-11e4-929b-6577728df6ba.png)
