@@ -86,7 +86,12 @@ gulp.task("exportCacheXML", [
 
 gulp.task("zipRelease", ["exportCacheXML"], function () {
     return gulp.src("build/**/*")
-        .pipe(zip("LightPivotTable-v" + pkg["version"] + ".zip"))
+        .pipe(zip("LightPivotTable-v" + pkg["version"] + ".zip", {
+            comment: "Light pivot table v" + pkg["version"] + " by Nikita Savchenko\n\n" +
+            "+ WEBModule folder holds JS and CSS files to integrate Light pivot table to any WEB " +
+            "application;\n" +
+            "+ Cache folder holds XML file to import to InterSystems Cache."
+        }))
         .pipe(gulp.dest("build"));
 });
 

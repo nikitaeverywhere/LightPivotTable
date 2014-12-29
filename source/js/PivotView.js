@@ -86,8 +86,8 @@ PivotView.prototype.init = function () {
         _.displayMessage("<a href=\"https://github.com/ZitRos/LightPivotTable\">LIGHT PIVOT TABLE" +
         " v" + _.controller.VERSION +
         "</a><br/>by <a href=\"https://plus.google.com/+NikitaSavchenko\">Nikita Savchenko</a>" +
-        "<br/>for dear <a href=\"http://www.intersystems.com/\">InterSystems Corporation</a><br/>" +
-        "Hope you enjoy it!", true);
+        "<br/>for dear users of products of <a href=\"http://www.intersystems.com/\">InterSystems" +
+        " Corporation</a><br/>Hope you enjoy it!", true);
     };
 
 };
