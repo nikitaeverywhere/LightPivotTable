@@ -28,17 +28,6 @@ var PivotView = function (controller, container) {
 
     this.controller = controller;
 
-    /**
-     * Fixed headers links.
-     *
-     * @private
-     */
-    this._headers = {
-        "h": { base: undefined, clone: undefined },
-        "v": { base: undefined, clone: undefined },
-        "c": { base: undefined, clone: undefined }
-    };
-
     this.SCROLLBAR_WIDTH = (function () {
         var outer = document.createElement("div");
         outer.style.visibility = "hidden";
@@ -118,12 +107,7 @@ PivotView.prototype.pushTable = function () {
     if (this.tablesStack.length) tableElement.style.left = "100%";
 
     this.tablesStack.push({
-        element: tableElement,
-        _headers: {
-            "h": { base: undefined, clone: undefined },
-            "v": { base: undefined, clone: undefined },
-            "c": { base: undefined, clone: undefined }
-        }
+        element: tableElement
     });
 
     this.elements.base.appendChild(tableElement);
@@ -527,6 +511,9 @@ PivotView.prototype.renderRawData = function (data) {
         rawData.length,
         LHTHead
     );
+    if (this.controller.CONFIG["hideButtons"] && info.leftHeaderColumnsNumber === 0) {
+        header.style.display = "none";
+    }
 
     // render table
     for (y = info.topHeaderRowsNumber; y < rawData.length; y++) {
