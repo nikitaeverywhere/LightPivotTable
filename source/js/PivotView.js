@@ -168,6 +168,7 @@ PivotView.prototype._backClickHandler = function (event) {
         event.stopPropagation();
     }
 
+    this.removeMessage();
     this.popTable();
     this.controller.popDataSource();
 
