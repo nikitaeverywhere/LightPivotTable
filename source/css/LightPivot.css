@@ -182,6 +182,8 @@
 .lpt .lpt-hoverMessage {
     z-index: 999;
     opacity: 0;
+    font-size: xx-large;
+    font-family: serif;
     background: rgba(255, 255, 255, 0.85);
     -webkit-transition: opacity 1s ease;
     -moz-transition: opacity 1s ease;
