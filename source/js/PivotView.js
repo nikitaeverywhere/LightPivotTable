@@ -131,7 +131,7 @@ PivotView.prototype.pushTable = function () {
 
     setTimeout(function () {
         _._updateTablesPosition();
-    }, 1);
+    }, 30);
 
 };
 
