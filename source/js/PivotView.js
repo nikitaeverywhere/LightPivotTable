@@ -267,6 +267,75 @@ PivotView.prototype.removeMessage = function () {
 };
 
 /**
+ * @param {*} value1
+ * @param {string} operator
+ * @param {*} value2 - fixed value
+ * @private
+ * @return {boolean}
+ */
+PivotView.prototype._matchCondition = function (value1, operator, value2) {
+
+    switch (operator) {
+        case "=": return value1 == value2;
+        case "<>": return value1 != value2;
+        case ">": return value1 > value2;
+        case ">=": return value1 >= value2;
+        case "<": return value1 < value2;
+        case "<=": return value1 <= value2;
+        case "IN": return value2.toString().indexOf(value1) !== -1; // how does it normally work?
+        case "BETWEEN": return value1 >= value2.split(",")[0] && value1 <= value2.split(",")[1];
+        case "IS NULL": return !value1;
+        default: {
+            console.error("Formatting error: unknown format operator \"" + operator + "\"");
+            return false;
+        }
+    }
+
+};
+
+/**
+ * Applies conditional formatting for element.
+ *
+ * @param {object} rules - Special object that contain formatting rules.
+ * @param {string} key - Position y,x separated by comma or empty string for global.
+ * @param {*} value - Original value to format (comparator).
+ * @param {HTMLElement} element - element to format.
+ */
+PivotView.prototype.applyConditionalFormatting = function (rules, key, value, element) {
+
+    var actualRules = rules[""] || [],
+        p, i, rule, html, xs, num;
+    actualRules = actualRules.concat(rules[key] || []);
+    if ((xs = key.split(",")).length === 2) {
+        actualRules = actualRules.concat(rules[xs[0] + ","] || [], rules["," + xs[1]] || []);
+    }
+
+    for (p in actualRules) {
+
+        rule = actualRules[p];
+        if (!this._matchCondition(value, rule["operator"], rule["value"])) continue;
+
+        // apply formatting
+        if (rule["style"])
+            element.setAttribute("style", (element.getAttribute("style") || "") + rule["style"]);
+        if (rule["icon"]) {
+            element.textContent = ""; html = "<div style=\"overflow: hidden; height: 16px;\">";
+            num = parseInt(rule["iconCount"]) || 1;
+            for (i = 0; i < num; i++) {
+                html += "<img alt=\"*\" style=\"padding-right:2px; height: 100%;\" " +
+                "src=\"" + rule["icon"] + "\"/>";
+            }
+            // LPT won't change default format (f.e. text-align) for content.
+            // element.className = (element.className || "") + " formatLeft";
+            element.innerHTML = html + "</div>";
+        }
+        if (rule["text"]) element.textContent = rule["text"];
+
+    }
+
+};
+
+/**
  * @param container
  */
 PivotView.prototype.recalculateSizes = function (container) {
@@ -534,6 +603,17 @@ PivotView.prototype.renderRawData = function (data) {
                 }
             }
             if (rawData[y][x].style) td.setAttribute("style", rawData[y][x].style);
+            if (
+                this.controller.CONFIG.conditionalFormattingOn // totals formatting present
+                && !(info.SUMMARY_SHOWN && rawData.length - 1 === y) // exclude totals formatting
+            ) {
+                this.applyConditionalFormatting(
+                    data["conditionalFormatting"],
+                    (y - info.topHeaderRowsNumber + 1) + "," + (x - info.leftHeaderColumnsNumber + 1),
+                    rawData[y][x].value,
+                    td
+                );
+            }
 
             // add handlers
             td.addEventListener(CLICK_EVENT, (function (x, y, cell) {

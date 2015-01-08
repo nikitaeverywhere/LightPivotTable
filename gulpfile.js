@@ -35,7 +35,9 @@ gulp.task("gatherScripts", ["clean"], function () {
         .pipe(wrap("LightPivotTable = (function(){<%= contents %> return LightPivotTable;}());"))
         .pipe(uglify({
             output: {
-                ascii_only: true
+                ascii_only: true,
+                width: 30000,
+                max_line_len: 30000
             }
         }))
         .pipe(header(banner, { pkg: pkg }))

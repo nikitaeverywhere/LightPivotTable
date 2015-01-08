@@ -55,6 +55,7 @@ var setup = { // Object that contain settings. Any setting may be missed.
         [ , triggerEvent: "touchstart" // all "click" events will be replaced by this event ]
         [ , caption: "My table" // if set, table basic caption will be replaced by this text ]
         [ , showSummary: true // show summary by columns ]
+        [ , conditionalFormattingOn: true // pass false to turn off conditional formatting ]
         [ , drillDownTarget: "<dashboard name>" // deepSee only - dashboard to open ]
     },
     lp = new LightPivotTable(setup);

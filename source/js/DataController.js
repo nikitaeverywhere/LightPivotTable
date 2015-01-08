@@ -90,7 +90,6 @@ DataController.prototype.setData = function (data) {
     this.resetDimensionProps();
     this.resetConditionalFormatting();
     this.resetRawData();
-    console.log("Data:", data);
 
     this._trigger();
     return data;
@@ -159,6 +158,9 @@ DataController.prototype.resetConditionalFormatting = function () {
     }
 
     ocfArr = this.controller.CONFIG.pivotProperties["formatRules"] || [];
+    if (ocfArr.length && typeof this.controller.CONFIG.conditionalFormattingOn === "undefined") {
+        this.controller.CONFIG.conditionalFormattingOn = true;
+    }
     for (var i in ocfArr) {
         // Warn: range ",2-3" is valid for standard pivot as ",2".
         // LPT will parse ",2-3" range as invalid.
@@ -426,6 +428,7 @@ DataController.prototype.resetRawData = function () {
 
     if (this.controller.CONFIG["showSummary"] && rawData.length - xh > 1 // xh - see above
         && (rawData[rawData.length - 1][0] || {})["isCaption"]) {
+        data.info.SUMMARY_SHOWN = true;
         this.SUMMARY_SHOWN = true;
         this._dataStack[this._dataStack.length - 1].SUMMARY_SHOWN = true;
         rawData.push(summary = []);
