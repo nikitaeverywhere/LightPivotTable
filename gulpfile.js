@@ -98,6 +98,11 @@ gulp.task("zipRelease", ["exportCacheXML"], function () {
         .pipe(gulp.dest("build"));
 });
 
+gulp.task("desktop", ["default"], function () {
+    return gulp.src("build/Caché/*")
+        .pipe(gulp.dest("C:/Users/ZitRo/Desktop"));
+});
+
 gulp.task("default", [
     "clean", "gatherScripts", "gatherCSS", "addExample", "copyLICENSE", "copyREADME",
     "exportCacheXML", "zipRelease"

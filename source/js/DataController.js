@@ -88,7 +88,9 @@ DataController.prototype.setData = function (data) {
     this._dataStack[this._dataStack.length - 1].data = data;
     //this.data = data;
     this.resetDimensionProps();
+    this.resetConditionalFormatting();
     this.resetRawData();
+    console.log("Data:", data);
 
     this._trigger();
     return data;
@@ -107,8 +109,6 @@ DataController.prototype.setDrillThroughHandler = function (handler) {
 
 /**
  * Sets properties of rows/columns.
- *
- * @returns {null}
  */
 DataController.prototype.resetDimensionProps = function () {
 
@@ -116,7 +116,7 @@ DataController.prototype.resetDimensionProps = function () {
 
     if (!(data = this._dataStack[this._dataStack.length - 1].data)) {
         console.error("Unable to get dimension props for given data set.");
-        return null;
+        return;
     }
 
     var parse = function (obj, props) {
@@ -140,6 +140,32 @@ DataController.prototype.resetDimensionProps = function () {
     parse({ children: data.dimensions[0] }, {});
 
     data.columnProps = columnProps;
+
+};
+
+DataController.prototype.resetConditionalFormatting = function () {
+
+    var data,
+        cfArr = {/* "[y],[x]|<null>": Array[{style:"", operator: "", ...}] */},
+        ocfArr;
+
+    if (!(data = this._dataStack[this._dataStack.length - 1].data)) {
+        console.error("Unable to get conditional formatting for given data set.");
+        return;
+    }
+    if (!(this.controller.CONFIG.pivotProperties)) {
+        data.conditionalFormatting = cfArr;
+        return;
+    }
+
+    ocfArr = this.controller.CONFIG.pivotProperties["formatRules"] || [];
+    for (var i in ocfArr) {
+        // Warn: range ",2-3" is valid for standard pivot as ",2".
+        // LPT will parse ",2-3" range as invalid.
+        if (!cfArr[ocfArr[i]["range"]]) cfArr[ocfArr[i]["range"]] = [];
+        cfArr[ocfArr[i]["range"]].push(ocfArr[i]);
+    }
+    data.conditionalFormatting = cfArr;
 
 };
 
