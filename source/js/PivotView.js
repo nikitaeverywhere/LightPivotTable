@@ -369,8 +369,9 @@ PivotView.prototype.recalculateSizes = function (container) {
             containerHeight = container.offsetHeight,
             mainHeaderWidth = headerContainer.offsetWidth,
             hasVerticalScrollBar = tableBlock.scrollHeight > containerHeight - headerH,
-            addExtraTopHeaderCell = tTableHead.offsetWidth > topHeader.offsetWidth,
-            addExtraLeftHeaderCell = lTableHead.offsetHeight > containerHeight - headerH,
+            //addExtraTopHeaderCell = tTableHead.offsetWidth > topHeader.offsetWidth,
+            addExtraLeftHeaderCell = lTableHead.offsetHeight > containerHeight - headerH
+                && this.SCROLLBAR_WIDTH > 0,
             cell, tr, cellWidths = [], columnHeights = [], i;
 
         headerContainer.style.width = headerW + "px";
@@ -403,12 +404,12 @@ PivotView.prototype.recalculateSizes = function (container) {
         tableBlock.style.height = containerHeight - headerH + "px";
         headerContainer.style.height = headerH + "px";
 
-        if (addExtraTopHeaderCell) {
-            tTableHead.childNodes[0].appendChild(cell = document.createElement("th"));
-            cell.rowSpan = tTableHead.childNodes.length;
-            cell.style.paddingLeft = headerW + "px"; // lucky random
-            cell["_extraCell"] = true;
-        }
+        //if (false && addExtraTopHeaderCell) {
+        //    tTableHead.childNodes[0].appendChild(cell = document.createElement("td"));
+        //    cell.rowSpan = tTableHead.childNodes.length;
+        //    cell.style.width = this.SCROLLBAR_WIDTH + "px"; // lucky random
+        //    cell["_extraCell"] = true;
+        //}
 
         if (addExtraLeftHeaderCell) {
             tr = document.createElement("tr");
@@ -421,10 +422,12 @@ PivotView.prototype.recalculateSizes = function (container) {
                 if (cell["__i"] > 5) _["_"]();
             });
             tr["_extraTr"] = true;
-            leftHeader.className = "lpt-leftHeader bordered";
+            leftHeader.className = leftHeader.className.replace(/\sbordered/, "")
+                + " bordered";
             cell.colSpan = lTableHead.childNodes.length;
-            cell.textContent = "_"; // cheating
-            cell.style.lineHeight = headerH + "px"; // lucky random
+            cell.style.height = this.SCROLLBAR_WIDTH + "px";
+            //cell.textContent = "_"; // cheating
+            //cell.style.lineHeight = headerH + "px"; // lucky random
         }
 
         for (i in tableTr.childNodes) {
@@ -629,13 +632,29 @@ PivotView.prototype.renderRawData = function (data) {
     }
 
     tableBlock.addEventListener("scroll", function () {
+        if (tableBlock._ISE) { tableBlock._ISE = false; return; }
         topHeader.scrollLeft = tableBlock.scrollLeft;
         leftHeader.scrollTop = tableBlock.scrollTop;
+        topHeader._ISE = true; leftHeader._ISE = true; // ignore scroll event
     });
 
-    tableBlock.className = "lpt-tableBlock";
     leftHeader.className = "lpt-leftHeader";
     topHeader.className = "lpt-topHeader";
+    if (this.controller.CONFIG.enableHeadersScrolling) {
+        leftHeader.className = leftHeader.className + " lpt-scrollable-y";
+        topHeader.className = topHeader.className + " lpt-scrollable-x";
+        leftHeader.addEventListener("scroll", function () {
+            if (leftHeader._ISE) { leftHeader._ISE = false; return; }
+            tableBlock.scrollTop = leftHeader.scrollTop;
+            tableBlock._ISE = true;
+        });
+        topHeader.addEventListener("scroll", function () {
+            if (topHeader._ISE) { topHeader._ISE = false; return; }
+            tableBlock.scrollLeft = topHeader.scrollLeft;
+            tableBlock._ISE = true;
+        });
+    }
+    tableBlock.className = "lpt-tableBlock";
     pivotHeader.className = "lpt-header";
     pivotTopSection.className = "lpt-topSection";
     pivotBottomSection.className = "lpt-bottomSection";

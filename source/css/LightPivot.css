@@ -174,9 +174,9 @@
     /*border-bottom: none;*/
 }
 
-.lpt .lpt-leftHeader table {
-    margin-bottom: 10em;
-}
+/*.lpt .lpt-leftHeader table {*/
+    /*margin-bottom: 10em;*/
+/*}*/
 
 /* lpt-dataWait */
 .lpt .lpt-hoverMessage {
@@ -189,4 +189,17 @@
     -moz-transition: opacity 1s ease;
     -o-transition: opacity 1s ease;
     transition: opacity 1s ease;
+}
+
+.lpt-scrollable-y {
+    overflow-y: auto !important;
+}
+.lpt-scrollable-x {
+    overflow-x: auto !important;
+}
+.lpt-scrollable-x::-webkit-scrollbar {
+    display: none;
+}
+.lpt-scrollable-y::-webkit-scrollbar {
+    display: none;
 }

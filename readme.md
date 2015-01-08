@@ -56,6 +56,7 @@ var setup = { // Object that contain settings. Any setting may be missed.
         [ , caption: "My table" // if set, table basic caption will be replaced by this text ]
         [ , showSummary: true // show summary by columns ]
         [ , conditionalFormattingOn: true // pass false to turn off conditional formatting ]
+        [ , enableHeadersScrolling: false // enable scrolling both for table and headers. Useful for mobile devices. ]
         [ , drillDownTarget: "<dashboard name>" // deepSee only - dashboard to open ]
     },
     lp = new LightPivotTable(setup);
