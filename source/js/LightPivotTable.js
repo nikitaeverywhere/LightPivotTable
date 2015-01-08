@@ -206,7 +206,9 @@ LightPivotTable.prototype.tryDrillThrough = function (filters) {
 
     this.dataSource.getCurrentData(function (data) {
         if (_.dataController.isValidData(data) && data.dataArray.length > 0) {
-            _.pivotView.pushTable();
+            _.pivotView.pushTable({
+                disableConditionalFormatting: true
+            });
             _.dataController.pushData();
             _.dataController.setData(data);
             _.dataController.setDrillThroughHandler(function (params) {

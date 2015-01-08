@@ -98,7 +98,11 @@ PivotView.prototype._updateTablesPosition = function (seek) {
 
 };
 
-PivotView.prototype.pushTable = function () {
+PivotView.prototype.getCurrentTableData = function () {
+    return this.tablesStack[this.tablesStack.length - 1];
+};
+
+PivotView.prototype.pushTable = function (opts) {
 
     var _ = this,
         tableElement = document.createElement("div");
@@ -107,7 +111,8 @@ PivotView.prototype.pushTable = function () {
     if (this.tablesStack.length) tableElement.style.left = "100%";
 
     this.tablesStack.push({
-        element: tableElement
+        element: tableElement,
+        opts: opts || {}
     });
 
     this.elements.base.appendChild(tableElement);
@@ -609,6 +614,7 @@ PivotView.prototype.renderRawData = function (data) {
             if (
                 this.controller.CONFIG.conditionalFormattingOn // totals formatting present
                 && !(info.SUMMARY_SHOWN && rawData.length - 1 === y) // exclude totals formatting
+                && !this.getCurrentTableData().opts.disableConditionalFormatting
             ) {
                 this.applyConditionalFormatting(
                     data["conditionalFormatting"],
