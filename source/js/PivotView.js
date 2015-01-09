@@ -456,6 +456,27 @@ PivotView.prototype.recalculateSizes = function (container) {
 };
 
 /**
+ * DeepSee-defined colors.
+ *
+ * @param {string} name - name of color. F.e. "red".
+ * @returns {{ r: number, g: number, b: number }}
+ */
+PivotView.prototype.colorNameToRGB = function (name) {
+    var c = function (r, g, b) { return { r: r, g: g, b: b } };
+    switch (name) {
+        case "red": return c(255, 0, 0);
+        case "green": return c(0, 255, 0);
+        case "blue": return c(0, 0, 255);
+        case "purple": return c(102, 0, 153);
+        case "salmon": return c(255, 140, 105);
+        case "white": return c(255, 255, 255);
+        case "black": return c(0, 0, 0);
+        case "gray": return c(128, 128, 128);
+        default: return c(255, 255, 255);
+    }
+};
+
+/**
  * Raw data - plain 2-dimensional array of data to render.
  *
  * group - makes able to group cells together. Cells with same group number will be gathered.
@@ -477,6 +498,8 @@ PivotView.prototype.renderRawData = function (data) {
         rawData = data["rawData"],
         info = data["info"],
         columnProps = data["columnProps"],
+        colorScale =
+            data["conditionalFormatting"] ? data["conditionalFormatting"]["colorScale"] : undefined,
         container = this.elements.tableContainer,
         pivotTopSection = document.createElement("div"),
         pivotBottomSection = document.createElement("div"),
@@ -491,7 +514,7 @@ PivotView.prototype.renderRawData = function (data) {
         LHTHead = document.createElement("thead"),
         mainTable = document.createElement("table"),
         mainTBody = document.createElement("tbody"),
-        x, y, tr = null, th, td, primaryColumns = [], primaryRows = [];
+        x, y, tr = null, th, td, primaryColumns = [], primaryRows = [], ratio;
 
     // clean previous content
     this.removeMessage();
@@ -610,7 +633,19 @@ PivotView.prototype.renderRawData = function (data) {
                     td.textContent = rawData[y][x].value || "";
                 }
             }
-            if (rawData[y][x].style) td.setAttribute("style", rawData[y][x].style);
+            if (
+                colorScale
+                && !(info.SUMMARY_SHOWN && rawData.length - 1 === y) // exclude totals formatting
+            ) {
+                ratio = (parseFloat(rawData[y][x].value) - colorScale.min) / colorScale.diff;
+                td.setAttribute("style", "background:rgb(" +
+                + Math.round((colorScale.to.r - colorScale.from.r)*ratio + colorScale.from.r)
+                + "," + Math.round((colorScale.to.g - colorScale.from.g)*ratio + colorScale.from.g)
+                + "," + Math.round((colorScale.to.b - colorScale.from.b)*ratio + colorScale.from.b)
+                + ");" + (colorScale.invert ? "color: white;" : ""));
+            }
+            if (rawData[y][x].style)
+                td.setAttribute("style", (td.getAttribute("style") || "") + rawData[y][x].style);
             if (
                 this.controller.CONFIG.conditionalFormattingOn // totals formatting present
                 && !(info.SUMMARY_SHOWN && rawData.length - 1 === y) // exclude totals formatting

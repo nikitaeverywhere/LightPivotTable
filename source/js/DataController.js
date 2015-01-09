@@ -144,7 +144,7 @@ DataController.prototype.resetDimensionProps = function () {
 
 DataController.prototype.resetConditionalFormatting = function () {
 
-    var data,
+    var data, cs, c1, c2, arr, min, max,
         cfArr = {/* "[y],[x]|<null>": Array[{style:"", operator: "", ...}] */},
         ocfArr;
 
@@ -155,6 +155,27 @@ DataController.prototype.resetConditionalFormatting = function () {
     if (!(this.controller.CONFIG.pivotProperties)) {
         data.conditionalFormatting = cfArr;
         return;
+    }
+
+    if (cs = this.controller.CONFIG.pivotProperties["colorScale"]) {
+        if (cs.indexOf("custom:") > -1) {
+            arr = cs.split(":")[1].split(",");
+            c2 = { r: parseInt(arr[0]), g: parseInt(arr[1]), b: parseInt(arr[2]) };
+            arr = cs.split(":")[2].split(",");
+            c1 = { r: parseInt(arr[0]), g: parseInt(arr[1]), b: parseInt(arr[2]) };
+        } else {
+            arr = cs.split("-to-");
+            c1 = this.controller.pivotView.colorNameToRGB(arr[0]);
+            c2 = this.controller.pivotView.colorNameToRGB(arr[1]);
+        }
+        cfArr["colorScale"] = {
+            from: c2,
+            to: c1,
+            min: min = Math.min.apply(Math, (data.dataArray || [])),
+            max: max = Math.max.apply(Math, (data.dataArray || [])),
+            diff: max - min,
+            invert: (c2.r + c2.b + c2.g) / 3 < 128
+        };
     }
 
     ocfArr = this.controller.CONFIG.pivotProperties["formatRules"] || [];
@@ -237,6 +258,22 @@ DataController.prototype.TOTAL_FUNCTIONS = {
     totalNONE: function () {
         return "";
     }
+    //
+    //wholeMIN: function (array, iStart, iEnd, column, xStart) {
+    //    var min = Infinity, m, x;
+    //    for (x = xStart; x < array[0].length; x++) {
+    //        if (m = this.totalMIN(array, iStart, iEnd, x) < min) min = m;
+    //    }
+    //    return min;
+    //},
+    //
+    //wholeMAX: function (array, iStart, iEnd, column, xStart) {
+    //    var max = Infinity, m, x;
+    //    for (x = xStart; x < array[0].length; x++) {
+    //        if (m = this.totalMAX(array, iStart, iEnd, x) < max) max = m;
+    //    }
+    //    return max;
+    //}
     
 };
 
