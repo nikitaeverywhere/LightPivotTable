@@ -203,3 +203,113 @@
 .lpt-scrollable-y::-webkit-scrollbar {
     display: none;
 }
+
+/* progress bar */
+.lpt-spinner {
+    margin: 100px auto;
+    width: 100px;
+    height: 60px;
+    text-align: center;
+    font-size: 10px;
+}
+
+.lpt-spinner > div {
+    background-color: #555;
+    height: 100%;
+    width: 9px;
+    margin: 0 3px 0 0;
+    display: inline-block;
+
+    -webkit-animation: lpt-stretch 0.8s infinite ease-in;
+    -moz-animation: lpt-stretch 0.8s infinite ease-in;
+    -o-animation: lpt-stretch 0.8s infinite ease-in;
+    animation: lpt-stretch 0.8s infinite ease-in;
+}
+
+.lpt-spinner > div:nth-child(2) {
+    -webkit-animation-delay: -0.7s;
+    -moz-animation-delay: -0.7s;
+    -o-animation-delay: -0.7s;
+    animation-delay: -0.7s;
+}
+
+.lpt-spinner > div:nth-child(3) {
+    -webkit-animation-delay: -0.6s;
+    -moz-animation-delay: -0.6s;
+    -o-animation-delay: -0.6s;
+    animation-delay: -0.6s;
+}
+
+.lpt-spinner > div:nth-child(4) {
+    -webkit-animation-delay: -0.5s;
+    -moz-animation-delay: -0.5s;
+    -o-animation-delay: -0.5s;
+    animation-delay: -0.5s;
+}
+
+.lpt-spinner > div:nth-child(5) {
+    -webkit-animation-delay: -0.4s;
+    -moz-animation-delay: -0.4s;
+    -o-animation-delay: -0.4s;
+    animation-delay: -0.4s;
+}
+
+@-webkit-keyframes lpt-stretch {
+    0%, 40%, 100% {
+        -webkit-transform: scaleY(0.4);
+        -moz-transform: scaleY(0.4);
+        -o-transform: scaleY(0.4);
+        transform: scaleY(0.4);
+    }
+    20% {
+        -webkit-transform: scaleY(1.0);
+        -moz-transform: scaleY(1.0);
+        -o-transform: scaleY(1.0);
+        transform: scaleY(1.0);
+    }
+}
+
+@-moz-keyframes lpt-stretch {
+    0%, 40%, 100% {
+        -webkit-transform: scaleY(0.4);
+        -moz-transform: scaleY(0.4);
+        -o-transform: scaleY(0.4);
+        transform: scaleY(0.4);
+    }
+    20% {
+        -webkit-transform: scaleY(1.0);
+        -moz-transform: scaleY(1.0);
+        -o-transform: scaleY(1.0);
+        transform: scaleY(1.0);
+    }
+}
+
+@-o-keyframes lpt-stretch {
+    0%, 40%, 100% {
+        -webkit-transform: scaleY(0.4);
+        -moz-transform: scaleY(0.4);
+        -o-transform: scaleY(0.4);
+        transform: scaleY(0.4);
+    }
+    20% {
+        -webkit-transform: scaleY(1.0);
+        -moz-transform: scaleY(1.0);
+        -o-transform: scaleY(1.0);
+        transform: scaleY(1.0);
+    }
+}
+
+@keyframes lpt-stretch {
+    0%, 40%, 100% {
+        -webkit-transform: scaleY(0.4);
+        -moz-transform: scaleY(0.4);
+        -o-transform: scaleY(0.4);
+        transform: scaleY(0.4);
+    }
+    20% {
+        -webkit-transform: scaleY(1.0);
+        -moz-transform: scaleY(1.0);
+        -o-transform: scaleY(1.0);
+        transform: scaleY(1.0);
+    }
+}

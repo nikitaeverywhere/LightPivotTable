@@ -232,9 +232,7 @@ DataSource.prototype.getCurrentData = function (callback) {
         });
     };
 
-    _.LPT.pivotView.displayMessage(
-        navigator.language === "ru" ? "Ожидание данных..." : "Waiting for data..."
-    );
+    _.LPT.pivotView.displayLoading();
 
     if (this.DATA_SOURCE_PIVOT) {
         this._post(this.SOURCE_URL + "/DataSource"

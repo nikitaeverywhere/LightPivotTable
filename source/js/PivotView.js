@@ -64,7 +64,7 @@ PivotView.prototype.init = function () {
 
     this.pushTable();
 
-    this.displayMessage(navigator.language === "ru" ? "Загрузка..." : "Loading...");
+    this.displayLoading();
 
     window.addEventListener("resize", function () {
         _.updateSizes.call(_);
@@ -78,6 +78,17 @@ PivotView.prototype.init = function () {
         "<br/>for dear users of products of <a href=\"http://www.intersystems.com/\">InterSystems" +
         " Corporation</a><br/>Hope you enjoy it!", true);
     };
+
+};
+
+PivotView.prototype.displayLoading = function () {
+
+    this.displayMessage(
+        this.controller.CONFIG["loadingMessageHTML"]
+        || "<div class=\"lpt-spinner\">" +
+        "<div></div><div></div><div></div><div></div><div></div>" +
+        "</div>"
+    );
 
 };
 
@@ -374,7 +385,6 @@ PivotView.prototype.recalculateSizes = function (container) {
             containerHeight = container.offsetHeight,
             mainHeaderWidth = headerContainer.offsetWidth,
             hasVerticalScrollBar = tableBlock.scrollHeight > containerHeight - headerH,
-            //addExtraTopHeaderCell = tTableHead.offsetWidth > topHeader.offsetWidth,
             addExtraLeftHeaderCell = lTableHead.offsetHeight > containerHeight - headerH
                 && this.SCROLLBAR_WIDTH > 0,
             cell, tr, cellWidths = [], columnHeights = [], i;
@@ -409,13 +419,6 @@ PivotView.prototype.recalculateSizes = function (container) {
         tableBlock.style.height = containerHeight - headerH + "px";
         headerContainer.style.height = headerH + "px";
 
-        //if (false && addExtraTopHeaderCell) {
-        //    tTableHead.childNodes[0].appendChild(cell = document.createElement("td"));
-        //    cell.rowSpan = tTableHead.childNodes.length;
-        //    cell.style.width = this.SCROLLBAR_WIDTH + "px"; // lucky random
-        //    cell["_extraCell"] = true;
-        //}
-
         if (addExtraLeftHeaderCell) {
             tr = document.createElement("tr");
             tr.appendChild(cell = document.createElement("th"));
@@ -431,8 +434,6 @@ PivotView.prototype.recalculateSizes = function (container) {
                 + " bordered";
             cell.colSpan = lTableHead.childNodes.length;
             cell.style.height = this.SCROLLBAR_WIDTH + "px";
-            //cell.textContent = "_"; // cheating
-            //cell.style.lineHeight = headerH + "px"; // lucky random
         }
 
         for (i in tableTr.childNodes) {
