@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63564,72871.713074</TimeChanged>
+<TimeChanged>63564,79829.955132</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -422,31 +422,38 @@
 <Implementation><![CDATA[
     var _ = this;
 
-    if (load || !this.LightPivotTable) {
+    if (load) {
         return;
     }
+
+    //////// cheat-codes to fix instrument panel height /////////
+    var outContainer = document.getElementById(_.id),
+        inContainer;
+
+    if (outContainer) {
+        for (var i in outContainer.childNodes) {
+            if (outContainer.childNodes[i].className === "lpt-container") {
+                inContainer = outContainer.childNodes[i];
+                inContainer.style.height = outContainer.clientHeight + "px";
+                break;
+            }
+        }
+    }
+    /////////////////////////////////////////////////////////////
+
+    if (!this.LightPivotTable) {
+        return;
+    }
+
     if (this._SIZE_ADJUST_TIMEOUT) {
         clearTimeout(this._SIZE_ADJUST_TIMEOUT);
         this._SIZE_ADJUST_TIMEOUT = 0;
     }
+
     // filtering frequent size updates
     this._SIZE_ADJUST_TIMEOUT = setTimeout(function () {
 
         _._SIZE_ADJUST_TIMEOUT = 0;
-
-        // cheat-codes to fix instrument panel height
-        var outContainer = document.getElementById(_.id),
-            inContainer;
-
-        if (outContainer) {
-            for (var i in outContainer.childNodes) {
-                if (outContainer.childNodes[i].className === "lpt-container") {
-                    inContainer = outContainer.childNodes[i];
-                    inContainer.style.height = outContainer.clientHeight + "px";
-                    break;
-                }
-            }
-        }
 
         // LPT size update
         if (_._FIRST_TIME_SIZE_UPDATE) { _._FIRST_TIME_SIZE_UPDATE = false; return; }
