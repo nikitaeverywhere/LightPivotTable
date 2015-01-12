@@ -520,6 +520,7 @@ PivotView.prototype.renderRawData = function (data) {
         mainTBody = document.createElement("tbody"),
         x, y, tr = null, th, td, primaryColumns = [], primaryRows = [], ratio;
 
+    console.log("columnProps", columnProps);
     // clean previous content
     this.removeMessage();
     while (container.firstChild) { container.removeChild(container.firstChild); }

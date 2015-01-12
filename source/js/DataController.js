@@ -118,11 +118,17 @@ DataController.prototype.resetDimensionProps = function () {
         return;
     }
 
+    var cloneObj = function (obj) {
+        var i, newObj = {};
+        for (i in obj) newObj[i] = obj[i];
+        return newObj;
+    };
+
     var parse = function (obj, props) {
-        var tObj, clonedProps = {}, i;
-        for (i in props) clonedProps[i] = props[i];
+        var tObj, clonedProps, i;
         if (obj["children"] && obj["children"].length > 0) {
             for (i in obj.children) {
+                clonedProps = cloneObj(props);
                 tObj = obj.children[i];
                 if (tObj["format"]) clonedProps["format"] = tObj["format"];
                 if (tObj["style"]) clonedProps["style"] =
@@ -132,6 +138,7 @@ DataController.prototype.resetDimensionProps = function () {
                 parse(tObj, clonedProps);
             }
         } else {
+            clonedProps = cloneObj(props);
             columnProps.push(clonedProps);
         }
     };
@@ -258,22 +265,6 @@ DataController.prototype.TOTAL_FUNCTIONS = {
     totalNONE: function () {
         return "";
     }
-    //
-    //wholeMIN: function (array, iStart, iEnd, column, xStart) {
-    //    var min = Infinity, m, x;
-    //    for (x = xStart; x < array[0].length; x++) {
-    //        if (m = this.totalMIN(array, iStart, iEnd, x) < min) min = m;
-    //    }
-    //    return min;
-    //},
-    //
-    //wholeMAX: function (array, iStart, iEnd, column, xStart) {
-    //    var max = Infinity, m, x;
-    //    for (x = xStart; x < array[0].length; x++) {
-    //        if (m = this.totalMAX(array, iStart, iEnd, x) < max) max = m;
-    //    }
-    //    return max;
-    //}
     
 };
 
