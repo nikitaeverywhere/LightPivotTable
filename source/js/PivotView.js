@@ -617,7 +617,7 @@ PivotView.prototype.renderRawData = function (data) {
         info.topHeaderRowsNumber,
         rawData.length,
         LHTHead
-    )
+    );
 
     // render table
     for (y = info.topHeaderRowsNumber; y < rawData.length; y++) {
