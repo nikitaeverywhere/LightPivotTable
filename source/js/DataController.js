@@ -80,6 +80,8 @@ DataController.prototype.getData = function () {
 
 DataController.prototype.setData = function (data) {
 
+    var _ = this;
+
     if (!this.isValidData(data)) {
         console.error("Invalid data to set.", data);
         return;
@@ -90,6 +92,13 @@ DataController.prototype.setData = function (data) {
     this.resetDimensionProps();
     this.resetConditionalFormatting();
     this.resetRawData();
+
+    if (data.info.mdxType === "drillthrough") {
+        this.setDrillThroughHandler(function (params) {
+            _.controller.pivotView.displayMessage(params["cellData"]["value"] || "", true);
+            return false;
+        });
+    }
 
     this._trigger();
     return data;

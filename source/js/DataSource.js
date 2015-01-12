@@ -161,7 +161,7 @@ DataSource.prototype.getCurrentData = function (callback) {
 
         var data = ready.data;
 
-        console.log("Retrieved data:", ready);
+        //console.log("Retrieved data:", ready);
 
         if (mdxType === "drillthrough") {
             callback((function (data) {
@@ -187,7 +187,8 @@ DataSource.prototype.getCurrentData = function (callback) {
                         cubeName: "No cube name",
                         leftHeaderColumnsNumber: 0,
                         rowCount: arr.length,
-                        topHeaderRowsNumber: headers.length
+                        topHeaderRowsNumber: headers.length,
+                        mdxType: mdxType
                     }
                 };
 

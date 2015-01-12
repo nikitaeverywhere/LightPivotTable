@@ -210,10 +210,6 @@ LightPivotTable.prototype.tryDrillThrough = function (filters) {
             });
             _.dataController.pushData();
             _.dataController.setData(data);
-            _.dataController.setDrillThroughHandler(function (params) {
-                _.pivotView.displayMessage(params["cellData"]["value"] || "", true);
-                return false;
-            });
             if (typeof _.CONFIG.triggers["drillThrough"] === "function") {
                 _.CONFIG.triggers["drillThrough"].call(_, {
                     level: _.DRILL_LEVEL,
