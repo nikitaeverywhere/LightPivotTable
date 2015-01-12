@@ -451,7 +451,7 @@ PivotView.prototype.recalculateSizes = function (container) {
         containerParent.appendChild(container); // attach
 
     } catch (e) {
-        console.error("Error when fixing sizes. Please, contact the developer.", "ERROR:", e);
+        console.error("Error when fixing sizes.", "ERROR:", e);
     }
 
 };
@@ -594,6 +594,12 @@ PivotView.prototype.renderRawData = function (data) {
             _._backClickHandler.call(_, e);
         });
     }
+    if ( // hide unnesesarry column
+        (this.controller.CONFIG["hideButtons"] || this.tablesStack.length < 2)
+        && info.leftHeaderColumnsNumber === 0
+    ) {
+        header.style.display = "none";
+    }
 
     // render topHeader
     renderHeader(
@@ -611,10 +617,7 @@ PivotView.prototype.renderRawData = function (data) {
         info.topHeaderRowsNumber,
         rawData.length,
         LHTHead
-    );
-    if (this.controller.CONFIG["hideButtons"] && info.leftHeaderColumnsNumber === 0) {
-        header.style.display = "none";
-    }
+    )
 
     // render table
     for (y = info.topHeaderRowsNumber; y < rawData.length; y++) {

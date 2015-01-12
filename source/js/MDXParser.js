@@ -1,8 +1,10 @@
-var MDXParser = function () {
-
-
-
-};
+/**
+ * MDX parser.
+ *
+ * @author ZitRo
+ * @constructor
+ */
+var MDXParser = function () {};
 
 /**
  * Debug method.
@@ -92,6 +94,27 @@ MDXParser.prototype.drillThrough = function (basicMDX, filters) {
     }
 
     return query;
+
+};
+
+/**
+ * Returns type of MDX.
+ *
+ * @param {string} mdx
+ */
+MDXParser.prototype.mdxType = function (mdx) {
+
+    var m = mdx.toLowerCase(),
+        dt = m.indexOf("drillthrough"),
+        dd = m.indexOf("select");
+
+    if (dt > -1) {
+        return "drillthrough";
+    } else if (dd > -1) {
+        return "mdx";
+    } else {
+        return "unknown";
+    }
 
 };
 

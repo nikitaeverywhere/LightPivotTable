@@ -26,8 +26,6 @@ var DataSource = function (config, globalConfig, lpt) {
      */
     this.DATA_SOURCE_PIVOT = config["pivot"] || "";
 
-    this.ACTION = config.action || "MDX";
-
     this.FILTERS = [];
 
     this.BASIC_FILTERS = [];
@@ -120,6 +118,7 @@ DataSource.prototype.getCurrentData = function (callback) {
         __ = this._convert,
         mdx = this.BASIC_MDX,
         mdxParser = new MDXParser(),
+        mdxType = mdxParser.mdxType(mdx),
         ready = {
             state: 0,
             data: {},
@@ -164,8 +163,7 @@ DataSource.prototype.getCurrentData = function (callback) {
 
         //console.log("Retrieved data:", ready);
 
-        (data.Info || {}).action = _.ACTION;
-        if (_.ACTION === "MDXDrillthrough") {
+        if (mdxType === "drillthrough") {
             callback((function (data) {
 
                 var arr = data["children"] || [],
@@ -189,8 +187,7 @@ DataSource.prototype.getCurrentData = function (callback) {
                         cubeName: "No cube name",
                         leftHeaderColumnsNumber: 0,
                         rowCount: arr.length,
-                        topHeaderRowsNumber: headers.length,
-                        action: _.ACTION
+                        topHeaderRowsNumber: headers.length
                     }
                 };
 
@@ -203,11 +200,10 @@ DataSource.prototype.getCurrentData = function (callback) {
                 return __(obj);
 
             })(data));
-        } else if (_.ACTION = "MDX") {
+        } else if (mdxType === "mdx") {
             callback(_._convert(data));
         } else {
-            console.error("Not implemented URL action: " + _.ACTION);
-            callback({ error: "Not implemented URL action: " + data || true });
+            callback({ error: "Unrecognised MDX: " + mdx || true });
         }
 
     };
@@ -222,7 +218,11 @@ DataSource.prototype.getCurrentData = function (callback) {
 
         console.log("LPT MDX request:", mdx);
 
-        _._post(_.SOURCE_URL + "/" + _.ACTION + (_.NAMESPACE ? "?Namespace=" + _.NAMESPACE : ""), {
+        _._post(
+            _.SOURCE_URL + "/" +
+            (mdxType === "drillthrough" ? "MDXDrillthrough" : "MDX")
+            + (_.NAMESPACE ? "?Namespace=" + _.NAMESPACE : ""
+        ), {
             MDX: mdx
         }, function (data) {
             _.LPT.pivotView.removeMessage();
