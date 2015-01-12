@@ -518,9 +518,8 @@ PivotView.prototype.renderRawData = function (data) {
         LHTHead = document.createElement("thead"),
         mainTable = document.createElement("table"),
         mainTBody = document.createElement("tbody"),
-        x, y, tr = null, th, td, primaryColumns = [], primaryRows = [], ratio;
+        x, y, tr = null, th, td, primaryColumns = [], primaryRows = [], ratio, cellStyle;
 
-    console.log("columnProps", columnProps);
     // clean previous content
     this.removeMessage();
     while (container.firstChild) { container.removeChild(container.firstChild); }
@@ -598,7 +597,7 @@ PivotView.prototype.renderRawData = function (data) {
             _._backClickHandler.call(_, e);
         });
     }
-    if ( // hide unnesesarry column
+    if ( // hide unnecessary column
         (this.controller.CONFIG["hideButtons"] || this.tablesStack.length < 2)
         && info.leftHeaderColumnsNumber === 0
     ) {
@@ -628,6 +627,7 @@ PivotView.prototype.renderRawData = function (data) {
         tr = document.createElement("tr");
         for (x = info.leftHeaderColumnsNumber; x < rawData[0].length; x++) {
 
+            cellStyle = "";
             tr.appendChild(td = document.createElement("td"));
             if (!isFinite(rawData[y][x].value)) {
                 td.className += " formatLeft";
@@ -646,14 +646,18 @@ PivotView.prototype.renderRawData = function (data) {
                 && !(info.SUMMARY_SHOWN && rawData.length - 1 === y) // exclude totals formatting
             ) {
                 ratio = (parseFloat(rawData[y][x].value) - colorScale.min) / colorScale.diff;
-                td.setAttribute("style", "background:rgb(" +
+                cellStyle += "background:rgb(" +
                 + Math.round((colorScale.to.r - colorScale.from.r)*ratio + colorScale.from.r)
                 + "," + Math.round((colorScale.to.g - colorScale.from.g)*ratio + colorScale.from.g)
                 + "," + Math.round((colorScale.to.b - colorScale.from.b)*ratio + colorScale.from.b)
-                + ");" + (colorScale.invert ? "color: white;" : ""));
+                + ");" + (colorScale.invert ? "color: white;" : "");
             }
-            if (rawData[y][x].style)
-                td.setAttribute("style", (td.getAttribute("style") || "") + rawData[y][x].style);
+            if (columnProps[x - info.leftHeaderColumnsNumber].style) {
+                cellStyle += columnProps[x - info.leftHeaderColumnsNumber].style;
+            }
+            if (rawData[y][x].style) {
+                cellStyle += rawData[y][x].style;
+            }
             if (
                 this.controller.CONFIG.conditionalFormattingOn // totals formatting present
                 && !(info.SUMMARY_SHOWN && rawData.length - 1 === y) // exclude totals formatting
@@ -667,6 +671,8 @@ PivotView.prototype.renderRawData = function (data) {
                 );
             }
 
+            // apply style
+            if (cellStyle) td.setAttribute("style", cellStyle);
             // add handlers
             td.addEventListener(CLICK_EVENT, (function (x, y, cell) {
                 return function (event) {
