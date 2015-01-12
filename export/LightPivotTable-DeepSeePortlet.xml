@@ -9,46 +9,46 @@
 <![CDATA[{{replace:js}}]]>
 </CSP>
 
-    <Class name="DeepSee.LightPivotTable">
-        <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-        <TimeChanged>63544,68431.722256</TimeChanged>
-        <TimeCreated>63515,61322.546099</TimeCreated>
+<Class name="DeepSee.LightPivotTable">
+<Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
+<TimeChanged>63564,72871.713074</TimeChanged>
+<TimeCreated>63515,61322.546099</TimeCreated>
 
-        <Parameter name="INCLUDEFILES">
-            <Default>style:DeepSeeLightPivotTable.css,script:DeepSeeLightPivotTable.js</Default>
-        </Parameter>
+<Parameter name="INCLUDEFILES">
+<Default>style:DeepSeeLightPivotTable.css,script:DeepSeeLightPivotTable.js</Default>
+</Parameter>
 
-        <Property name="DataSource">
-            <Type>%String</Type>
-        </Property>
+<Property name="DataSource">
+<Type>%String</Type>
+</Property>
 
-        <Property name="ExportCSV">
-            <Type>%Boolean</Type>
-        </Property>
+<Property name="ExportCSV">
+<Type>%Boolean</Type>
+</Property>
 
-        <Property name="ShowSummary">
-            <Type>%Boolean</Type>
-        </Property>
+<Property name="ShowSummary">
+<Type>%Boolean</Type>
+</Property>
 
-        <Method name="%OnGetPortletName">
-            <ClassMethod>1</ClassMethod>
-            <ReturnType>%String</ReturnType>
-            <Implementation><![CDATA[    quit "Light pivot table"
+<Method name="%OnGetPortletName">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[    quit "Light pivot table"
 ]]></Implementation>
-        </Method>
+</Method>
 
-        <Method name="%OnGetPortletIcon">
-            <ClassMethod>1</ClassMethod>
-            <ReturnType>%String</ReturnType>
-            <Implementation><![CDATA[    quit "deepsee/ds2_dialpad_44.png"
+<Method name="%OnGetPortletIcon">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[    quit "deepsee/ds2_dialpad_44.png"
 ]]></Implementation>
-        </Method>
+</Method>
 
-        <Method name="%OnGetPortletSettings">
-            <ClassMethod>1</ClassMethod>
-            <FormalSpec>*pInfo:%List</FormalSpec>
-            <ReturnType>%Status</ReturnType>
-            <Implementation><![CDATA[
+<Method name="%OnGetPortletSettings">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>*pInfo:%List</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
     kill pInfo // $LB(name,value,type,caption,title)
 
     set pInfo($I(pInfo)) = $LB("DataSource", "/" _ $NAMESPACE, "%String", $$$Text("MDX2JSON source", "%DeepSee"), "Set the URL of MDX2JSON source. Example: ""/SAMPLES""")
@@ -57,12 +57,12 @@
 
     quit $$$OK
 ]]></Implementation>
-        </Method>
+</Method>
 
-        <Method name="getConnectedController">
-            <Language>javascript</Language>
-            <ClientMethod>1</ClientMethod>
-            <Implementation><![CDATA[
+<Method name="getConnectedController">
+<Language>javascript</Language>
+<ClientMethod>1</ClientMethod>
+<Implementation><![CDATA[
     var controller = this.getController();
 
     if (null === controller) {
@@ -72,18 +72,21 @@
 
     return controller;
 ]]></Implementation>
-        </Method>
+</Method>
 
-        <Method name="notifyViewHandler">
-            <FormalSpec>reason,data1,data2,data3</FormalSpec>
-            <Language>javascript</Language>
-            <ClientMethod>1</ClientMethod>
-            <Implementation><![CDATA[
+<Method name="notifyViewHandler">
+<FormalSpec>reason,data1,data2,data3</FormalSpec>
+<Language>javascript</Language>
+<ClientMethod>1</ClientMethod>
+<Implementation><![CDATA[
     if (!this.LightPivotTable) return;
 
     var controller = this.getConnectedController();
 
     if (reason === "dataChange") {
+
+        // prevents refreshing twice at start
+        if (!this._INITIALIZED) { this._INITIALIZED = true; return; }
 
         this.LightPivotTable.clearFilters();
 
@@ -96,20 +99,146 @@
 
     }
 ]]></Implementation>
-        </Method>
+</Method>
 
-        <Method name="renderContents">
-            <Language>javascript</Language>
-            <ClientMethod>1</ClientMethod>
-            <Implementation><![CDATA[    this.getConnectedController(); // to receive notifications
+<Method name="renderContents">
+<Language>javascript</Language>
+<ClientMethod>1</ClientMethod>
+<Implementation><![CDATA[    this.InitLPT();
 ]]></Implementation>
-        </Method>
+</Method>
 
-        <Method name="onCreate">
-            <Language>javascript</Language>
-            <ClientMethod>1</ClientMethod>
-            <Implementation><![CDATA[
+<Method name="onRefreshContents">
+<Language>javascript</Language>
+<ClientMethod>1</ClientMethod>
+<Implementation><![CDATA[    console.log("onRefreshContents", this);
+]]></Implementation>
+</Method>
+
+<Method name="InitLPT">
+<Language>javascript</Language>
+<ClientMethod>1</ClientMethod>
+<Implementation><![CDATA[
     var container = document.getElementById(this.id),
+        basicContainer = container,
+        self = this;
+
+    if (!container) {
+        console.error("Light pivot table: Unable to get widget with ID=" + this.id);
+        setTimeout(function () { self.onCreate.call(self); }, 1);
+        return;
+    }
+
+    for (i in container.childNodes) {
+        if (container.childNodes[i].className === "lpt-container") {
+            container = container.childNodes[i];
+            break;
+        }
+    }
+
+    var controller = this.getConnectedController(),
+        source,
+        setup,
+        _ = this,
+        widget = this, // It's lie. It changes later.
+        widgetKey,
+        i, info = {},
+        exportToExcel = !!parseInt(container.getAttribute("export-csv"));
+
+        // !ultra-bydlocode (get the widget object)
+    while (widget["parent"]) {
+        widget = widget["parent"];
+    }
+        // !ultra-bydlocode (possible you will have better suggestions to get widget key)
+    widgetKey = parseInt(_.parent.parent.onwindowgrab.match(/[0-9]+/)[0]);
+
+    if (exportToExcel) {
+        var widgetHead = document.getElementById(basicContainer.getAttribute("id").replace(/\/.*/, "/header"));
+        if (widgetHead) {
+            var f,
+                widgetTr = (f = function (el) {var r; if (el.tagName === "TR") return el; for (var i in el.childNodes) { r = f(el.childNodes[i]); if (r) return r; } return null; })(widgetHead);
+            if (widgetTr) {
+                var td = document.createElement("TD");
+                td.selfW = _;
+                td.setAttribute("style", "padding-right:6px;vertical-align:bottom;");
+                td.innerHTML = "<div class=\"zendiv\" onclick=\"this.parentNode.selfW.exportCSV.call(this.parentNode.selfW)\"><img class=\"imageLink\" src=\"deepsee/ds2_action_44.png\" title=\"Export to CSV format\"></div>";
+                widgetTr.appendChild(td);
+            }
+        }
+    }
+
+    var post = function (url, data, callback) {
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", url);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                callback((function () {
+                    try {
+                        return JSON.parse(xhr.responseText) || {}
+                    } catch (e) {
+                        return {
+                            error: "<h1>Unable to parse server response</h1><p>" + xhr.responseText
+                                + "</p>"
+                            };
+                    }
+                })());
+            } else if (xhr.readyState === 4 && xhr.status !== 200) {
+                callback({ error: xhr.responseText
+                    || "Error while trying to retrieve data from server." });
+            }
+        };
+        xhr.send(JSON.stringify(data));
+
+    };
+
+    post(
+        (source = location.origin + container.getAttribute("data-source"))
+        + "/Widgets",
+        {
+            Dashboard: widget["dashboardName"]
+        },
+        function (data) {
+            if (data.error) {
+                container.innerHTML = "<br/><br/><h3>Unable to get data from server.</h3><p>Check if data source is configured and accessible: " + source + "/Widgets" + "</p>"
+            } else {
+                for (i in data.children) {
+                    if (data.children[i].key === widgetKey) {
+                        info = data.children[i];
+                        break;
+                    }
+                }
+                //console.log(info);
+                setup = {
+                    container: container,
+                    dataSource: {
+                        pivot: info["dataSource"],
+                        MDX2JSONSource: source,
+                        basicMDX: info["mdx"]
+                    }
+                }
+                if (controller && controller["data"] && controller["data"]["rowCaptions"] && typeof controller["data"]["rowCaptions"][0] === "string") setup.caption = controller["data"]["rowCaptions"][0];
+                if (controller && controller["data"] && !setup.caption) setup.caption = controller["data"]["defaultCaption"] || "";
+                if (info["drillDownDataSource"]) setup["drillDownTarget"] = info["drillDownDataSource"];
+                setup["showSummary"] = !!parseInt(container.getAttribute("show-summary"));
+
+                _.LightPivotTable = new LightPivotTable(setup);
+            }
+        }
+    );
+]]></Implementation>
+</Method>
+
+<Method name="onCreate">
+<Language>javascript</Language>
+<ClientMethod>1</ClientMethod>
+<Implementation><![CDATA[
+    // filtering first datachange event (useless update)
+    this._INITIALIZED = false;
+    // filtering frequent size updates as an expensive operation
+    this._SIZE_ADJUST_TIMEOUT = 0;
+    this._FIRST_TIME_SIZE_UPDATE = true;
+    /*var container = document.getElementById(this.id),
         basicContainer = container,
         self = this;
 
@@ -136,7 +265,7 @@
         exportToExcel = !!parseInt(container.getAttribute("export-csv"));
 
     if (exportToExcel) {
-        var widgetHead = document.getElementById(basicContainer.getAttribute("id").replace(/\/.*/, "/header"));
+        var widgetHead = document.getElementById(basicContainer.getAttribute("id").replace(/\/./, "/header"));
         if (widgetHead) {
             var f,
                 widgetTr = (f = function (el) {var r; if (el.tagName === "TR") return el; for (var i in el.childNodes) { r = f(el.childNodes[i]); if (r) return r; } return null; })(widgetHead);
@@ -216,16 +345,15 @@
                 }
         });
 
-    }, 0);
+    }, 0);*/
 ]]></Implementation>
-        </Method>
+</Method>
 
-        <Method name="exportCSV">
-            <Language>javascript</Language>
-            <ClientMethod>1</ClientMethod>
-            <Implementation><![CDATA[
+<Method name="exportCSV">
+<Language>javascript</Language>
+<ClientMethod>1</ClientMethod>
+<Implementation><![CDATA[
     if (!this.LightPivotTable) return;
-    //console.log(this.LightPivotTable);
     var link = document.createElement("a"),
         csvData = [], preservedGroups = {},
         rawData = this.LightPivotTable.dataController.getData(),
@@ -259,10 +387,10 @@
     link.setAttribute("download", "EXPORT.csv");
     link.click();
 ]]></Implementation>
-        </Method>
+</Method>
 
-        <Method name="%DrawHTML">
-            <Implementation><![CDATA[
+<Method name="%DrawHTML">
+<Implementation><![CDATA[
     set ..renderFlag = ..renderFlag + 1
 
     // copy ..settings into properties
@@ -285,33 +413,48 @@
         </div>
     >
 ]]></Implementation>
-        </Method>
+</Method>
 
-        <Method name="adjustContentSize">
-            <FormalSpec>load,width,height</FormalSpec>
-            <Language>javascript</Language>
-            <ClientMethod>1</ClientMethod>
-            <Implementation><![CDATA[
-    if (!load && this.LightPivotTable) {
-        this.LightPivotTable.updateSizes();
+<Method name="adjustContentSize">
+<FormalSpec>load,width,height</FormalSpec>
+<Language>javascript</Language>
+<ClientMethod>1</ClientMethod>
+<Implementation><![CDATA[
+    var _ = this;
+
+    if (load || !this.LightPivotTable) {
+        return;
     }
+    if (this._SIZE_ADJUST_TIMEOUT) {
+        clearTimeout(this._SIZE_ADJUST_TIMEOUT);
+        this._SIZE_ADJUST_TIMEOUT = 0;
+    }
+    // filtering frequent size updates
+    this._SIZE_ADJUST_TIMEOUT = setTimeout(function () {
 
-    // cheat-codes to make instrument panel visible
+        _._SIZE_ADJUST_TIMEOUT = 0;
 
-    var outContainer = document.getElementById(this.id),
-        inContainer;
+        // cheat-codes to fix instrument panel height
+        var outContainer = document.getElementById(_.id),
+            inContainer;
 
-    if (outContainer) {
-        for (var i in outContainer.childNodes) {
-            if (outContainer.childNodes[i].className === "lpt-container") {
-                inContainer = outContainer.childNodes[i];
-                inContainer.style.height = outContainer.clientHeight + "px";
-                break;
+        if (outContainer) {
+            for (var i in outContainer.childNodes) {
+                if (outContainer.childNodes[i].className === "lpt-container") {
+                    inContainer = outContainer.childNodes[i];
+                    inContainer.style.height = outContainer.clientHeight + "px";
+                    break;
+                }
             }
         }
-    }
+
+        // LPT size update
+        if (_._FIRST_TIME_SIZE_UPDATE) { _._FIRST_TIME_SIZE_UPDATE = false; return; }
+        _.LightPivotTable.updateSizes();
+
+    }, 100);
 ]]></Implementation>
-        </Method>
-    </Class>
+</Method>
+</Class>
 
 </Export>

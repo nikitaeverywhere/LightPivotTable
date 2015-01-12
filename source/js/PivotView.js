@@ -363,8 +363,11 @@ PivotView.prototype.recalculateSizes = function (container) {
 
         var _ = this,
             CLICK_EVENT = this.controller.CONFIG["triggerEvent"] || "click",
-            header = container.getElementsByClassName("lpt-headerValue")[0],
-            headerContainer = container.getElementsByClassName("lpt-header")[0],
+            header = container.getElementsByClassName("lpt-headerValue")[0];
+
+        if (!header) { return; } // pivot not ready - nothing to fix
+
+        var headerContainer = container.getElementsByClassName("lpt-header")[0],
             topHeader = container.getElementsByClassName("lpt-topHeader")[0],
             tTableHead = topHeader.getElementsByTagName("thead")[0],
             leftHeader = container.getElementsByClassName("lpt-leftHeader")[0],
