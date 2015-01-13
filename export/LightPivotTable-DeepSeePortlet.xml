@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63564,79829.955132</TimeChanged>
+<TimeChanged>63565,62684.158342</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -143,6 +143,7 @@
         widget = this, // It's lie. It changes later.
         widgetKey,
         i, info = {},
+        defaultFilters = [],
         exportToExcel = !!parseInt(container.getAttribute("export-csv"));
 
         // !ultra-bydlocode (get the widget object)
@@ -209,14 +210,22 @@
                     }
                 }
                 //console.log(info);
+                if (info.controls instanceof Array) {
+                    for (i in info.controls) {
+                        if (info.controls[i].action === "applyFilter" && info.controls[i].value) {
+                            defaultFilters.push(info.controls[i].targetProperty + "." + info.controls[i].value);
+                        }
+                    }
+                }
                 setup = {
                     container: container,
                     dataSource: {
                         pivot: info["dataSource"],
                         MDX2JSONSource: source,
-                        basicMDX: info["mdx"]
+                        basicMDX: info["basemdx"] || info["mdx"]
                     }
                 }
+                if (defaultFilters.length) { setup["defaultFilterSpecs"] = defaultFilters; }
                 if (controller && controller["data"] && controller["data"]["rowCaptions"] && typeof controller["data"]["rowCaptions"][0] === "string") setup.caption = controller["data"]["rowCaptions"][0];
                 if (controller && controller["data"] && !setup.caption) setup.caption = controller["data"]["defaultCaption"] || "";
                 if (info["drillDownDataSource"]) setup["drillDownTarget"] = info["drillDownDataSource"];

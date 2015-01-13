@@ -59,6 +59,7 @@ var setup = { // Object that contain settings. Any setting may be missed.
         [ , conditionalFormattingOn: true ] // pass false to turn off conditional formatting
         [ , loadingMessageHTML: "LOADING DATA..." ] // HTML displaying during data load
         [ , enableHeadersScrolling: false ] // enable scrolling both for table and headers. Useful for mobile devices.
+        [ , defaultFilterSpecs: ["[Date].[H1].[month].&[]"] ] // default filters array
         [ , drillDownTarget: "<dashboard name>" ] // deepSee only - dashboard to open
     },
     lp = new LightPivotTable(setup);

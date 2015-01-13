@@ -47,7 +47,14 @@ var LightPivotTable = function (configuration) {
  */
 LightPivotTable.prototype.refresh = function () {
 
-    var _  = this;
+    var _  = this,
+        i;
+
+    if (this.CONFIG["defaultFilterSpecs"] instanceof Array) {
+        for (i in this.CONFIG["defaultFilterSpecs"]) {
+            this.setFilter(this.CONFIG["defaultFilterSpecs"][i]);
+        }
+    }
 
     this.dataSource.getCurrentData(function (data) {
         if (_.dataController.isValidData(data)) {
