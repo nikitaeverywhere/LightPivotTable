@@ -15,7 +15,6 @@ var DataSource = function (config, globalConfig, lpt) {
     this.NAMESPACE = config["namespace"];
     this.USERNAME = config["username"];
     this.PASSWORD = config["password"];
-    this.BASIC_MDX = config.basicMDX;
     this.LPT = lpt;
     this.GLOBAL_CONFIG = globalConfig;
 
@@ -47,10 +46,16 @@ DataSource.prototype._post = function (url, data, callback) {
                 try {
                     return JSON.parse(xhr.responseText) || {}
                 } catch (e) {
-                    return {
-                        error: "<h1>Unable to parse server response</h1><p>" + xhr.responseText
+                    try {
+                        var temp = null;
+                        eval("temp=" + xhr.responseText);
+                        return temp;
+                    } catch (e) {
+                        return {
+                            error: "<h1>Unable to parse server response</h1><p>" + xhr.responseText
                             + "</p>"
-                    };
+                        };
+                    }
                 }
             })());
         } else if (xhr.readyState === 4 && xhr.status !== 200) {
@@ -116,7 +121,7 @@ DataSource.prototype.getCurrentData = function (callback) {
 
     var _ = this,
         __ = this._convert,
-        mdx = this.BASIC_MDX,
+        mdx = this.LPT.CONFIG.dataSource["basicMDX"],
         mdxParser = new MDXParser(),
         mdxType = mdxParser.mdxType(mdx),
         ready = {

@@ -68,6 +68,16 @@ LightPivotTable.prototype.refresh = function () {
 };
 
 /**
+ * @param {string} mdx - New mdx.
+ */
+LightPivotTable.prototype.changeBasicMDX = function (mdx) {
+
+    this.CONFIG.dataSource.basicMDX = mdx;
+    this.refresh();
+
+};
+
+/**
  * Performs resizing.
  */
 LightPivotTable.prototype.updateSizes = function () {
