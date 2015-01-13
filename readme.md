@@ -64,7 +64,7 @@ var setup = { // Object that contain settings. Any setting may be missed.
     },
     lp = new LightPivotTable(setup);
     
-console.log(lp.CONTROLS); // object with functions that can be triggered to control pivot table
+console.log(lp.CONTROLS); // object with functions that can be triggered to control pivot table:
 /* Available controls:
  * lp.CONTROLS.drillThrough() - Perform drillThrough for current location.
  * lp.CONTROLS.customDrillThrough(["filterSpec1", ...]) - Perform drillThrough with filters.
@@ -72,7 +72,9 @@ console.log(lp.CONTROLS); // object with functions that can be triggered to cont
  */
 
 lp.setFilter("[DateOfSale].[Actual].[YearSold].&[2009]");
-lp.refresh();
+
+lp.refresh(); // refresh pivot contents
+lp.updateSizes(); // recalculate pivot sizes
 ```
 
 #### Caché DeepSee

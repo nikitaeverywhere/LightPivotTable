@@ -50,6 +50,7 @@ LightPivotTable.prototype.refresh = function () {
     var _  = this,
         i;
 
+    this.clearFilters();
     if (this.CONFIG["defaultFilterSpecs"] instanceof Array) {
         for (i in this.CONFIG["defaultFilterSpecs"]) {
             this.setFilter(this.CONFIG["defaultFilterSpecs"][i]);
