@@ -40,6 +40,7 @@ var setup = { // Object that contain settings. Any setting may be missed.
         , dataSource: {
             MDX2JSONSource: "http://localhost:57772/SAMPLES", // MDX2JSON server address
             basicMDX: typeof req === "object" ? req.basicMDX : req
+            [ , pivot: "name of data source.pivot" ] // name of data source to apply pivot rules
             [ , namespace: "SAMPLES" ] // current namespace : default namespace
             [ , username: "USER" ] // user name : default user
             [ , password: "" ] // user password : default password
@@ -51,14 +52,14 @@ var setup = { // Object that contain settings. Any setting may be missed.
             // if cellDrillThrough callback returns boolean false, DrillThrough won't be performed.
             , cellDrillThrough: function ({Object { event: {event}, filters: {string[]}, cellData: {object} }}) {}
         } ]
-        [ , hideButtons: true // hides "back" and "drillThrough" buttons ]
-        [ , triggerEvent: "touchstart" // all "click" events will be replaced by this event ]
-        [ , caption: "My table" // if set, table basic caption will be replaced by this text ]
-        [ , showSummary: true // show summary by columns ]
-        [ , conditionalFormattingOn: true // pass false to turn off conditional formatting ]
-        [ , loadingMessageHTML: "LOADING DATA..." // HTML displaying during data load ]
-        [ , enableHeadersScrolling: false // enable scrolling both for table and headers. Useful for mobile devices. ]
-        [ , drillDownTarget: "<dashboard name>" // deepSee only - dashboard to open ]
+        [ , hideButtons: true ] // hides "back" and "drillThrough" buttons
+        [ , triggerEvent: "touchstart" ] // all "click" events will be replaced by this event
+        [ , caption: "My table" ] // if set, table basic caption will be replaced by this text
+        [ , showSummary: true ] // show summary by columns
+        [ , conditionalFormattingOn: true ] // pass false to turn off conditional formatting
+        [ , loadingMessageHTML: "LOADING DATA..." ] // HTML displaying during data load
+        [ , enableHeadersScrolling: false ] // enable scrolling both for table and headers. Useful for mobile devices.
+        [ , drillDownTarget: "<dashboard name>" ] // deepSee only - dashboard to open
     },
     lp = new LightPivotTable(setup);
     

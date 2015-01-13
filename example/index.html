@@ -87,8 +87,10 @@
         setup = {
             container: document.getElementById("pivot"), // HTMLElement which will contain table.
             dataSource: {
-                MDX2JSONSource: "http://192.168.1.101:57772/SAMPLES", // MDX2JSON server address
+                MDX2JSONSource: "http://" + location.hostname + ":57773/SAMPLES",
+                // MDX2JSON server address
                 basicMDX: typeof req === "object" ? req.basicMDX : req
+                //, pivot: "name of data source.pivot" // name of data source to apply pivot rules
                 //[ , namespace: "SAMPLES" ] // current namespace : default namespace
                 //[ , username: "USER" ] // user name : default user
                 //[ , password: "" ] // user password : default password
