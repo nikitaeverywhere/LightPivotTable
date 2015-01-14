@@ -95,7 +95,7 @@ LightPivotTable.prototype.getActualMDX = function () {
 
     var mdx = this.CONFIG.dataSource.basicMDX,
         mdxParser = new MDXParser(),
-        filters = this.dataSource._PIVOT_DEFAULT_FILTERS.concat(this.dataSource.FILTERS);
+        filters = this.dataSource.FILTERS;
 
     for (var i in filters) {
         mdx = mdxParser.applyFilter(mdx, filters[i]);
