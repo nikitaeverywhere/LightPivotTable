@@ -18,6 +18,8 @@ var DataSource = function (config, globalConfig, lpt) {
     this.LPT = lpt;
     this.GLOBAL_CONFIG = globalConfig;
 
+    this.BASIC_MDX = config.basicMDX;
+
     /**
      * Name of data source pivot.
      *
@@ -121,7 +123,7 @@ DataSource.prototype.getCurrentData = function (callback) {
 
     var _ = this,
         __ = this._convert,
-        mdx = this.LPT.CONFIG.dataSource["basicMDX"],
+        mdx = this.BASIC_MDX,
         mdxParser = new MDXParser(),
         mdxType = mdxParser.mdxType(mdx),
         ready = {

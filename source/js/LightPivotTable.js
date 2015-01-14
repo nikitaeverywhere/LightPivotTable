@@ -72,7 +72,16 @@ LightPivotTable.prototype.refresh = function () {
  */
 LightPivotTable.prototype.changeBasicMDX = function (mdx) {
 
+    // return LPT to the first level
+    for (var i = this._dataSourcesStack.length - 1; i > 0; i--) {
+        this.popDataSource();
+        this.pivotView.popTable();
+        this.dataController.popData();
+    }
+    // change MDX
     this.CONFIG.dataSource.basicMDX = mdx;
+    this.dataSource.BASIC_MDX = mdx;
+    // do refresh
     this.refresh();
 
 };
@@ -80,6 +89,7 @@ LightPivotTable.prototype.changeBasicMDX = function (mdx) {
 /**
  * Returns current mdx including filters.
  * @returns {string}
+ * @deprecated
  */
 LightPivotTable.prototype.getActualMDX = function () {
 
