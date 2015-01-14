@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63566,64055.555603</TimeChanged>
+<TimeChanged>63566,64710.965337</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -214,7 +214,7 @@
                     dataSource: {
                         pivot: info["dataSource"],
                         MDX2JSONSource: source,
-                        basicMDX: info["basemdx"] || info["mdx"]
+                        basicMDX: info["mdx"]
                     }
                 }
                 if (defaultFilters.length) { setup["defaultFilterSpecs"] = defaultFilters; }
