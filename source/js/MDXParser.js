@@ -31,6 +31,14 @@ MDXParser.prototype.makeSetExpressionFromFilter = function (filterSpec) {
 };
 
 /**
+ * If expression has no "NON EMPTY" it will be prepended.
+ * @param expression
+ */
+MDXParser.prototype.prependNonEmpty = function (expression) {
+    return expression.match(/^\s*non\s+empty/i) ? expression : "NON EMPTY " + expression;
+};
+
+/**
  * Performs DrillDown on MDX query.
  *
  * @param {string} mdx
@@ -68,7 +76,8 @@ MDXParser.prototype.drillDown = function (mdx, filter, expression) {
         return ""; // DrillDown is impossible (no "1" dimension)
     }
 
-    dimensions[index] = expression || this.makeSetExpressionFromFilter(filter);
+    dimensions[index] =
+        this.prependNonEmpty(expression || this.makeSetExpressionFromFilter(filter));
     for (var i in dimensions) {
         if (dimensions[i].length === 1) { // "0" || "1"
             dimensions[i](parseInt(i), 1);
