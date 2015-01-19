@@ -285,6 +285,7 @@ DataController.prototype.TOTAL_FUNCTIONS = {
 DataController.prototype.resetRawData = function () {
 
     var data, summary, y, x,
+        dimCaption,
         _ = this;
 
     if (!(data = this._dataStack[this._dataStack.length - 1].data)) {
@@ -306,7 +307,6 @@ DataController.prototype.resetRawData = function () {
 
         dim1raw(rd0, c, arr, true);
 
-        // @hotfix https://github.com/intersystems-ru/Cache-MDX2JSON/issues/29
         var i, maxLen = 0;
         for (i in rd0) { if (rd0[i].length > maxLen) maxLen = rd0[i].length; }
         for (i in rd0) { for (var u = rd0[i].length; u < maxLen; u++) {
@@ -406,6 +406,8 @@ DataController.prototype.resetRawData = function () {
 
     if (data.dimensions[0].length) dim0raw(rd0, data.dimensions[0]);
     if (data.dimensions[1].length) dim1raw(rd1, data.dimensions[1]);
+    console.log(rd1[0][rd1[0].length - 1]);
+    if (rd1[0]) dimCaption = (rd1[0][rd1[0].length - 1] || { source: {} }).source["dimension"];
 
     var xw = (rd0[0] || []).length,
         yh = rd1.length || data.info.rowCount || 0,
@@ -422,6 +424,7 @@ DataController.prototype.resetRawData = function () {
                         group: 1,
                         isCaption: true,
                         value: this.controller.CONFIG["caption"]
+                               || dimCaption
                                || (data["info"] || {})["cubeName"]
                                || ""
                     };

@@ -29,13 +29,6 @@ var DataSource = function (config, globalConfig, lpt) {
 
     this.FILTERS = [];
 
-    /**
-     * @type {Array}
-     * @private
-     * @deprecated
-     */
-    this._PIVOT_DEFAULT_FILTERS = [];
-
 };
 
 /**
@@ -142,7 +135,6 @@ DataSource.prototype.getCurrentData = function (callback) {
         var data = ready.pivotData;
 
         _.GLOBAL_CONFIG["pivotProperties"] = ready.pivotData;
-        //_._PIVOT_DEFAULT_FILTERS = [];
 
         if (data["rowAxisOptions"]) {
             if (data["rowAxisOptions"]["drilldownSpec"]) {
@@ -159,14 +151,6 @@ DataSource.prototype.getCurrentData = function (callback) {
                     || data["rowAxisOptions"]["levelFormat"];
             }
         }
-
-        //if (data["filters"] && data["filters"].length > 0) {
-        //    for (var i in data["filters"]) {
-        //        if (data["filters"][i]["spec"]) {
-        //            _._PIVOT_DEFAULT_FILTERS.push(data["filters"][i]["spec"]);
-        //        }
-        //    }
-        //}
 
     };
 
@@ -223,12 +207,6 @@ DataSource.prototype.getCurrentData = function (callback) {
     };
 
     var requestData = function () {
-
-        //var filters = _._PIVOT_DEFAULT_FILTERS.concat(_.FILTERS);
-        //
-        //for (var i in filters) {
-        //    mdx = mdxParser.applyFilter(mdx, filters[i]);
-        //}
 
         console.log("LPT MDX request:", mdx);
 
