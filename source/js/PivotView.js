@@ -33,6 +33,15 @@ var PivotView = function (controller, container) {
      */
     this.pagination = null;
 
+    /**
+     * Saved scroll positions.
+     * @type {{x: number, y: number}}
+     */
+    this.savedScroll = {
+        x: 0,
+        y: 0
+    };
+
     this.PAGINATION_BLOCK_HEIGHT = 20;
     this.ANIMATION_TIMEOUT = 500;
 
@@ -168,6 +177,34 @@ PivotView.prototype.popTable = function () {
 
 };
 
+PivotView.prototype.saveScrollPosition = function () {
+
+    var els;
+
+    if (
+        this.elements.tableContainer
+        && (els = this.elements.tableContainer.getElementsByClassName("lpt-tableBlock"))
+    ) {
+        this.savedScroll.x = els[0].scrollLeft;
+        this.savedScroll.y = els[0].scrollTop;
+    }
+
+};
+
+PivotView.prototype.restoreScrollPosition = function () {
+
+    var els;
+
+    if (
+        this.elements.tableContainer
+        && (els = this.elements.tableContainer.getElementsByClassName("lpt-tableBlock"))
+    ) {
+        els[0].scrollLeft = this.savedScroll.x;
+        els[0].scrollTop = this.savedScroll.y;
+    }
+
+};
+
 /**
  * Data change handler.
  *
@@ -193,7 +230,9 @@ PivotView.prototype.dataChanged = function (data) {
 
 PivotView.prototype._columnClickHandler = function (columnIndex) {
 
+    this.saveScrollPosition();
     this.controller.dataController.sortByColumn(columnIndex);
+    this.restoreScrollPosition();
 
 };
 
