@@ -151,13 +151,16 @@ LightPivotTable.prototype.pushDataSource = function (config) {
 
 };
 
-LightPivotTable.prototype.popDataSource = function () {
+/**
+ * @param {boolean} [popData = true] - Also pop data in dataSource.
+ */
+LightPivotTable.prototype.popDataSource = function (popData) {
 
     if (this._dataSourcesStack.length < 2) return;
 
     this.DRILL_LEVEL--;
     this._dataSourcesStack.pop();
-    this.dataController.popData();
+    if (!popData) this.dataController.popData();
 
     this.dataSource = this._dataSourcesStack[this._dataSourcesStack.length - 1];
 
@@ -222,7 +225,7 @@ LightPivotTable.prototype.tryDrillDown = function (filter) {
                 });
             }
         } else {
-            _.popDataSource();
+            _.popDataSource(true);
         }
     });
 
@@ -263,7 +266,7 @@ LightPivotTable.prototype.tryDrillThrough = function (filters) {
                 });
             }
         } else {
-            _.popDataSource();
+            _.popDataSource(true);
         }
     });
 
