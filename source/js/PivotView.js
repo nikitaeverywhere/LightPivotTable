@@ -437,11 +437,9 @@ PivotView.prototype.recalculateSizes = function (container) {
             headerH = topHeader.offsetHeight,
             containerHeight = container.offsetHeight,
             mainHeaderWidth = headerContainer.offsetWidth,
-            hasVerticalScrollBar = Math.max(lTableHead.offsetHeight, pTableHead.offsetHeight)
-                > containerHeight - headerH - pagedHeight,
-            addExtraLeftHeaderCell = lTableHead.offsetHeight > containerHeight - headerH - pagedHeight
-                && this.SCROLLBAR_WIDTH > 0,
-            cell, tr, cellWidths = [], columnHeights = [], i;
+            addExtraLeftHeaderCell = lTableHead.offsetHeight
+                > containerHeight - headerH - pagedHeight && this.SCROLLBAR_WIDTH > 0,
+            cell, tr, cellWidths = [], columnHeights = [], i, hasVerticalScrollBar;
 
         headerContainer.style.width = headerW + "px";
         if (container["_primaryColumns"]) {
@@ -460,10 +458,6 @@ PivotView.prototype.recalculateSizes = function (container) {
         }
 
         container.parentNode.removeChild(container); // detach
-
-        if (hasVerticalScrollBar && cellWidths[cellWidths.length - 1]) {
-            cellWidths[cellWidths.length - 1] -= this.SCROLLBAR_WIDTH;
-        }
 
         topHeader.style.marginLeft = headerW + "px";
         tableBlock.style.marginLeft = headerW + "px";
@@ -503,6 +497,17 @@ PivotView.prototype.recalculateSizes = function (container) {
         }
 
         containerParent.appendChild(container); // attach
+
+        hasVerticalScrollBar = Math.max(lTableHead.offsetHeight, pTableHead.offsetHeight)
+            > containerHeight - headerH - pagedHeight;
+        if (hasVerticalScrollBar && tTableHead.childNodes[0]) {
+            tr = document.createElement("th");
+            tr.style.minWidth = this.SCROLLBAR_WIDTH + "px";
+            tr.style.width = this.SCROLLBAR_WIDTH + "px";
+            tr.rowSpan = tTableHead.childNodes.length;
+            tr["_extraCell"] = true;
+            tTableHead.childNodes[0].appendChild(tr);
+        }
 
     } catch (e) {
         console.error("Error when fixing sizes.", "ERROR:", e);

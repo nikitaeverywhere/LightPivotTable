@@ -295,10 +295,6 @@
     animation-delay: -0.4s;
 }
 
-::-webkit-scrollbar-corner {
-    background-color: #F0F0F0;
-}
-
 @-webkit-keyframes lpt-stretch {
     0%, 40%, 100% {
         -webkit-transform: scaleY(0.4);
@@ -357,4 +353,8 @@
         -o-transform: scaleY(1.0);
         transform: scaleY(1.0);
     }
+}
+
+.lpt-tableBlock::-webkit-scrollbar-corner {
+    background-color: #F0F0F0;
 }

@@ -158,7 +158,7 @@ DataSource.prototype.getCurrentData = function (callback) {
 
         var data = ready.data;
 
-        console.log("Retrieved data:", ready);
+        //console.log("Retrieved data:", ready);
 
         if (mdxType === "drillthrough") {
             callback((function (data) {
