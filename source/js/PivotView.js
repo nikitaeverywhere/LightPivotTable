@@ -614,6 +614,7 @@ PivotView.prototype.renderRawData = function (data) {
                     tr.appendChild(th = document.createElement("th"));
                     th.textContent = rawData[y][x].value;
                     if (rawData[y][x].style) th.setAttribute("style", rawData[y][x].style);
+                    if (rawData[y][x].className) th.className = rawData[y][x].className;
                     if (rawData[y][x].group) renderedGroups[rawData[y][x].group] = {
                         x: x,
                         y: y,

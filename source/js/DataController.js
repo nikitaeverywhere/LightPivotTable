@@ -537,6 +537,12 @@ DataController.prototype.sortByColumn = function (columnIndex) {
     this.SORT_STATE.order = order;
     this.SORT_STATE.column = columnIndex;
 
+    for (var i in data.rawData[data.info.topHeaderRowsNumber - 1]) {
+        if (data.rawData[data.info.topHeaderRowsNumber - 1][i].className) {
+            delete data.rawData[data.info.topHeaderRowsNumber - 1][i].className;
+        }
+    }
+
     if (order === 0) {
         data.rawData = data._rawDataOrigin;
         this._trigger();
@@ -554,6 +560,9 @@ DataController.prototype.sortByColumn = function (columnIndex) {
     data.rawData = data._rawDataOrigin.slice(0, data.info.topHeaderRowsNumber)
         .concat(newRawData)
         .concat(this.SUMMARY_SHOWN ? [data._rawDataOrigin[data._rawDataOrigin.length - 1]] : []);
+    data.rawData[data.info.topHeaderRowsNumber - 1][data.info.leftHeaderColumnsNumber + columnIndex]
+        .className = order === 0 ? "" : order === 1 ? "lpt-sortDesc" : "lpt-sortAsc";
+
 
     this._trigger();
 

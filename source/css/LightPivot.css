@@ -215,6 +215,14 @@
     background: #FFF7D7;
 }
 
+.lpt-sortDesc:before {
+    content: "▼ ";
+}
+
+.lpt-sortAsc:before {
+    content: "▲ ";
+}
+
 /*.lpt .lpt-leftHeader table {*/
     /*margin-bottom: 10em;*/
 /*}*/
