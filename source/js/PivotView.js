@@ -145,7 +145,6 @@ PivotView.prototype.pushTable = function (opts) {
 
     this.elements.base.appendChild(tableElement);
     this.elements.tableContainer = tableElement;
-    console.log("pagination changed to ", pg);
     this.pagination = pg;
 
     setTimeout(function () {
@@ -438,7 +437,7 @@ PivotView.prototype.recalculateSizes = function (container) {
             headerH = topHeader.offsetHeight,
             containerHeight = container.offsetHeight,
             mainHeaderWidth = headerContainer.offsetWidth,
-            hasVerticalScrollBar = tableBlock.scrollHeight > containerHeight - headerH - pagedHeight,
+            hasVerticalScrollBar = lTableHead.offsetHeight > containerHeight - headerH - pagedHeight,
             addExtraLeftHeaderCell = lTableHead.offsetHeight > containerHeight - headerH - pagedHeight
                 && this.SCROLLBAR_WIDTH > 0,
             cell, tr, cellWidths = [], columnHeights = [], i;
@@ -752,7 +751,7 @@ PivotView.prototype.renderRawData = function (data) {
 
     leftHeader.className = "lpt-leftHeader";
     topHeader.className = "lpt-topHeader";
-    if (this.controller.CONFIG.enableHeadersScrolling) {
+    if (this.controller.CONFIG["enableHeadersScrolling"]) {
         leftHeader.className = leftHeader.className + " lpt-scrollable-y";
         topHeader.className = topHeader.className + " lpt-scrollable-x";
         leftHeader.addEventListener("scroll", function () {
