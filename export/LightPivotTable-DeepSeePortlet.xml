@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63572,75641.723765</TimeChanged>
+<TimeChanged>63572,80952.436177</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -100,6 +100,7 @@
             this.LightPivotTable.CONFIG["defaultFilterSpecs"].push(controller.filters[i].spec);
         }
 
+        this.adjustContentSize(false, 0, 0, true);
         this.LightPivotTable.refresh();
 
     }
@@ -326,7 +327,7 @@
 </Method>
 
 <Method name="adjustContentSize">
-<FormalSpec>load,width,height</FormalSpec>
+<FormalSpec>load,width,height,flag</FormalSpec>
 <Language>javascript</Language>
 <ClientMethod>1</ClientMethod>
 <Implementation><![CDATA[
@@ -336,22 +337,36 @@
         return;
     }
 
-    //////// cheat-codes to fix instrument panel height /////////
+    //////// cheating to fix instrument panel height /////////
     var outContainer = document.getElementById(_.id),
+        widgetHead = document.getElementById(outContainer.getAttribute("id").replace(/\/.*/, "/header")),
         inContainer;
+
+    // cheating to fix widget size when widget head change size
+    var dragChildren = outContainer.parentNode.parentNode.parentNode.parentNode.parentNode
+    .parentNode.parentNode.parentNode.parentNode.parentNode;
+    dragChildren = dragChildren.className === "dragChildren"
+        ? dragChildren
+        : (dragChildren.getElementsByClassName("dragChildren") || [])[0];
+    // -
 
     if (outContainer) {
         for (var i in outContainer.childNodes) {
             if (outContainer.childNodes[i].className === "lpt-container") {
                 inContainer = outContainer.childNodes[i];
-                inContainer.style.height = outContainer.clientHeight + "px";
-                break;
+                if (widgetHead && dragChildren) {
+                    inContainer.style.height = dragChildren.offsetHeight - widgetHead.offsetHeight + "px";
+                    //console.log(dragChildren.offsetHeight - widgetHead.offsetHeight);
+                } else {
+                    inContainer.style.height = outContainer.clientHeight + "px";
+                    break;
+                }
             }
         }
     }
     /////////////////////////////////////////////////////////////
 
-    if (!this.LightPivotTable) {
+    if (!this.LightPivotTable || flag === true) {
         return;
     }
 
