@@ -406,7 +406,6 @@ DataController.prototype.resetRawData = function () {
 
     if (data.dimensions[0].length) dim0raw(rd0, data.dimensions[0]);
     if (data.dimensions[1].length) dim1raw(rd1, data.dimensions[1]);
-    console.log(rd1[0][rd1[0].length - 1]);
     if (rd1[0]) dimCaption = (rd1[0][rd1[0].length - 1] || { source: {} }).source["dimension"];
 
     var xw = (rd0[0] || []).length,
