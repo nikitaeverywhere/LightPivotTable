@@ -26,6 +26,16 @@ var PivotView = function (controller, container) {
         messageElement: undefined
     };
 
+    /**
+     * Pagination object.
+     * @see pushTable
+     * @type {{on: boolean, page: number, pages: number, rows: number}}
+     */
+    this.pagination = null;
+
+    this.PAGINATION_BLOCK_HEIGHT = 20;
+    this.ANIMATION_TIMEOUT = 500;
+
     this.controller = controller;
 
     this.SCROLLBAR_WIDTH = (function () {
@@ -116,6 +126,7 @@ PivotView.prototype.getCurrentTableData = function () {
 PivotView.prototype.pushTable = function (opts) {
 
     var _ = this,
+        pg,
         tableElement = document.createElement("div");
 
     tableElement.className = "tableContainer";
@@ -123,11 +134,19 @@ PivotView.prototype.pushTable = function (opts) {
 
     this.tablesStack.push({
         element: tableElement,
-        opts: opts || {}
+        opts: opts || {},
+        pagination: pg = { // defaults copied to pushTable
+            on: false,
+            rows: Infinity, // rows by page including (headers + summary + rows from config)
+            page: 0, // current page,
+            pages: 0 // available pages
+        }
     });
 
     this.elements.base.appendChild(tableElement);
     this.elements.tableContainer = tableElement;
+    console.log("pagination changed to ", pg);
+    this.pagination = pg;
 
     setTimeout(function () {
         _._updateTablesPosition();
@@ -141,11 +160,35 @@ PivotView.prototype.popTable = function () {
 
     this._updateTablesPosition(1);
     var garbage = this.tablesStack.pop();
+    this.pagination = this.tablesStack[this.tablesStack.length - 1].pagination;
 
     setTimeout(function () {
         garbage.element.parentNode.removeChild(garbage.element);
-    }, 500);
+    }, this.ANIMATION_TIMEOUT);
     this.elements.tableContainer = this.tablesStack[this.tablesStack.length - 1].element;
+
+};
+
+/**
+ * Data change handler.
+ *
+ * @param data
+ */
+PivotView.prototype.dataChanged = function (data) {
+
+    var dataRows =
+            data.rawData.length - data.info.topHeaderRowsNumber;// - (data.info.SUMMARY_SHOWN ? 1 : 0);
+
+    if (this.controller.CONFIG.pagination) this.pagination.on = true;
+    this.pagination.rows = this.controller.CONFIG.pagination || Infinity;
+        //? this.controller.CONFIG.pagination
+            //+ data.info.topHeaderRowsNumber + (data.info.SUMMARY_SHOWN ? 1 : 0)
+        //: Infinity;
+    this.pagination.page = 0;
+    this.pagination.pages = Math.ceil(dataRows / this.pagination.rows);
+    if (this.pagination.pages < 2) this.pagination.on = false;
+
+    this.renderRawData(data);
 
 };
 
@@ -158,6 +201,13 @@ PivotView.prototype._columnClickHandler = function (columnIndex) {
 PivotView.prototype._rowClickHandler = function (rowIndex, cellData) {
 
     this.controller.tryDrillDown(cellData.source.path);
+
+};
+
+PivotView.prototype._pageSwitcherHandler = function (pageIndex) {
+
+    this.pagination.page = pageIndex;
+    this.renderRawData(this.controller.dataController.getData());
 
 };
 
@@ -383,12 +433,13 @@ PivotView.prototype.recalculateSizes = function (container) {
             lTableHead.removeChild(lTableHead.lastChild);
         }
 
-        var headerW = leftHeader.offsetWidth,
+        var pagedHeight = this.pagination.on ? this.PAGINATION_BLOCK_HEIGHT : 0,
+            headerW = leftHeader.offsetWidth,
             headerH = topHeader.offsetHeight,
             containerHeight = container.offsetHeight,
             mainHeaderWidth = headerContainer.offsetWidth,
-            hasVerticalScrollBar = tableBlock.scrollHeight > containerHeight - headerH,
-            addExtraLeftHeaderCell = lTableHead.offsetHeight > containerHeight - headerH
+            hasVerticalScrollBar = tableBlock.scrollHeight > containerHeight - headerH - pagedHeight,
+            addExtraLeftHeaderCell = lTableHead.offsetHeight > containerHeight - headerH - pagedHeight
                 && this.SCROLLBAR_WIDTH > 0,
             cell, tr, cellWidths = [], columnHeights = [], i;
 
@@ -416,10 +467,10 @@ PivotView.prototype.recalculateSizes = function (container) {
 
         topHeader.style.marginLeft = headerW + "px";
         tableBlock.style.marginLeft = headerW + "px";
-        leftHeader.style.height = containerHeight - headerH + "px";
+        leftHeader.style.height = containerHeight - headerH - pagedHeight + "px";
         leftHeader.style.width = headerW + "px";
         if (mainHeaderWidth > headerW) leftHeader.style.width = mainHeaderWidth + "px";
-        tableBlock.style.height = containerHeight - headerH + "px";
+        tableBlock.style.height = containerHeight - headerH - pagedHeight + "px";
         headerContainer.style.height = headerH + "px";
 
         if (addExtraLeftHeaderCell) {
@@ -436,7 +487,7 @@ PivotView.prototype.recalculateSizes = function (container) {
             leftHeader.className = leftHeader.className.replace(/\sbordered/, "")
                 + " bordered";
             cell.colSpan = lTableHead.childNodes.length;
-            cell.style.height = this.SCROLLBAR_WIDTH + "px";
+            cell.style.height = (this.SCROLLBAR_WIDTH ? this.SCROLLBAR_WIDTH + 1 : 0) + "px";
         }
 
         for (i in tableTr.childNodes) {
@@ -518,7 +569,11 @@ PivotView.prototype.renderRawData = function (data) {
         LHTHead = document.createElement("thead"),
         mainTable = document.createElement("table"),
         mainTBody = document.createElement("tbody"),
-        x, y, tr = null, th, td, primaryColumns = [], primaryRows = [], ratio, cellStyle;
+        pageSwitcher = this.pagination.on ? document.createElement("div") : null,
+        pageNumbers = this.pagination.on ? [] : null,
+        pageSwitcherContainer = pageSwitcher ? document.createElement("div") : null,
+        i, x, y, tr = null, th, td, primaryColumns = [], primaryRows = [], ratio, cellStyle,
+        tempI, tempJ;
 
     // clean previous content
     this.removeMessage();
@@ -617,13 +672,15 @@ PivotView.prototype.renderRawData = function (data) {
     renderHeader(
         0,
         info.leftHeaderColumnsNumber,
-        info.topHeaderRowsNumber,
-        rawData.length,
+        tempI = info.topHeaderRowsNumber + (this.pagination.page*this.pagination.rows || 0),
+        tempJ = this.pagination.on
+            ? Math.min(tempI + this.pagination.rows, rawData.length)
+            : rawData.length,
         LHTHead
     );
 
     // render table
-    for (y = info.topHeaderRowsNumber; y < rawData.length; y++) {
+    for (y = tempI/*info.topHeaderRowsNumber*/; y < tempJ/*rawData.length*/; y++) {
         tr = document.createElement("tr");
         for (x = info.leftHeaderColumnsNumber; x < rawData[0].length; x++) {
 
@@ -727,6 +784,39 @@ PivotView.prototype.renderRawData = function (data) {
     pivotBottomSection.appendChild(tableBlock);
     container.appendChild(pivotTopSection);
     container.appendChild(pivotBottomSection);
+    if (pageSwitcher) {
+        pageSwitcher.className = "lpt-pageSwitcher";
+        pageNumbers = (function getPageNumbersArray (currentPage, pages) { // minPage = 1
+
+            var step = 0,
+                pagesArr = [currentPage];
+            while (currentPage > 1) {
+                currentPage = Math.max(1, currentPage - (step || 1));
+                pagesArr.unshift(currentPage);
+                step = step*step + 1;
+            }
+            step = 0;
+            currentPage = pagesArr[pagesArr.length - 1];
+            while (currentPage < pages) {
+                currentPage = Math.min(pages, currentPage + (step || 1));
+                pagesArr.push(currentPage);
+                step = step*step + 1;
+            }
+            return pagesArr;
+
+        })(this.pagination.page + 1, this.pagination.pages);
+        for (i in pageNumbers) {
+            td = document.createElement("span");
+            if (pageNumbers[i] === this.pagination.page + 1) { td.className = "lpt-active"; }
+            td.textContent = pageNumbers[i];
+            (function (page) {td.addEventListener(CLICK_EVENT, function () { // add handler
+                _._pageSwitcherHandler.call(_, page - 1);
+            })})(pageNumbers[i]);
+            pageSwitcherContainer.appendChild(td);
+        }
+        pageSwitcher.appendChild(pageSwitcherContainer);
+        container.appendChild(pageSwitcher);
+    }
     container["_primaryColumns"] = primaryColumns;
     container["_primaryRows"] = primaryRows;
 

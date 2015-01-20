@@ -52,6 +52,7 @@ var setup = { // Object that contain settings. Any setting may be missed.
             // if cellDrillThrough callback returns boolean false, DrillThrough won't be performed.
             , cellDrillThrough: function ({Object { event: {event}, filters: {string[]}, cellData: {object} }}) {}
         } ]
+        [ , pagination: 30 ] // Enables pagination. Pass a number of lines to show by page.
         [ , hideButtons: true ] // hides "back" and "drillThrough" buttons
         [ , triggerEvent: "touchstart" ] // all "click" events will be replaced by this event
         [ , caption: "My table" ] // if set, table basic caption will be replaced by this text
@@ -107,5 +108,4 @@ Also anytime you can build project and then check <code>build/example/index.html
 ## Preview
 
 Run <code>gulp</code> command and then check <code>build/WEBModule/index.html</code>.
-
-![Light pivot table](https://cloud.githubusercontent.com/assets/4989256/5570072/4c3a161e-8f84-11e4-929b-6577728df6ba.png)
+![Light pivot table](https://cloud.githubusercontent.com/assets/4989256/5821832/b73c880c-a0d7-11e4-8458-832329b1c48a.png)
