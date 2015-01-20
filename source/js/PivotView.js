@@ -437,7 +437,8 @@ PivotView.prototype.recalculateSizes = function (container) {
             headerH = topHeader.offsetHeight,
             containerHeight = container.offsetHeight,
             mainHeaderWidth = headerContainer.offsetWidth,
-            hasVerticalScrollBar = lTableHead.offsetHeight > containerHeight - headerH - pagedHeight,
+            hasVerticalScrollBar = Math.max(lTableHead.offsetHeight, pTableHead.offsetHeight)
+                > containerHeight - headerH - pagedHeight,
             addExtraLeftHeaderCell = lTableHead.offsetHeight > containerHeight - headerH - pagedHeight
                 && this.SCROLLBAR_WIDTH > 0,
             cell, tr, cellWidths = [], columnHeights = [], i;
