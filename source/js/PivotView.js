@@ -484,6 +484,7 @@ PivotView.prototype.recalculateSizes = function (container) {
         headerContainer.style.width = headerW + "px";
         if (hasVerticalScrollBar && tTableHead.childNodes[0]) {
             tr = document.createElement("th");
+            tr.className = "lpt-extraCell";
             tr.style.minWidth = this.SCROLLBAR_WIDTH + "px";
             tr.style.width = this.SCROLLBAR_WIDTH + "px";
             tr.rowSpan = tTableHead.childNodes.length;

@@ -363,6 +363,10 @@
     }
 }
 
-.lpt-tableBlock::-webkit-scrollbar-corner {
+.lpt .lpt-tableBlock::-webkit-scrollbar-corner {
     background-color: #F0F0F0;
+}
+
+.lpt .lpt-extraCell {
+    padding: 0 !important;
 }
