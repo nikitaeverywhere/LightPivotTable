@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63572,80952.436177</TimeChanged>
+<TimeChanged>63574,73711.132259</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -248,6 +248,11 @@
     // filtering frequent size updates as an expensive operation
     this._SIZE_ADJUST_TIMEOUT = 0;
     this._FIRST_TIME_SIZE_UPDATE = true;
+
+    // fix location.origin for IE
+    if (!window.location.origin) {
+        window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
+    }
 ]]></Implementation>
 </Method>
 

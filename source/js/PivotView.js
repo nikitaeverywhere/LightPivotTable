@@ -475,12 +475,22 @@ PivotView.prototype.recalculateSizes = function (container) {
             headerW = leftHeader.offsetWidth,
             headerH = topHeader.offsetHeight,
             containerHeight = container.offsetHeight,
+            bodyHeight = containerHeight - headerH - pagedHeight,
             mainHeaderWidth = headerContainer.offsetWidth,
-            addExtraLeftHeaderCell = lTableHead.offsetHeight
-                > containerHeight - headerH - pagedHeight && this.SCROLLBAR_WIDTH > 0,
-            cell, tr, cellWidths = [], columnHeights = [], i, hasVerticalScrollBar;
+            hasVerticalScrollBar = lTableHead.offsetHeight > bodyHeight
+                && this.SCROLLBAR_WIDTH > 0,
+            cell, tr, cellWidths = [], columnHeights = [], i;
 
         headerContainer.style.width = headerW + "px";
+        if (hasVerticalScrollBar && tTableHead.childNodes[0]) {
+            tr = document.createElement("th");
+            tr.style.minWidth = this.SCROLLBAR_WIDTH + "px";
+            tr.style.width = this.SCROLLBAR_WIDTH + "px";
+            tr.rowSpan = tTableHead.childNodes.length;
+            tr["_extraCell"] = true;
+            tTableHead.childNodes[0].appendChild(tr);
+        }
+
         if (container["_primaryColumns"]) {
             for (i in container["_primaryColumns"]) {
                 cellWidths.push(container["_primaryColumns"][i].offsetWidth);
@@ -506,7 +516,14 @@ PivotView.prototype.recalculateSizes = function (container) {
         tableBlock.style.height = containerHeight - headerH - pagedHeight + "px";
         headerContainer.style.height = headerH + "px";
 
-        if (addExtraLeftHeaderCell) {
+        for (i in container["_primaryRows"]) {
+            container["_primaryRows"][i].style.height = columnHeights[i] + "px";
+        }
+        for (i in container["_primaryColumns"]) {
+            container["_primaryColumns"][i].style.width = cellWidths[i] + "px";
+        }
+
+        if (hasVerticalScrollBar) { // horScroll?
             tr = document.createElement("tr");
             tr.appendChild(cell = document.createElement("th"));
             lTableHead.appendChild(tr);
@@ -536,17 +553,6 @@ PivotView.prototype.recalculateSizes = function (container) {
         }
 
         containerParent.appendChild(container); // attach
-
-        hasVerticalScrollBar = Math.max(lTableHead.offsetHeight, pTableHead.offsetHeight)
-            > containerHeight - headerH - pagedHeight;
-        if (hasVerticalScrollBar && tTableHead.childNodes[0]) {
-            tr = document.createElement("th");
-            tr.style.minWidth = this.SCROLLBAR_WIDTH + "px";
-            tr.style.width = this.SCROLLBAR_WIDTH + "px";
-            tr.rowSpan = tTableHead.childNodes.length;
-            tr["_extraCell"] = true;
-            tTableHead.childNodes[0].appendChild(tr);
-        }
 
     } catch (e) {
         console.error("Error when fixing sizes.", "ERROR:", e);
@@ -651,7 +657,7 @@ PivotView.prototype.renderRawData = function (data) {
                 if (!rendered || separatelyGrouped) { // create element
                     if (!tr) tr = document.createElement("tr");
                     tr.appendChild(th = document.createElement("th"));
-                    th.textContent = rawData[y][x].value;
+                    th.textContent = rawData[y][x].value || " ";
                     if (rawData[y][x].style) th.setAttribute("style", rawData[y][x].style);
                     if (rawData[y][x].className) th.className = rawData[y][x].className;
                     if (rawData[y][x].group) renderedGroups[rawData[y][x].group] = {
