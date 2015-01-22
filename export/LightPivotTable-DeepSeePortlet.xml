@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63574,69706.798517</TimeChanged>
+<TimeChanged>63574,76552.664444</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -237,6 +237,9 @@
                 }
 
                 _.LightPivotTable = new LightPivotTable(setup);
+
+                // hack to enable some change events
+                setTimeout(function () { _._INITIALIZED = true; }, 800);
             }
         }
     );
