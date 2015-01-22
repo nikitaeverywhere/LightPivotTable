@@ -130,6 +130,10 @@ DataSource.prototype.getCurrentData = function (callback) {
             pivotData: {}
         };
 
+    for (var i = 0; i < this.FILTERS.length; i++) {
+        mdx = mdxParser.applyFilter(mdx, this.FILTERS[i]);
+    }
+
     var setupPivotOptions = function () {
 
         var data = ready.pivotData;

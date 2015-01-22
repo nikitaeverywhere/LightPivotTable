@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63574,73711.132259</TimeChanged>
+<TimeChanged>63574,69706.798517</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -137,6 +137,7 @@
     var controller = this.getConnectedController(),
         source,
         setup,
+        filterValue,
         _ = this,
         widget = this, // It's lie. It changes later.
         widgetKey,
@@ -210,8 +211,11 @@
                 //console.log(info);
                 if (info.controls instanceof Array) {
                     for (i in info.controls) {
-                        if (info.controls[i].action === "applyFilter" && info.controls[i].value) {
-                            defaultFilters.push(info.controls[i].targetProperty + "." + info.controls[i].value);
+                        if ((info.controls[i].action === "applyFilter" || info.controls[i].action === "setFilter") && info.controls[i].value) {
+                            if ((filterValue = info.controls[i].value).charAt(0) === "%" && filterValue.indexOf(" ") > 1) {
+                                filterValue = filterValue.split(" ")[1] + "." + filterValue.split(" ")[0]
+                            }
+                            defaultFilters.push(info.controls[i].targetProperty + "." + filterValue);
                         }
                     }
                 }
