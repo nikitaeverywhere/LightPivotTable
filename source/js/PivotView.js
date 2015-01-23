@@ -236,7 +236,9 @@ PivotView.prototype._rowClickHandler = function (rowIndex, cellData) {
 PivotView.prototype._pageSwitcherHandler = function (pageIndex) {
 
     this.pagination.page = pageIndex;
+    this.saveScrollPosition();
     this.renderRawData(this.controller.dataController.getData());
+    this.restoreScrollPosition();
 
 };
 
