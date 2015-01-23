@@ -670,6 +670,10 @@ PivotView.prototype.renderRawData = function (data) {
                     );
                     th.textContent = rawData[y][x].value || " ";
                     if (rawData[y][x].style) th.setAttribute("style", rawData[y][x].style);
+                    if (info.leftHeaderColumnsNumber === 0
+                        && _.controller.CONFIG["listingColumnMinWidth"]) { // if listing
+                        th.style.minWidth = _.controller.CONFIG["listingColumnMinWidth"] + "px";
+                    }
                     if (rawData[y][x].className) th.className = rawData[y][x].className;
                     if (rawData[y][x].group) renderedGroups[rawData[y][x].group] = {
                         x: x,
