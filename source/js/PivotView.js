@@ -289,11 +289,13 @@ PivotView.prototype._drillThroughClickHandler = function (event) {
 PivotView.prototype._cellClickHandler = function (cell, x, y, event, drillThroughHandler) {
 
     var data = this.controller.dataController.getData(),
-        f = [], f1, f2, callbackRes = true;
+        f = [], f1, f2, callbackRes = true,
+        ATTACH_TOTALS = this.controller.CONFIG["showSummary"]
+            && this.controller.CONFIG["attachTotals"] ? 1 : 0;
 
     try {
         f1 = data.rawData[y][data.info.leftHeaderColumnsNumber - 1].source.path;
-        f2 = data.rawData[data.info.topHeaderRowsNumber - 1][x].source.path;
+        f2 = data.rawData[data.info.topHeaderRowsNumber - 1 - ATTACH_TOTALS][x].source.path;
     } catch (e) {
         console.warn("Unable to get filters for cell (%d, %d)", x, y);
     }
@@ -600,6 +602,8 @@ PivotView.prototype.renderRawData = function (data) {
 
     var _ = this,
         CLICK_EVENT = this.controller.CONFIG["triggerEvent"] || "click",
+        ATTACH_TOTALS = this.controller.CONFIG["showSummary"]
+            && this.controller.CONFIG["attachTotals"] ? 1 : 0,
         renderedGroups = {}, // keys of rendered groups; key = group, value = { x, y, element }
         rawData = data["rawData"],
         info = data["info"],
@@ -625,6 +629,19 @@ PivotView.prototype.renderRawData = function (data) {
         pageSwitcherContainer = pageSwitcher ? document.createElement("div") : null,
         i, x, y, tr = null, th, td, primaryColumns = [], primaryRows = [], ratio, cellStyle,
         tempI, tempJ;
+
+    var formatContent = function (value, element, format) {
+        if (!isFinite(value)) {
+            element.className += " formatLeft";
+            element.textContent = value || "";
+        } else { // number
+            if (format) {
+                element.textContent = value ? _.numeral(value).format(format) : "";
+            } else {
+                element.textContent = value || "";
+            }
+        }
+    };
 
     // clean previous content
     this.removeMessage();
@@ -657,7 +674,9 @@ PivotView.prototype.renderRawData = function (data) {
 
                 if (!rendered || separatelyGrouped) { // create element
                     if (!tr) tr = document.createElement("tr");
-                    tr.appendChild(th = document.createElement("th"));
+                    tr.appendChild(
+                        th = document.createElement(rawData[y][x].isCaption ? "th" : "td")
+                    );
                     th.textContent = rawData[y][x].value || " ";
                     if (rawData[y][x].style) th.setAttribute("style", rawData[y][x].style);
                     if (rawData[y][x].className) th.className = rawData[y][x].className;
@@ -666,6 +685,11 @@ PivotView.prototype.renderRawData = function (data) {
                         y: y,
                         element: th
                     };
+                    if (!rawData[y][x].isCaption) formatContent(
+                        rawData[y][x].value,
+                        th,
+                        columnProps[x - info.leftHeaderColumnsNumber].format
+                    );
                 }
 
                 // add listeners
@@ -677,14 +701,18 @@ PivotView.prototype.renderRawData = function (data) {
                         };
                     })(y, rawData[y][x]));
                 }
-                if (!vertical && y === yTo - 1 && !th["_hasSortingListener"]) {
-                    th["_hasSortingListener"] = false;
-                    primaryColumns.push(th);
+                if (!vertical && y === yTo - 1 - ATTACH_TOTALS && !th["_hasSortingListener"]) {
+                    th["_hasSortingListener"] = false; // why false?
                     th.addEventListener(CLICK_EVENT, (function (i) {
                         return function () {
                             _._columnClickHandler.call(_, i);
                         };
                     })(x - info.leftHeaderColumnsNumber));
+                    th.className = (th.className || "") + " lpt-clickable";
+                }
+                if (!vertical && y === yTo - 1) {
+                    //th["_hasSortingListener"] = false; // why false?
+                    primaryColumns.push(th);
                 }
 
             }
@@ -732,24 +760,17 @@ PivotView.prototype.renderRawData = function (data) {
     );
 
     // render table
-    for (y = tempI/*info.topHeaderRowsNumber*/; y < tempJ/*rawData.length*/; y++) {
+    for (y = tempI; y < tempJ; y++) {
         tr = document.createElement("tr");
         for (x = info.leftHeaderColumnsNumber; x < rawData[0].length; x++) {
 
             cellStyle = "";
             tr.appendChild(td = document.createElement("td"));
-            if (!isFinite(rawData[y][x].value)) {
-                td.className += " formatLeft";
-                td.textContent = rawData[y][x].value || "";
-            } else { // number
-                if (columnProps[x - info.leftHeaderColumnsNumber].format) {
-                    td.textContent = rawData[y][x].value ? this.numeral(rawData[y][x].value).format(
-                        columnProps[x - info.leftHeaderColumnsNumber].format
-                    ) : "";
-                } else {
-                    td.textContent = rawData[y][x].value || "";
-                }
-            }
+            formatContent(
+                rawData[y][x].value,
+                td,
+                columnProps[x - info.leftHeaderColumnsNumber].format
+            );
             if (
                 colorScale
                 && !(info.SUMMARY_SHOWN && rawData.length - 1 === y) // exclude totals formatting

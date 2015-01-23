@@ -57,6 +57,7 @@ var setup = { // Object that contain settings. Any setting may be missed.
         [ , triggerEvent: "touchstart" ] // all "click" events will be replaced by this event
         [ , caption: "My table" ] // if set, table basic caption will be replaced by this text
         [ , showSummary: true ] // show summary by columns
+        [ , attachTotals: true ] // display totals attached to table top header
         [ , conditionalFormattingOn: true ] // pass false to turn off conditional formatting
         [ , loadingMessageHTML: "LOADING DATA..." ] // HTML displaying during data load
         [ , enableHeadersScrolling: false ] // enable scrolling both for table and headers. Useful for mobile devices.

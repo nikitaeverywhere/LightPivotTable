@@ -48,12 +48,12 @@
     transition: left .5s ease;
 }
 
-.lpt tr:hover td {
+.lpt .lpt-tableBlock tr:hover td {
     box-shadow: inset 0 0 30px #FFF7D7;
 }
 
-.lpt table td:hover {
-    box-shadow: inset 0 0 20px #FEA;
+.lpt .lpt-tableBlock table td:hover {
+    box-shadow: inset 0 0 30px #FEA;
 }
 
 /* DeepSee theme */
@@ -91,7 +91,7 @@
     box-sizing: border-box;
 }
 
-.lpt td {
+.lpt .lpt-tableBlock td {
     text-align: right;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -140,10 +140,10 @@
     background: #FFF7D7;
 }
 
-.lpt .lpt-topHeader tr:last-child th:hover {
-    cursor: pointer;
-    background: #FFF7D7;
-}
+/*.lpt .lpt-topHeader tr:last-child th:hover {*/
+    /*cursor: pointer;*/
+    /*background: #FFF7D7;*/
+/*}*/
 
 .lpt .lpt-tableBlock {
     position: relative;
@@ -365,6 +365,11 @@
 
 .lpt .lpt-tableBlock::-webkit-scrollbar-corner {
     background-color: #F0F0F0;
+}
+
+.lpt-clickable:hover {
+    cursor: pointer;
+    background: #FFF7D7;
 }
 
 .lpt .lpt-extraCell {
