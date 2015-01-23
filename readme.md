@@ -63,6 +63,8 @@ var setup = { // Object that contain settings. Any setting may be missed.
         [ , enableHeadersScrolling: false ] // enable scrolling both for table and headers. Useful for mobile devices.
         [ , defaultFilterSpecs: ["[Date].[H1].[month].&[]"] ] // default filters array
         [ , drillDownTarget: "<dashboard name>" ] // deepSee only - dashboard to open
+        [ , listingColumnMinWidth: 200 ] // minimal width of column in listing
+        [ , maxHeaderWidth: 100 ] // maximum width of header
     },
     lp = new LightPivotTable(setup);
     

@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63575,78017.533889</TimeChanged>
+<TimeChanged>63575,80028.98656</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -42,6 +42,10 @@
 <Type>%Integer</Type>
 </Property>
 
+<Property name="MaxHeaderWidth">
+<Type>%Integer</Type>
+</Property>
+
 <Method name="%OnGetPortletName">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
@@ -69,6 +73,7 @@
     set pInfo($I(pInfo)) = $LB("Pagination", 0, "%Integer", $$$Text("Pagination", "%DeepSee"), "Enable pagination")
     set pInfo($I(pInfo)) = $LB("FixTotals", 0, "%Boolean", $$$Text("Fix totals", "%DeepSee"), "Fix totals in header")
     set pInfo($I(pInfo)) = $LB("ListingColumnMinWidth", 0, "%Integer", $$$Text("Min cell width for listing", "%DeepSee"), "Minimal column width in listing")
+    set pInfo($I(pInfo)) = $LB("MaxHeaderWidth", 0, "%Integer", $$$Text("Max column width", "%DeepSee"), "Maximal column width for headers")
 
     quit $$$OK
 ]]></Implementation>
@@ -249,6 +254,9 @@
                 if (parseInt(container.getAttribute("listingColumnMinWidth"))) {
                     setup["listingColumnMinWidth"] = parseInt(container.getAttribute("listingColumnMinWidth"))
                 }
+                if (parseInt(container.getAttribute("maxHeaderWidth"))) {
+                    setup["maxHeaderWidth"] = parseInt(container.getAttribute("maxHeaderWidth"))
+                }
 
                 _.LightPivotTable = new LightPivotTable(setup);
 
@@ -345,7 +353,7 @@
     }
 
     &html<
-        <div listingColumnMinWidth="#(..ListingColumnMinWidth)#" fixTotals="#(..FixTotals)#" pagination="#(..Pagination)#" export-csv="#(..ExportCSV)#" data-source="#(..DataSource)#" show-summary="#(..ShowSummary)#" class="lpt-container" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;">
+        <div maxHeaderWidth="#(..MaxHeaderWidth)#" listingColumnMinWidth="#(..ListingColumnMinWidth)#" fixTotals="#(..FixTotals)#" pagination="#(..Pagination)#" export-csv="#(..ExportCSV)#" data-source="#(..DataSource)#" show-summary="#(..ShowSummary)#" class="lpt-container" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;">
 
         </div>
     >

@@ -465,13 +465,15 @@ PivotView.prototype.recalculateSizes = function (container) {
         }
 
         var pagedHeight = this.pagination.on ? this.PAGINATION_BLOCK_HEIGHT : 0,
-            headerW = leftHeader.offsetWidth,
+            headerW = Math.max(leftHeader.offsetWidth, headerContainer.offsetWidth),
             headerH = topHeader.offsetHeight,
             containerHeight = container.offsetHeight,
             bodyHeight = containerHeight - headerH - pagedHeight,
             mainHeaderWidth = headerContainer.offsetWidth,
-            hasVerticalScrollBar = lTableHead.offsetHeight > bodyHeight
+            hasVerticalScrollBar =
+                Math.max(lTableHead.offsetHeight, pTableHead.offsetHeight) > bodyHeight
                 && this.SCROLLBAR_WIDTH > 0,
+            addEggs = hasVerticalScrollBar && lTableHead.offsetHeight > 0,
             cell, tr, cellWidths = [], columnHeights = [], i;
 
         headerContainer.style.width = headerW + "px";
@@ -517,7 +519,7 @@ PivotView.prototype.recalculateSizes = function (container) {
             container["_primaryColumns"][i].style.width = cellWidths[i] + "px";
         }
 
-        if (hasVerticalScrollBar) { // horScroll?
+        if (addEggs) { // horScroll?
             tr = document.createElement("tr");
             tr.appendChild(cell = document.createElement("th"));
             lTableHead.appendChild(tr);
@@ -668,11 +670,19 @@ PivotView.prototype.renderRawData = function (data) {
                     tr.appendChild(
                         th = document.createElement(rawData[y][x].isCaption ? "th" : "td")
                     );
-                    th.textContent = rawData[y][x].value || " ";
+                    if (rawData[y][x].value) {
+                        th.textContent = rawData[y][x].value;
+                    } else th.innerHTML = "&zwnj;";
                     if (rawData[y][x].style) th.setAttribute("style", rawData[y][x].style);
                     if (info.leftHeaderColumnsNumber === 0
                         && _.controller.CONFIG["listingColumnMinWidth"]) { // if listing
                         th.style.minWidth = _.controller.CONFIG["listingColumnMinWidth"] + "px";
+                    }
+                    if (info.leftHeaderColumnsNumber > 0
+                        && _.controller.CONFIG["maxHeaderWidth"]) {
+                        th.style.maxWidth = _.controller.CONFIG["maxHeaderWidth"] + "px";
+                        th.style.whiteSpace = "normal";
+                        th.style.wordWrap = "normal";
                     }
                     if (rawData[y][x].className) th.className = rawData[y][x].className;
                     if (rawData[y][x].group) renderedGroups[rawData[y][x].group] = {
@@ -726,6 +736,13 @@ PivotView.prototype.renderRawData = function (data) {
         header.addEventListener(CLICK_EVENT, function (e) {
             _._backClickHandler.call(_, e);
         });
+    }
+    if (info.leftHeaderColumnsNumber > 0
+        && _.controller.CONFIG["maxHeaderWidth"]) {
+        pivotHeader.style.maxWidth =
+            _.controller.CONFIG["maxHeaderWidth"]*info.leftHeaderColumnsNumber + "px";
+        pivotHeader.style.whiteSpace = "normal";
+        pivotHeader.style.wordWrap = "normal";
     }
     if ( // hide unnecessary column
         (this.controller.CONFIG["hideButtons"] || this.tablesStack.length < 2)

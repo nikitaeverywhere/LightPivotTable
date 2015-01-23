@@ -89,6 +89,7 @@
 .lpt th, .lpt td {
     white-space: pre;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .lpt .lpt-tableBlock td {
