@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63575,80028.98656</TimeChanged>
+<TimeChanged>63578,5208.234472</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -289,15 +289,43 @@
 <Language>javascript</Language>
 <ClientMethod>1</ClientMethod>
 <Implementation><![CDATA[
+    var container = document.getElementById(this.id),
+        controller = this.getConnectedController();
+
     if (!this.LightPivotTable) return;
 
-    //if (location.pathname.indexOf("DeepSee") > -1) {
-    //    window.open(
-    //        location.href.replace(/(%|_)(25)?DeepSee.*/, "_DeepSee.UI.MDXExcel.zen?MDX=")
-    //        + encodeURIComponent(this.LightPivotTable.getActualMDX())
-    //    );
-    //    return;
-    //}
+    if (location.pathname.indexOf("DeepSee") > -1) {
+
+        var controls = this.id.replace(/\/.*/, "") + "/control/",
+            i = 1, n,
+            filter = document.getElementById(controls + i),
+
+            filterNames = [],
+            filterValues = [];
+
+        do {
+            if ((n = (filter.getElementsByTagName("input")[0] || {}).name) === "$V_applyFilter" || n === "$V_setFilter") {
+                filterNames.push((filter.parentNode.getElementsByClassName("zenLabel")[0] || {}).innerText || "");
+                filterValues.push("SET");
+            }
+            filter = document.getElementById(controls + (++i));
+        } while (filter);
+
+        window.open(
+            location.href.replace(/(%|_)(25)?DeepSee.*/, "_DeepSee.UI.MDXExcel.zen?MDX=")
+            + encodeURIComponent(this.LightPivotTable.getActualMDX())
+            + "&ROWTOTALAGG=sum"
+            + "&COLUMNTOTALAGG=sum"
+            + "&FILTERNAMES=" + encodeURIComponent(filterNames.join("\n"))
+            + "&FILTERVALUES=" + encodeURIComponent(filterValues.join("\n"))
+            + "&FILTERLABELS=" + encodeURIComponent(filterNames.join("\n"))
+            + "&TITLE=Exported data"
+            + "&SUBTITLE="
+            + "&CSPSHARE=1"
+            + "&CSPCHD=" + container.getElementsByTagName("div")[0].getAttribute("session")
+        );
+        return;
+    }
 
     var link = document.createElement("a"),
         csvData = [], preservedGroups = {},
@@ -353,7 +381,7 @@
     }
 
     &html<
-        <div maxHeaderWidth="#(..MaxHeaderWidth)#" listingColumnMinWidth="#(..ListingColumnMinWidth)#" fixTotals="#(..FixTotals)#" pagination="#(..Pagination)#" export-csv="#(..ExportCSV)#" data-source="#(..DataSource)#" show-summary="#(..ShowSummary)#" class="lpt-container" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;">
+        <div session="#(%session.CSPSessionCookie)#" maxHeaderWidth="#(..MaxHeaderWidth)#" listingColumnMinWidth="#(..ListingColumnMinWidth)#" fixTotals="#(..FixTotals)#" pagination="#(..Pagination)#" export-csv="#(..ExportCSV)#" data-source="#(..DataSource)#" show-summary="#(..ShowSummary)#" class="lpt-container" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;">
 
         </div>
     >
