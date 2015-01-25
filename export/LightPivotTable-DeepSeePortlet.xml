@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63578,5208.234472</TimeChanged>
+<TimeChanged>63578,5621.858081</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -303,7 +303,7 @@
             filterNames = [],
             filterValues = [];
 
-        do {
+        if (filter) do {
             if ((n = (filter.getElementsByTagName("input")[0] || {}).name) === "$V_applyFilter" || n === "$V_setFilter") {
                 filterNames.push((filter.parentNode.getElementsByClassName("zenLabel")[0] || {}).innerText || "");
                 filterValues.push("SET");
