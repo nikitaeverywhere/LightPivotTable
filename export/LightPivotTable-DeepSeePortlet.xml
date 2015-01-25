@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63578,5621.858081</TimeChanged>
+<TimeChanged>63578,5953.829232</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -314,6 +314,7 @@
         window.open(
             location.href.replace(/(%|_)(25)?DeepSee.*/, "_DeepSee.UI.MDXExcel.zen?MDX=")
             + encodeURIComponent(this.LightPivotTable.getActualMDX())
+            + "&ROWTOTALS=" + container.getElementsByTagName("div")[0].getAttribute("show-summary")
             + "&ROWTOTALAGG=sum"
             + "&COLUMNTOTALAGG=sum"
             + "&FILTERNAMES=" + encodeURIComponent(filterNames.join("\n"))
