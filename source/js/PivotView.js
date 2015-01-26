@@ -651,8 +651,12 @@ PivotView.prototype.renderRawData = function (data) {
             element.className += " formatLeft";
             element.textContent = value || "";
         } else { // number
-            if (format) {
+            if (format) { // set format
                 element.textContent = value ? numeral(value).format(format) : "";
+            } else if (value && info.defaultFormat) {
+                element.textContent = numeral(value).format(
+                    info.defaultFormat[value % 1 === 0 ? "int" : "double"]
+                );
             } else {
                 element.textContent = value || "";
             }
