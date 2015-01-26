@@ -52,7 +52,7 @@ var setup = { // Object that contain settings. Any setting may be missed.
             // if cellDrillThrough callback returns boolean false, DrillThrough won't be performed.
             , cellDrillThrough: function ({Object { event: {event}, filters: {string[]}, cellData: {object} }}) {}
         } ]
-        [ , pagination: 30 ] // Enables pagination. Pass a number of lines to show by page.
+        [ , pagination: 30 ] // Maximum rows number on one page (default: 200, turn off: 0)
         [ , hideButtons: true ] // hides "back" and "drillThrough" buttons
         [ , triggerEvent: "touchstart" ] // all "click" events will be replaced by this event
         [ , caption: "My table" ] // if set, table basic caption will be replaced by this text
@@ -65,6 +65,7 @@ var setup = { // Object that contain settings. Any setting may be missed.
         [ , drillDownTarget: "<dashboard name>" ] // deepSee only - dashboard to open
         [ , listingColumnMinWidth: 200 ] // minimal width of column in listing
         [ , maxHeaderWidth: 100 ] // maximum width of header
+        [ , columnResizing: true ] // make columns resizable (default: true)
     },
     lp = new LightPivotTable(setup);
     

@@ -33,6 +33,11 @@ var PivotView = function (controller, container) {
         y: 0
     };
 
+    /**
+     * @type {number[]}
+     */
+    this.FIXED_COLUMN_SIZES = [];
+
     this.PAGINATION_BLOCK_HEIGHT = 20;
     this.ANIMATION_TIMEOUT = 500;
 
@@ -130,7 +135,10 @@ PivotView.prototype.pushTable = function (opts) {
         tableElement = document.createElement("div");
 
     tableElement.className = "tableContainer";
-    if (this.tablesStack.length) tableElement.style.left = "100%";
+    if (this.tablesStack.length) {
+        this.tablesStack[this.tablesStack.length - 1].FIXED_COLUMN_SIZES = this.FIXED_COLUMN_SIZES;
+        tableElement.style.left = "100%";
+    }
 
     this.tablesStack.push({
         element: tableElement,
@@ -143,6 +151,7 @@ PivotView.prototype.pushTable = function (opts) {
         }
     });
 
+    this.FIXED_COLUMN_SIZES = [];
     this.elements.base.appendChild(tableElement);
     this.elements.tableContainer = tableElement;
     this.pagination = pg;
@@ -155,11 +164,16 @@ PivotView.prototype.pushTable = function (opts) {
 
 PivotView.prototype.popTable = function () {
 
+    var currentTable;
+
     if (this.tablesStack.length < 2) return;
 
+    this.FIXED_COLUMN_SIZES = [];
     this._updateTablesPosition(1);
     var garbage = this.tablesStack.pop();
-    this.pagination = this.tablesStack[this.tablesStack.length - 1].pagination;
+
+    this.pagination = (currentTable = this.tablesStack[this.tablesStack.length - 1]).pagination;
+    if (currentTable.FIXED_COLUMN_SIZES) this.FIXED_COLUMN_SIZES = currentTable.FIXED_COLUMN_SIZES;
 
     setTimeout(function () {
         garbage.element.parentNode.removeChild(garbage.element);
@@ -446,6 +460,7 @@ PivotView.prototype.recalculateSizes = function (container) {
 
         var _ = this,
             CLICK_EVENT = this.controller.CONFIG["triggerEvent"] || "click",
+            IE_EXTRA_SIZE = window.navigator.userAgent.indexOf("MSIE ") > -1 ? 1/3 : 0,
             header = container.getElementsByClassName("lpt-headerValue")[0];
 
         if (!header) { return; } // pivot not ready - nothing to fix
@@ -546,7 +561,9 @@ PivotView.prototype.recalculateSizes = function (container) {
             if (pTableHead.childNodes[i].tagName !== "TR") continue;
             if (pTableHead.childNodes[i].firstChild) {
                 pTableHead.childNodes[i].firstChild.style.height =
-                    (columnHeights[i] || columnHeights[i - 1] || DEFAULT_CELL_HEIGHT) + "px";
+                    (columnHeights[i] || columnHeights[i - 1] || DEFAULT_CELL_HEIGHT)
+                    + IE_EXTRA_SIZE
+                    + "px";
             }
         }
 
@@ -596,15 +613,16 @@ PivotView.prototype.renderRawData = function (data) {
     }
 
     var _ = this,
-        CLICK_EVENT = this.controller.CONFIG["triggerEvent"] || "click",
-        ATTACH_TOTALS = this.controller.CONFIG["showSummary"]
-            && this.controller.CONFIG["attachTotals"] ? 1 : 0,
-        renderedGroups = {}, // keys of rendered groups; key = group, value = { x, y, element }
         rawData = data["rawData"],
         info = data["info"],
         columnProps = data["columnProps"],
         colorScale =
             data["conditionalFormatting"] ? data["conditionalFormatting"]["colorScale"] : undefined,
+
+        CLICK_EVENT = this.controller.CONFIG["triggerEvent"] || "click",
+        ATTACH_TOTALS = info.SUMMARY_SHOWN && this.controller.CONFIG["attachTotals"] ? 1 : 0,
+        COLUMN_RESIZE_ON = !!this.controller.CONFIG.columnResizing,
+
         container = this.elements.tableContainer,
         pivotTopSection = document.createElement("div"),
         pivotBottomSection = document.createElement("div"),
@@ -622,6 +640,9 @@ PivotView.prototype.renderRawData = function (data) {
         pageSwitcher = this.pagination.on ? document.createElement("div") : null,
         pageNumbers = this.pagination.on ? [] : null,
         pageSwitcherContainer = pageSwitcher ? document.createElement("div") : null,
+        _RESIZING = false, _RESIZING_ELEMENT = null, _RESIZING_COLUMN_INDEX = 0,
+        _RESIZING_ELEMENT_BASE_WIDTH, _RESIZING_ELEMENT_BASE_X,
+        renderedGroups = {}, // keys of rendered groups; key = group, value = { x, y, element }
         i, x, y, tr = null, th, td, primaryColumns = [], primaryRows = [], ratio, cellStyle,
         tempI, tempJ;
 
@@ -636,6 +657,58 @@ PivotView.prototype.renderRawData = function (data) {
                 element.textContent = value || "";
             }
         }
+    };
+
+    var bindResize = function (element, column) {
+
+        var el = element,
+            colIndex = column;
+
+        var moveListener = function (e) {
+            if (!_RESIZING) return;
+            e.cancelBubble = true;
+            e.preventDefault();
+            _RESIZING_ELEMENT.style.width = _RESIZING_ELEMENT.style.minWidth =
+                _RESIZING_ELEMENT_BASE_WIDTH - _RESIZING_ELEMENT_BASE_X + e.pageX + "px";
+        };
+
+        if (!el._HAS_MOUSE_MOVE_LISTENER) {
+            el.parentNode.addEventListener("mousemove", moveListener);
+            el._HAS_MOUSE_MOVE_LISTENER = true;
+        }
+
+        el.addEventListener("mousedown", function (e) {
+            if (((e.layerX || e.offsetX) < el.offsetWidth - 5) && (e.layerX || e.offsetX) > 5) {
+                return;
+            }
+            e.cancelBubble = true;
+            e.preventDefault();
+            _RESIZING = true;
+            _RESIZING_ELEMENT = el;
+            _RESIZING_ELEMENT_BASE_WIDTH = el.offsetWidth;
+            _RESIZING_ELEMENT_BASE_X = e.pageX;
+            _RESIZING_COLUMN_INDEX = colIndex;
+            el._CANCEL_CLICK_EVENT = true;
+        });
+
+        el.addEventListener("mouseup", function (e) {
+            if (!_RESIZING) return;
+            e.cancelBubble = true;
+            e.preventDefault();
+            _RESIZING = false;
+            _RESIZING_ELEMENT.style.width = _RESIZING_ELEMENT.style.minWidth =
+                (_.FIXED_COLUMN_SIZES[_RESIZING_COLUMN_INDEX] =
+                    _RESIZING_ELEMENT_BASE_WIDTH - _RESIZING_ELEMENT_BASE_X + e.pageX
+                ) + "px";
+            _.saveScrollPosition();
+            _.recalculateSizes(container);
+            _.restoreScrollPosition();
+            setTimeout(function () {
+                _RESIZING_ELEMENT._CANCEL_CLICK_EVENT = false;
+                _RESIZING_ELEMENT = null;
+            }, 1);
+        });
+
     };
 
     // clean previous content
@@ -710,15 +783,22 @@ PivotView.prototype.renderRawData = function (data) {
                 }
                 if (!vertical && y === yTo - 1 - ATTACH_TOTALS && !th["_hasSortingListener"]) {
                     th["_hasSortingListener"] = false; // why false?
-                    th.addEventListener(CLICK_EVENT, (function (i) {
+                    th.addEventListener(CLICK_EVENT, (function (i, th) {
                         return function () {
+                            if (th._CANCEL_CLICK_EVENT) return;
                             _._columnClickHandler.call(_, i);
                         };
-                    })(x - info.leftHeaderColumnsNumber));
+                    })(x - info.leftHeaderColumnsNumber, th));
                     th.className = (th.className || "") + " lpt-clickable";
                 }
                 if (!vertical && y === yTo - 1) {
-                    //th["_hasSortingListener"] = false; // why false?
+                    if (_.FIXED_COLUMN_SIZES[x]) {
+                        th.style.minWidth = th.style.width = _.FIXED_COLUMN_SIZES[x] + "px";
+                    }
+                    if (COLUMN_RESIZE_ON) {
+                        bindResize(th, x);
+                        th.className += " lpt-resizableColumn";
+                    }
                     primaryColumns.push(th);
                 }
 

@@ -445,6 +445,7 @@ DataController.prototype.resetRawData = function () {
     }
 
     data.info.topHeaderRowsNumber = xh;
+    data.info.SUMMARY_SHOWN = false;
     data.info.leftHeaderColumnsNumber = yw;
     this.SUMMARY_SHOWN = false;
     this._dataStack[this._dataStack.length - 1].SUMMARY_SHOWN = false;
@@ -575,7 +576,6 @@ DataController.prototype.sortByColumn = function (columnIndex) {
     data.rawData[data.info.topHeaderRowsNumber - totalsAttached - 1]
         [data.info.leftHeaderColumnsNumber + columnIndex]
         .className = order === 0 ? "" : order === 1 ? "lpt-sortDesc" : "lpt-sortAsc";
-
 
     this._trigger();
 

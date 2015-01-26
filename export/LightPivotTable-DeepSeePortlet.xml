@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63578,5953.829232</TimeChanged>
+<TimeChanged>63578,68626.779569</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -46,6 +46,10 @@
 <Type>%Integer</Type>
 </Property>
 
+<Property name="ColumnResizing">
+<Type>%Boolean</Type>
+</Property>
+
 <Method name="%OnGetPortletName">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
@@ -70,10 +74,11 @@
     set pInfo($I(pInfo)) = $LB("DataSource", "/" _ $NAMESPACE, "%String", $$$Text("MDX2JSON source", "%DeepSee"), "Set the URL of MDX2JSON source. Example: ""/SAMPLES""")
     set pInfo($I(pInfo)) = $LB("ShowSummary", 1, "%Boolean", $$$Text("Show summary", "%DeepSee"), "Show summary row")
     set pInfo($I(pInfo)) = $LB("ExportCSV", 1, "%Boolean", $$$Text("Export to CSV", "%DeepSee"), "Show export to CSV format button")
-    set pInfo($I(pInfo)) = $LB("Pagination", 0, "%Integer", $$$Text("Pagination", "%DeepSee"), "Enable pagination")
+    set pInfo($I(pInfo)) = $LB("Pagination", 200, "%Integer", $$$Text("Pagination", "%DeepSee"), "Enable pagination")
     set pInfo($I(pInfo)) = $LB("FixTotals", 0, "%Boolean", $$$Text("Fix totals", "%DeepSee"), "Fix totals in header")
     set pInfo($I(pInfo)) = $LB("ListingColumnMinWidth", 0, "%Integer", $$$Text("Min cell width for listing", "%DeepSee"), "Minimal column width in listing")
     set pInfo($I(pInfo)) = $LB("MaxHeaderWidth", 0, "%Integer", $$$Text("Max column width", "%DeepSee"), "Maximal column width for headers")
+    set pInfo($I(pInfo)) = $LB("ColumnResizing", 1, "%Boolean", $$$Text("Column resizing", "%DeepSee"), "Allow resizing columns with cursor")
 
     quit $$$OK
 ]]></Implementation>
@@ -248,6 +253,7 @@
                 if (info["drillDownDataSource"]) setup["drillDownTarget"] = info["drillDownDataSource"];
                 setup["showSummary"] = !!parseInt(container.getAttribute("show-summary"));
                 setup["attachTotals"] = !!parseInt(container.getAttribute("fixTotals"));
+                setup["columnResizing"] = !!parseInt(container.getAttribute("columnResizing"));
                 if (parseInt(container.getAttribute("pagination"))) {
                     setup["pagination"] = parseInt(container.getAttribute("pagination"))
                 }
@@ -382,7 +388,7 @@
     }
 
     &html<
-        <div session="#(%session.CSPSessionCookie)#" maxHeaderWidth="#(..MaxHeaderWidth)#" listingColumnMinWidth="#(..ListingColumnMinWidth)#" fixTotals="#(..FixTotals)#" pagination="#(..Pagination)#" export-csv="#(..ExportCSV)#" data-source="#(..DataSource)#" show-summary="#(..ShowSummary)#" class="lpt-container" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;">
+        <div columnResizing="#(..ColumnResizing)#" session="#(%session.CSPSessionCookie)#" maxHeaderWidth="#(..MaxHeaderWidth)#" listingColumnMinWidth="#(..ListingColumnMinWidth)#" fixTotals="#(..FixTotals)#" pagination="#(..Pagination)#" export-csv="#(..ExportCSV)#" data-source="#(..DataSource)#" show-summary="#(..ShowSummary)#" class="lpt-container" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;">
 
         </div>
     >

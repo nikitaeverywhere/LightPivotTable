@@ -217,11 +217,11 @@
 }
 
 .lpt-sortDesc:before {
-    content: "▼ ";
+    content: "\25bc ";
 }
 
 .lpt-sortAsc:before {
-    content: "▲ ";
+    content: "\25b2 ";
 }
 
 /*.lpt .lpt-leftHeader table {*/
@@ -375,4 +375,19 @@
 
 .lpt .lpt-extraCell {
     padding: 0 !important;
+}
+
+.lpt-resizableColumn {
+    position: relative;
+}
+
+.lpt-resizableColumn:after {
+    display: block;
+    position: absolute;
+    content: "";
+    right: -5px;
+    top: 0;
+    width: 10px;
+    cursor: col-resize !important;
+    height: 100%;
 }
