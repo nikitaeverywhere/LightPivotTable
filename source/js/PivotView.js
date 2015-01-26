@@ -547,10 +547,12 @@ PivotView.prototype.recalculateSizes = function (container) {
                 if (cell["__i"] > 5) _["_"]();
             });
             tr["_extraTr"] = true;
-            leftHeader.className = leftHeader.className.replace(/\sbordered/, "")
-                + " bordered";
             cell.colSpan = lTableHead.childNodes.length;
             cell.style.height = (this.SCROLLBAR_WIDTH ? this.SCROLLBAR_WIDTH + 1 : 0) + "px";
+        }
+
+        if (hasVerticalScrollBar) {
+            leftHeader.className = leftHeader.className.replace(/\sbordered/, "") + " bordered";
         }
 
         for (i in tableTr.childNodes) {

@@ -141,11 +141,6 @@
     background: #FFF7D7;
 }
 
-/*.lpt .lpt-topHeader tr:last-child th:hover {*/
-    /*cursor: pointer;*/
-    /*background: #FFF7D7;*/
-/*}*/
-
 .lpt .lpt-tableBlock {
     position: relative;
     overflow: auto;
@@ -223,10 +218,6 @@
 .lpt-sortAsc:before {
     content: "\25b2 ";
 }
-
-/*.lpt .lpt-leftHeader table {*/
-    /*margin-bottom: 10em;*/
-/*}*/
 
 /* lpt-dataWait */
 .lpt .lpt-hoverMessage {
