@@ -530,8 +530,7 @@ DataController.prototype._trigger = function () {
 DataController.prototype.sortByColumn = function (columnIndex) {
 
     var data = this._dataStack[this._dataStack.length - 1].data,
-        totalsAttached = this.SUMMARY_SHOWN
-            && this.controller.CONFIG["attachTotals"] ? 1 : 0;
+        totalsAttached = this.SUMMARY_SHOWN && this.controller.CONFIG["attachTotals"] ? 1 : 0;
 
     if (this.SORT_STATE.column !== columnIndex) {
         order = this.SORT_STATE.order = 0;
@@ -576,6 +575,47 @@ DataController.prototype.sortByColumn = function (columnIndex) {
     data.rawData[data.info.topHeaderRowsNumber - totalsAttached - 1]
         [data.info.leftHeaderColumnsNumber + columnIndex]
         .className = order === 0 ? "" : order === 1 ? "lpt-sortDesc" : "lpt-sortAsc";
+
+    this._trigger();
+
+};
+
+/**
+ * Filter raw data by part of value.
+ *
+ * @param {string} valuePart
+ * @param {number} columnIndex
+ */
+DataController.prototype.filterByValue = function (valuePart, columnIndex) {
+
+    var data = this._dataStack[this._dataStack.length - 1].data,
+        totalsAttached = this.SUMMARY_SHOWN && this.controller.CONFIG["attachTotals"] ? 1 : 0,
+        newRawData = data._rawDataOrigin.slice(
+            data.info.topHeaderRowsNumber,
+            data._rawDataOrigin.length - (this.SUMMARY_SHOWN && !totalsAttached ? 1 : 0)
+        ),
+        re = null;
+
+    try {
+        re = new RegExp(valuePart, "i");
+    } catch (e) {
+        try {
+            re = new RegExp(valuePart.replace(/([()[{*+.$^\\|?])/g, "\\$1"), "i");
+        } catch (e) {
+            return;
+        }
+    }
+
+    newRawData = newRawData.filter(function (row) {
+        return (row[columnIndex].value || "").toString().match(re);
+    });
+
+    data.rawData = data._rawDataOrigin.slice(0, data.info.topHeaderRowsNumber)
+        .concat(newRawData)
+        .concat(this.SUMMARY_SHOWN && !totalsAttached
+            ? [data._rawDataOrigin[data._rawDataOrigin.length - 1]]
+            : []
+    );
 
     this._trigger();
 

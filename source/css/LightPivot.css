@@ -173,7 +173,6 @@
 
 .lpt .lpt-pageSwitcher {
     position: absolute;
-    display: table;
     box-sizing: border-box;
     bottom: 0;
     width: 100%;
@@ -185,8 +184,6 @@
 
 .lpt .lpt-pageSwitcher > div {
     position: relative;
-    display: table-cell;
-    vertical-align: middle;
     height: 100%;
     text-align: center;
 }
@@ -368,17 +365,109 @@
     padding: 0 !important;
 }
 
-.lpt-resizableColumn {
-    position: relative;
+.lpt-searchBlock {
+    position: absolute;
+    box-sizing: border-box;
+    overflow: hidden;
+    bottom: 20px;
+    width: 100%;
+    height: 20px;
+    font-size: 14px;
+    border: 1px solid rgb(208, 208, 208);
+    background: #F0F0F0;
 }
 
-.lpt-resizableColumn:after {
-    display: block;
+.lpt-searchSelectOuter {
+    position: relative;
+    display: inline-block;
+    width: 150px;
+    margin: 1px 0 0 5px;
+    overflow: hidden;
+    vertical-align: top;
+    background: #F0F0F0;
+    border: 1px solid #D0D0D0;
+    border-top: none;
+    border-bottom: none;
+    border-radius: 10px;
+}
+
+.lpt-searchSelectOuter:after {
+    content: "\25bc";
+    position: absolute;
+    top: 0;
+    right: 5px;
+    color: gray;
+}
+
+.lpt-searchSelectOuter select {
+    font-size: 13px;
+    padding: 0 0 0 2px;
+    width: 170px;
+    vertical-align: top;
+    height: 17px;
+    max-height: 20px;
+    background: transparent;
+    outline: medium none;
+    border: 0;
+    cursor: pointer;
+}
+
+/* relative positioning is incorrect here */
+.lpt-resizableColumn {
+
+}
+
+.lpt-searchIcon {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    box-sizing: border-box;
+    margin: 1px 0 0 1px;
+    width: 17px;
+    height: 17px;
+    border-radius: 9px;
+    background: #ffffff;
+    border: 1px solid rgb(208, 208, 208);
+}
+
+.lpt-searchIcon:before {
     position: absolute;
     content: "";
-    right: -5px;
-    top: 0;
-    width: 10px;
-    cursor: col-resize !important;
-    height: 100%;
+    left: 1px;
+    top: 1px;
+    width: 4px;
+    height: 4px;
+    border: 3px solid grey;
+    border-radius: 5px;
+}
+
+.lpt-searchIcon:after {
+    position: absolute;
+    content: "";
+    left: 9px;
+    top: 7px;
+    width: 3px;
+    height: 6px;
+    background: grey;
+    border-radius: 1px;
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}
+
+.lpt-searchInput {
+    display: inline-block;
+    box-sizing: border-box;
+    font-size: 13px;
+    padding: 0 4px 0 4px;
+    margin: 1px 0 0 5px;
+    border-radius: 10px;
+    height: 17px;
+    background: #FFFFFF;
+    border: 1px solid #D0D0D0;
+    border-top: none;
+    border-bottom: none;
+    outline: none;
 }

@@ -14,7 +14,9 @@ var PivotView = function (controller, container) {
         container: container,
         base: document.createElement("div"),
         tableContainer: undefined,
-        messageElement: undefined
+        messageElement: undefined,
+        searchSelect: undefined,
+        searchInput: undefined
     };
 
     /**
@@ -40,6 +42,14 @@ var PivotView = function (controller, container) {
 
     this.PAGINATION_BLOCK_HEIGHT = 20;
     this.ANIMATION_TIMEOUT = 500;
+
+    this.SEARCH_ENABLED = false;
+    this.SEARCHBOX_LEFT_MARGIN = 191;
+    this.savedSearch = {
+        restore: false,
+        value: "",
+        columnIndex: 0
+    };
 
     this.controller = controller;
 
@@ -137,6 +147,8 @@ PivotView.prototype.pushTable = function (opts) {
     tableElement.className = "tableContainer";
     if (this.tablesStack.length) {
         this.tablesStack[this.tablesStack.length - 1].FIXED_COLUMN_SIZES = this.FIXED_COLUMN_SIZES;
+        this.tablesStack[this.tablesStack.length - 1].savedSearch = this.savedSearch;
+        this.savedSearch = { restore: false, value: "", columnIndex: 0 };
         tableElement.style.left = "100%";
     }
 
@@ -174,6 +186,7 @@ PivotView.prototype.popTable = function () {
 
     this.pagination = (currentTable = this.tablesStack[this.tablesStack.length - 1]).pagination;
     if (currentTable.FIXED_COLUMN_SIZES) this.FIXED_COLUMN_SIZES = currentTable.FIXED_COLUMN_SIZES;
+    if (currentTable.savedSearch) this.savedSearch = currentTable.savedSearch;
 
     setTimeout(function () {
         garbage.element.parentNode.removeChild(garbage.element);
@@ -449,6 +462,27 @@ PivotView.prototype.applyConditionalFormatting = function (rules, key, value, el
 };
 
 /**
+ * DeepSee-defined colors.
+ *
+ * @param {string} name - name of color. F.e. "red".
+ * @returns {{ r: number, g: number, b: number }}
+ */
+PivotView.prototype.colorNameToRGB = function (name) {
+    var c = function (r, g, b) { return { r: r, g: g, b: b } };
+    switch (name) {
+        case "red": return c(255, 0, 0);
+        case "green": return c(0, 255, 0);
+        case "blue": return c(0, 0, 255);
+        case "purple": return c(102, 0, 153);
+        case "salmon": return c(255, 140, 105);
+        case "white": return c(255, 255, 255);
+        case "black": return c(0, 0, 0);
+        case "gray": return c(128, 128, 128);
+        default: return c(255, 255, 255);
+    }
+};
+
+/**
  * @param container
  */
 PivotView.prototype.recalculateSizes = function (container) {
@@ -472,6 +506,8 @@ PivotView.prototype.recalculateSizes = function (container) {
             lTableHead = leftHeader.getElementsByTagName("thead")[0],
             tableBlock = container.getElementsByClassName("lpt-tableBlock")[0],
             pTableHead = tableBlock.getElementsByTagName("tbody")[0],
+            searchInput = container.getElementsByClassName("lpt-searchInput")[0],
+            searchInputSize = searchInput ? container.offsetWidth - this.SEARCHBOX_LEFT_MARGIN : 0,
             tableTr = tableBlock.getElementsByTagName("tr")[0];
 
         if (tTableHead.childNodes[0] && tTableHead.childNodes[0].lastChild["_extraCell"]) {
@@ -481,7 +517,8 @@ PivotView.prototype.recalculateSizes = function (container) {
             lTableHead.removeChild(lTableHead.lastChild);
         }
 
-        var pagedHeight = this.pagination.on ? this.PAGINATION_BLOCK_HEIGHT : 0,
+        var pagedHeight = (this.pagination.on ? this.PAGINATION_BLOCK_HEIGHT : 0)
+                + (this.SEARCH_ENABLED ? this.PAGINATION_BLOCK_HEIGHT : 0),
             headerW = Math.max(leftHeader.offsetWidth, headerContainer.offsetWidth),
             headerH = topHeader.offsetHeight,
             containerHeight = container.offsetHeight,
@@ -551,11 +588,15 @@ PivotView.prototype.recalculateSizes = function (container) {
             cell.style.height = (this.SCROLLBAR_WIDTH ? this.SCROLLBAR_WIDTH + 1 : 0) + "px";
         }
 
+        if (searchInput) {
+            searchInput.style.width = searchInputSize + "px";
+        }
+
         if (hasVerticalScrollBar) {
             leftHeader.className = leftHeader.className.replace(/\sbordered/, "") + " bordered";
         }
 
-        for (i in tableTr.childNodes) {
+        if (tableTr) for (i in tableTr.childNodes) {
             if (tableTr.childNodes[i].tagName !== "TD") continue;
             tableTr.childNodes[i].style.width = cellWidths[i] + "px";
         }
@@ -575,27 +616,6 @@ PivotView.prototype.recalculateSizes = function (container) {
         console.error("Error when fixing sizes.", "ERROR:", e);
     }
 
-};
-
-/**
- * DeepSee-defined colors.
- *
- * @param {string} name - name of color. F.e. "red".
- * @returns {{ r: number, g: number, b: number }}
- */
-PivotView.prototype.colorNameToRGB = function (name) {
-    var c = function (r, g, b) { return { r: r, g: g, b: b } };
-    switch (name) {
-        case "red": return c(255, 0, 0);
-        case "green": return c(0, 255, 0);
-        case "blue": return c(0, 0, 255);
-        case "purple": return c(102, 0, 153);
-        case "salmon": return c(255, 140, 105);
-        case "white": return c(255, 255, 255);
-        case "black": return c(0, 0, 0);
-        case "gray": return c(128, 128, 128);
-        default: return c(255, 255, 255);
-    }
 };
 
 /**
@@ -624,6 +644,8 @@ PivotView.prototype.renderRawData = function (data) {
         CLICK_EVENT = this.controller.CONFIG["triggerEvent"] || "click",
         ATTACH_TOTALS = info.SUMMARY_SHOWN && this.controller.CONFIG["attachTotals"] ? 1 : 0,
         COLUMN_RESIZE_ON = !!this.controller.CONFIG.columnResizing,
+        LISTING = info.leftHeaderColumnsNumber === 0,
+        SEARCH_ENABLED = LISTING && this.controller.CONFIG["enableSearch"],
 
         container = this.elements.tableContainer,
         pivotTopSection = document.createElement("div"),
@@ -639,14 +661,37 @@ PivotView.prototype.renderRawData = function (data) {
         LHTHead = document.createElement("thead"),
         mainTable = document.createElement("table"),
         mainTBody = document.createElement("tbody"),
+
         pageSwitcher = this.pagination.on ? document.createElement("div") : null,
         pageNumbers = this.pagination.on ? [] : null,
         pageSwitcherContainer = pageSwitcher ? document.createElement("div") : null,
+
+        searchBlock = SEARCH_ENABLED ? document.createElement("div") : null,
+        searchIcon = SEARCH_ENABLED ? document.createElement("span") : null,
+        searchSelect = SEARCH_ENABLED ? document.createElement("select") : null,
+        searchSelectOuter = SEARCH_ENABLED ? document.createElement("span") : null,
+        searchInput = SEARCH_ENABLED ? document.createElement("input") : null,
+        searchFields = SEARCH_ENABLED ? (function () {
+            var arr = [],
+                x = info.leftHeaderColumnsNumber,
+                y = info.topHeaderRowsNumber - 1 - ATTACH_TOTALS;
+            for (var i = x; i < rawData[y].length; i++) {
+                arr.push({
+                    value: rawData[y][i].value,
+                    source: rawData[y][i].source,
+                    columnIndex: i
+                });
+            }
+            return arr;
+        })() : null,
+
         _RESIZING = false, _RESIZING_ELEMENT = null, _RESIZING_COLUMN_INDEX = 0,
         _RESIZING_ELEMENT_BASE_WIDTH, _RESIZING_ELEMENT_BASE_X,
         renderedGroups = {}, // keys of rendered groups; key = group, value = { x, y, element }
         i, x, y, tr = null, th, td, primaryColumns = [], primaryRows = [], ratio, cellStyle,
         tempI, tempJ;
+
+    this.SEARCH_ENABLED = SEARCH_ENABLED;
 
     var formatContent = function (value, element, format) {
         if (!isFinite(value)) {
@@ -663,6 +708,28 @@ PivotView.prototype.renderRawData = function (data) {
                 element.textContent = value || "";
             }
         }
+    };
+
+    var setCaretPosition = function (elem, caretPos) {
+        var range;
+        if (elem.createTextRange) {
+            range = elem.createTextRange();
+            range.move("character", caretPos);
+            range.select();
+        } else {
+            elem.setSelectionRange(caretPos, caretPos);
+        }
+    };
+
+    var getMouseXY = function (e) {
+        var element = e.target || e.srcElement, offsetX = 0, offsetY = 0;
+        if (element.offsetParent) {
+            do {
+                offsetX += element.offsetLeft;
+                offsetY += element.offsetTop;
+            } while ((element = element.offsetParent));
+        }
+        return { x: e.pageX - offsetX, y: e.pageY - offsetY };
     };
 
     var bindResize = function (element, column) {
@@ -684,7 +751,8 @@ PivotView.prototype.renderRawData = function (data) {
         }
 
         el.addEventListener("mousedown", function (e) {
-            if (((e.layerX || e.offsetX) < el.offsetWidth - 5) && (e.layerX || e.offsetX) > 5) {
+            var cursorX = getMouseXY(e).x;
+            if (cursorX < el.offsetWidth - 5 && cursorX > 5) {
                 return;
             }
             e.cancelBubble = true;
@@ -814,9 +882,7 @@ PivotView.prototype.renderRawData = function (data) {
         }
     };
 
-    //console.log("Data to render: ", data);
-
-    // fill header
+    // top left header setup
     header.textContent = info.leftHeaderColumnsNumber ? rawData[0][0].value : "";
     if (rawData[0][0].style) header.setAttribute("style", rawData[0][0].style);
     if (this.tablesStack.length > 1 && !this.controller.CONFIG["hideButtons"]) {
@@ -957,6 +1023,7 @@ PivotView.prototype.renderRawData = function (data) {
     pivotBottomSection.appendChild(tableBlock);
     container.appendChild(pivotTopSection);
     container.appendChild(pivotBottomSection);
+
     if (pageSwitcher) {
         pageSwitcher.className = "lpt-pageSwitcher";
         pageNumbers = (function getPageNumbersArray (currentPage, pages) { // minPage = 1
@@ -990,9 +1057,56 @@ PivotView.prototype.renderRawData = function (data) {
         pageSwitcher.appendChild(pageSwitcherContainer);
         container.appendChild(pageSwitcher);
     }
+
+    if (SEARCH_ENABLED) {
+        searchIcon.className = "lpt-searchIcon";
+        searchSelectOuter.className = "lpt-searchSelectOuter";
+        searchBlock.className = "lpt-searchBlock";
+        searchInput.className = "lpt-searchInput";
+        searchSelect.className = "lpt-searchSelect";
+        if (pageSwitcher) {
+            searchBlock.style.borderBottom = "none";
+        } else { searchBlock.style.bottom = "0"; }
+        for (i in searchFields) {
+            td = document.createElement("option");
+            td.setAttribute("value", searchFields[i].columnIndex.toString());
+            td.textContent = searchFields[i].value;
+            searchSelect.appendChild(td);
+        }
+        searchInput.addEventListener("input", function () {
+            var colIndex = parseInt(searchSelect.options[searchSelect.selectedIndex].value),
+                value = searchInput.value;
+            _.saveScrollPosition();
+            _.savedSearch.value = value;
+            _.savedSearch.columnIndex = colIndex;
+            _.savedSearch.restore = true;
+            _.controller.dataController.filterByValue(value, colIndex);
+            _.restoreScrollPosition();
+        });
+        searchBlock.appendChild(searchIcon);
+        searchSelectOuter.appendChild(searchSelect);
+        searchBlock.appendChild(searchSelectOuter);
+        searchBlock.appendChild(searchInput);
+        container.appendChild(searchBlock);
+        this.elements.searchInput = searchInput;
+        this.elements.searchSelect = searchSelect;
+        if (this.savedSearch.restore) {
+            this.elements.searchInput.value = this.savedSearch.value;
+            this.elements.searchSelect.value = this.savedSearch.columnIndex;
+        }
+    } else {
+        this.elements.searchInput = undefined;
+        this.elements.searchSelect = undefined;
+    }
+
     container["_primaryColumns"] = primaryColumns;
     container["_primaryRows"] = primaryRows;
 
     this.recalculateSizes(container);
+
+    if (this.savedSearch.restore) {
+        this.elements.searchInput.focus();
+        setCaretPosition(this.elements.searchInput, this.savedSearch.value.length);
+    }
 
 };
