@@ -81,6 +81,7 @@ lp.setFilter("[DateOfSale].[Actual].[YearSold].&[2009]");
 lp.refresh(); // refresh pivot contents
 lp.updateSizes(); // recalculate pivot sizes
 lp.changeBasicMDX("..."); // change mdx for LPT
+lp.getActualMDX(); // returns currently displayed MDX
 ```
 
 #### Caché DeepSee
