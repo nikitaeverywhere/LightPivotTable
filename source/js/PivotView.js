@@ -1065,8 +1065,9 @@ PivotView.prototype.renderRawData = function (data) {
         searchInput.className = "lpt-searchInput";
         searchSelect.className = "lpt-searchSelect";
         if (pageSwitcher) {
-            searchBlock.style.borderBottom = "none";
-        } else { searchBlock.style.bottom = "0"; }
+            pageSwitcher.style.borderBottom = "none";
+            pageSwitcher.style.bottom = "20px";
+        }
         for (i in searchFields) {
             td = document.createElement("option");
             td.setAttribute("value", searchFields[i].columnIndex.toString());

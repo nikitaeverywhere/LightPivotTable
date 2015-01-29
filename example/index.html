@@ -41,7 +41,8 @@
         <a onclick="rSoon(this)">9</a>,
         <a onclick="rSoon(this)">10</a>,
         <a onclick="rSoon(this)">11</a>,
-        <a onclick="rSoon(this)">12</a>
+        <a onclick="rSoon(this)">12</a>,
+        <a onclick="rSoon(this)">13</a>
     </div>
     <div id="mdx"></div>
     <form id="mdxForm" onsubmit="return false;">
@@ -81,7 +82,11 @@
                     ".[H1].[Region].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].Members ON 1 FROM [HoleFoods]",
                     DrillDownExpression: "NONEMPTYCROSSJOIN([DateOfSale].[Actual].[YearSold].Members,[Product].[P1].[Product Category].Members)"
                 },
-                "SELECT NON EMPTY [AgeD].[H1].[Age Group].Members ON 0,NON EMPTY HEAD(NONEMPTYCROSSJOIN([DocD].[H1].[Doctor].Members,[AllerSevD].[H1].[Allergy Severities].Members),2000) ON 1 FROM [Patients]"
+                "SELECT NON EMPTY [AgeD].[H1].[Age Group].Members ON 0,NON EMPTY HEAD(NONEMPTYCROSSJOIN([DocD].[H1].[Doctor].Members,[AllerSevD].[H1].[Allergy Severities].Members),2000) ON 1 FROM [Patients]",
+                {
+                    basicMDX: 'SELECT NON EMPTY {[Measures].[%COUNT],%LABEL([Measures].[Avg Age],"Avg Age (ex. 1)",""),%LABEL([Measures].[Avg Age],"Avg Age (ex. 2)",""),%LABEL([Measures].[Avg Age],"Avg Age (ex. 3)","")} ON 0,NON EMPTY [AllerSevD].[H1].[Allergy Severities].Members ON 1 FROM [Patients]',
+                    pivot: "Pivot Features/Conditional Formatting.pivot"
+                }
             ][v],
             setup;
 
@@ -124,11 +129,21 @@
             //, enableSearch: false // enables search panel in listing
         };
 
+        var e;
+
         if (req.DrillDownExpression) { // set custom DrillDown on variant 10
             setup.DrillDownExpression = req.DrillDownExpression;
-            var e = document.createElement("div");
+            e = document.createElement("div");
             e.innerHTML = "<b>Custom DrillDown expression set up here: </b>"
                 + setup.DrillDownExpression;
+            document.getElementById("mdxForm").appendChild(e);
+        }
+
+        if (req.pivot) {
+            setup.dataSource.pivot = req.pivot;
+            e = document.createElement("div");
+            e.innerHTML = "<b>Pivot attached here: </b>"
+            + req.pivot;
             document.getElementById("mdxForm").appendChild(e);
         }
 
