@@ -40,7 +40,8 @@
         <a onclick="rSoon(this)">8</a>,
         <a onclick="rSoon(this)">9</a>,
         <a onclick="rSoon(this)">10</a>,
-        <a onclick="rSoon(this)">11</a>
+        <a onclick="rSoon(this)">11</a>,
+        <a onclick="rSoon(this)">12</a>
     </div>
     <div id="mdx"></div>
     <form id="mdxForm" onsubmit="return false;">
@@ -79,7 +80,8 @@
                     basicMDX: "SELECT NON EMPTY [Outlet]" +
                     ".[H1].[Region].Members ON 0,NON EMPTY [DateOfSale].[Actual].[YearSold].Members ON 1 FROM [HoleFoods]",
                     DrillDownExpression: "NONEMPTYCROSSJOIN([DateOfSale].[Actual].[YearSold].Members,[Product].[P1].[Product Category].Members)"
-                }
+                },
+                "SELECT NON EMPTY [AgeD].[H1].[Age Group].Members ON 0,NON EMPTY HEAD(NONEMPTYCROSSJOIN([DocD].[H1].[Doctor].Members,[AllerSevD].[H1].[Allergy Severities].Members),2000) ON 1 FROM [Patients]"
             ][v],
             setup;
 

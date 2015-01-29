@@ -99,7 +99,7 @@ DataController.prototype.setData = function (data) {
             return false;
         });
     }
-
+    //console.log(data);
     this._trigger();
     return data;
 

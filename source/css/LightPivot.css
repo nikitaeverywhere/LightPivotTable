@@ -87,7 +87,7 @@
 }
 
 .lpt th, .lpt td {
-    white-space: pre;
+    white-space: nowrap;
     box-sizing: border-box;
     overflow: hidden;
 }
