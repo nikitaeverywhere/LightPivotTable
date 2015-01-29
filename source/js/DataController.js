@@ -223,7 +223,7 @@ DataController.prototype.TOTAL_FUNCTIONS = {
                 sum += parseFloat(array[i][column]["value"]) || 0;
             }
         }
-        return sum || "";
+        return sum;
     },
 
     totalAVG: function (array, iStart, iEnd, column) {
@@ -488,7 +488,7 @@ DataController.prototype.resetRawData = function () {
                 summary[i] = {
                     value: getTotalFunction(parseInt(i) - data.info.leftHeaderColumnsNumber).call(
                         this.TOTAL_FUNCTIONS,
-                        rawData, xh, rawData.length - 1, i, data.info.leftHeaderColumnsNumber
+                        rawData, xh, rawData.length, i, data.info.leftHeaderColumnsNumber
                     ),
                     style: "font-weight: bold;text-align: right;"
                 }
