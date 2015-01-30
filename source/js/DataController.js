@@ -481,7 +481,7 @@ DataController.prototype.resetRawData = function () {
                     isCaption: true,
                     source: {},
                     noDrillDown: true,
-                    value: navigator.language === "ru" ? "Всего" : "Total"
+                    value: pivotLocale.get(0)
                 };
                 applyHeaderStyle(summary[i], false);
             } else {

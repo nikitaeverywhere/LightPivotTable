@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../source/js/PivotView.js"></script>
     <script type="text/javascript" src="../source/js/DataController.js"></script>
     <script type="text/javascript" src="../source/js/MDXParser.js"></script>
+    <script type="text/javascript" src="../source/js/PivotLocale.js"></script>
     <script type="text/javascript" src="../source/js/ExcelExport.js"></script>
     <!-- endbuild -->
     <style>
@@ -95,8 +96,9 @@
         }
 
         setup = {
-            container: document.getElementById("pivot"), // HTMLElement which will contain table.
-            dataSource: {
+            container: document.getElementById("pivot") // HTMLElement which will contain table.
+            //, locale: "en" // language to use (default: browser default or "en")
+            , dataSource: {
                 MDX2JSONSource: "http://" + location.hostname + ":57773/SAMPLES",
                 // MDX2JSON server address
                 basicMDX: typeof req === "object" ? req.basicMDX : req
@@ -104,8 +106,8 @@
                 //[ , namespace: "SAMPLES" ] // current namespace : default namespace
                 //[ , username: "USER" ] // user name : default user
                 //[ , password: "" ] // user password : default password
-            },
-            triggers: { //
+            }
+            , triggers: { //
                 // drillDown: function ({Object { level: {number}, mdx: {string} }}) {}
                 //, drillThrough: function ({Object { level: {number}, mdx: {string} }}) {}
                 //, back: function ({Object { level: {number} }}) {}

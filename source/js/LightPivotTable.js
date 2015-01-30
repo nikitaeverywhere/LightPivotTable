@@ -322,6 +322,8 @@ LightPivotTable.prototype.init = function () {
         _.pivotView._backClickHandler.call(_.pivotView);
     };
 
+    if (this.CONFIG["locale"]) { pivotLocale.setLocale(this.CONFIG["locale"]); }
+
     this.refresh();
 
 };
