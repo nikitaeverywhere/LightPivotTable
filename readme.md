@@ -35,7 +35,7 @@ Build the project, and then include <code>build/WEBModule/css/lightPivotTable.cs
 
 Then use global object constructed from <i>LightPivotTable</i>:
 ```js
-var setup = { // Object that contain settings. Any setting may be missed.
+var setup = { // Object that contain settings. Properties in brackets can be missed.
         container: document.getElementById("pivot") // HTMLElement which will contain table.
         [, locale: "en" ] // language to use (default: browser default or "en")
         , dataSource: {
