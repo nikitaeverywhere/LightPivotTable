@@ -61,7 +61,7 @@ LightPivotTable.prototype.refresh = function () {
         if (_.dataController.isValidData(data)) {
             _.dataController.setData(data);
         } else {
-            _.pivotView.displayMessage(data.error || "Invalid data to display.");
+            _.pivotView.displayMessage(data.error || pivotLocale.get(2));
         }
     });
 

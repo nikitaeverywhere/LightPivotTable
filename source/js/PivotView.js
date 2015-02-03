@@ -630,7 +630,7 @@ PivotView.prototype.recalculateSizes = function (container) {
 PivotView.prototype.renderRawData = function (data) {
 
     if (!data["rawData"] || !data["rawData"][0] || !data["rawData"][0][0]) {
-        this.displayMessage("<h1>Unable to render data</h1><p>" + JSON.stringify(data) + "</p>");
+        this.displayMessage("<h1>" + pivotLocale.get(1) + "</h1><p>" + JSON.stringify(data) + "</p>");
         return;
     }
 
@@ -792,7 +792,7 @@ PivotView.prototype.renderRawData = function (data) {
     var renderHeader = function (xFrom, xTo, yFrom, yTo, targetElement) {
 
         var vertical = targetElement === LHTHead,
-            rendered, separatelyGrouped;
+            rendered, separatelyGrouped, tr, th;
 
         for (y = yFrom; y < yTo; y++) {
             for (x = xFrom; x < xTo; x++) {
