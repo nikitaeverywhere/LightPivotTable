@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63585,60326.628446</TimeChanged>
+<TimeChanged>63585,62853.153768</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -307,7 +307,7 @@
 
     if (!this.LightPivotTable) return;
 
-    if (location.pathname.indexOf("DeepSee") > -1) {
+    if (true) { // *.XLS export, false - *.CSV.
 
         var controls = this.id.replace(/\/.*/, "") + "/control/",
             i = 1, n,
@@ -325,7 +325,7 @@
         } while (filter);
 
         window.open(
-            location.href.replace(/(%|_)(25)?DeepSee.*/, "_DeepSee.UI.MDXExcel.zen?MDX=")
+            (location.origin + location.pathname).replace(/\/[^\/]*$/, "/_DeepSee.UI.MDXExcel.zen?MDX=")
             + encodeURIComponent(this.LightPivotTable.getActualMDX())
             + "&ROWTOTALS=" + container.getElementsByTagName("div")[0].getAttribute("show-summary")
             + "&ROWTOTALAGG=sum"

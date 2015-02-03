@@ -968,7 +968,7 @@ PivotView.prototype.renderRawData = function (data) {
             }
 
             // apply style
-            if (cellStyle) td.setAttribute("style", cellStyle);
+            if (cellStyle) td.setAttribute("style", (td.getAttribute("style") || "") + cellStyle);
             // add handlers
             td.addEventListener(CLICK_EVENT, (function (x, y, cell) {
                 return function (event) {
