@@ -224,6 +224,7 @@
     font-family: serif;
     background: rgba(255, 255, 255, 0.85);
     white-space: normal;
+    line-height: 1;
     -webkit-transition: opacity 1s ease;
     -moz-transition: opacity 1s ease;
     -o-transition: opacity 1s ease;
