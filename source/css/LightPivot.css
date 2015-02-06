@@ -223,6 +223,7 @@
     font-size: xx-large;
     font-family: serif;
     background: rgba(255, 255, 255, 0.85);
+    white-space: normal;
     -webkit-transition: opacity 1s ease;
     -moz-transition: opacity 1s ease;
     -o-transition: opacity 1s ease;
