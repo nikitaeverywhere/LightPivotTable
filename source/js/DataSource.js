@@ -60,7 +60,8 @@ DataSource.prototype._post = function (url, data, callback) {
             })());
         } else if (xhr.readyState === 4 && xhr.status !== 200) {
             callback({
-                error: xhr.responseText || "Error while trying to retrieve data from server."
+                error: xhr.responseText || pivotLocale.get(3) + "<br/>" +
+                       xhr.status + ": " + xhr.statusText
             });
         }
     };
