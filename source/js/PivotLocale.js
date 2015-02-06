@@ -8,8 +8,12 @@
 var PivotLocale = function (locale) {
 
     this.LOCALE = "";
+    this.DEFAULT_LOCALE = "en";
 
-    this.setLocale(locale || navigator.language);
+    this.setLocale(locale
+                   || navigator.language
+                   || (navigator["browserLanguage"]
+                   || this.DEFAULT_LOCALE).substring(0, 2));
 
 };
 

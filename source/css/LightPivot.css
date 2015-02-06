@@ -208,11 +208,11 @@
     background: #FFF7D7;
 }
 
-.lpt-sortDesc:before {
+.lpt-sortDesc > div:before {
     content: "\25bc ";
 }
 
-.lpt-sortAsc:before {
+.lpt-sortAsc > div:before {
     content: "\25b2 ";
 }
 
@@ -413,8 +413,14 @@
 }
 
 /* relative positioning is incorrect here */
-.lpt-resizableColumn {
+.lpt th.lpt-resizableColumn {
+    padding: 0 6px !important;
+    cursor: col-resize;
+}
 
+.lpt th.lpt-resizableColumn > div {
+    padding: 3px 0;
+    cursor: pointer;
 }
 
 .lpt-searchIcon {
