@@ -556,6 +556,7 @@ PivotView.prototype.recalculateSizes = function (container) {
             console.warn("No _primaryRows property in container, cell sizes won't be fixed.");
         }
 
+        _.saveScrollPosition();
         container.parentNode.removeChild(container); // detach
 
         topHeader.style.marginLeft = headerW + "px";
@@ -611,6 +612,7 @@ PivotView.prototype.recalculateSizes = function (container) {
         }
 
         containerParent.appendChild(container); // attach
+        _.restoreScrollPosition();
 
     } catch (e) {
         console.error("Error when fixing sizes.", "ERROR:", e);
