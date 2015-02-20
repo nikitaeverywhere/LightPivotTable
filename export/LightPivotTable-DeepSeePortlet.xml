@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63589,80020.144677</TimeChanged>
+<TimeChanged>63601,39332.645681</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -125,7 +125,6 @@
             this.LightPivotTable.CONFIG["defaultFilterSpecs"].push(controller.filters[i].spec);
         }
 
-        this.adjustContentSize(false, 0, 0, true);
         this.LightPivotTable.refresh();
 
     }
@@ -289,6 +288,9 @@
     this._INITIALIZED = false;
     // filtering frequent size updates as an expensive operation
     this._SIZE_ADJUST_TIMEOUT = 0;
+    // fix for widget panel height
+    this._WIDGET_HEADER_HEIGHT = 0;
+    this._WIDGET_HEADER_FIXER_INTERVAL = 0;
 
     // fix location.origin for IE
     if (!window.location.origin) {
@@ -408,14 +410,25 @@
 <Implementation><![CDATA[
     var _ = this;
 
-    if (load) {
-        return;
-    }
-
     //////// cheating to fix instrument panel height /////////
     var outContainer = document.getElementById(_.id),
         widgetHead = document.getElementById(outContainer.getAttribute("id").replace(/\/.*/, "/header")),
         inContainer;
+
+    if (!_._WIDGET_HEADER_FIXER_INTERVAL) {
+        var firstLoad = true;
+        _._WIDGET_HEADER_FIXER_INTERVAL = setInterval(function () {
+            if (firstLoad) {
+                _._WIDGET_HEADER_HEIGHT = widgetHead.offsetHeight;
+            } else if (_._WIDGET_HEADER_HEIGHT !== widgetHead.offsetHeight) {
+                _._WIDGET_HEADER_HEIGHT = widgetHead.offsetHeight;
+                _.adjustContentSize(false, 0, 0, null);
+            }
+            firstLoad = false;
+        }, 500);
+    }
+
+    if (load) return;
 
     // cheating to fix widget size when widget head change size
     var dragChildren = outContainer.parentNode.parentNode.parentNode.parentNode.parentNode
