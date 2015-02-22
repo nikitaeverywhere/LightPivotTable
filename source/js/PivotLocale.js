@@ -11,7 +11,7 @@ var PivotLocale = function (locale) {
     this.DEFAULT_LOCALE = "en";
 
     this.setLocale(locale
-                   || navigator.language
+                   || (navigator.language || "").substr(0, 2)
                    || (navigator["browserLanguage"]
                    || this.DEFAULT_LOCALE).substring(0, 2));
 
