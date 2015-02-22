@@ -214,6 +214,17 @@
     background: #FFF7D7;
 }
 
+.lpt-pageSpacer:before {
+    content: "...";
+    font-size: 75%;
+}
+
+.lpt-pageSpacer {
+    padding: 0 2px 0 2px !important;
+    background: inherit !important;
+    cursor: inherit !important;
+}
+
 .lpt-active {
     background: #FFF7D7;
 }

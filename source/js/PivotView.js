@@ -1082,6 +1082,7 @@ PivotView.prototype.renderRawData = function (data) {
 
         })(this.pagination.page + 1, this.pagination.pages);
         for (i in pageNumbers) {
+            i = parseInt(i);
             td = document.createElement("span");
             if (pageNumbers[i] === this.pagination.page + 1) { td.className = "lpt-active"; }
             td.textContent = pageNumbers[i];
@@ -1089,6 +1090,11 @@ PivotView.prototype.renderRawData = function (data) {
                 _._pageSwitcherHandler.call(_, page - 1);
             })})(pageNumbers[i]);
             pageSwitcherContainer.appendChild(td);
+            if (pageNumbers[i + 1] && pageNumbers[i] + 1 !== pageNumbers[i + 1]) {
+                td = document.createElement("span");
+                td.className = "lpt-pageSpacer";
+                pageSwitcherContainer.appendChild(td);
+            }
         }
         pageSwitcher.appendChild(pageSwitcherContainer);
         container.appendChild(pageSwitcher);
