@@ -99,10 +99,13 @@
 
 .lpt .lpt-tableBlock td {
     text-align: right;
-    text-overflow: ellipsis;
-    overflow: hidden;
     padding: 0 6px !important;
     cursor: pointer;
+}
+
+.lpt-tableBlock td > div {
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .lpt .lpt-topSection, .lpt .lpt-bottomSection {
