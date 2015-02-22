@@ -483,6 +483,9 @@ PivotView.prototype.colorNameToRGB = function (name) {
 };
 
 /**
+ * Size updater for LPT.
+ * Do not affect scroll positions in this function.
+ *
  * @param container
  */
 PivotView.prototype.recalculateSizes = function (container) {
@@ -564,7 +567,6 @@ PivotView.prototype.recalculateSizes = function (container) {
             console.warn("No _primaryRows property in container, cell sizes won't be fixed.");
         }
 
-        _.saveScrollPosition();
         container.parentNode.removeChild(container); // detach
 
         topHeader.style.marginLeft = headerW + "px";
@@ -620,7 +622,6 @@ PivotView.prototype.recalculateSizes = function (container) {
         }
 
         containerParent.appendChild(container); // attach
-        _.restoreScrollPosition();
 
         /*
         * View in (listing) may have another size after attaching just because of applying
@@ -749,16 +750,16 @@ PivotView.prototype.renderRawData = function (data) {
         }
     };
 
-    var getMouseXY = function (e) {
-        var element = e.target || e.srcElement, offsetX = 0, offsetY = 0;
-        if (element.offsetParent) {
-            do {
-                offsetX += element.offsetLeft;
-                offsetY += element.offsetTop;
-            } while ((element = element.offsetParent));
-        }
-        return { x: e.pageX - offsetX, y: e.pageY - offsetY };
-    };
+    //var getMouseXY = function (e) {
+    //    var element = e.target || e.srcElement, offsetX = 0, offsetY = 0;
+    //    if (element.offsetParent) {
+    //        do {
+    //            offsetX += element.offsetLeft;
+    //            offsetY += element.offsetTop;
+    //        } while ((element = element.offsetParent));
+    //    }
+    //    return { x: e.pageX - offsetX, y: e.pageY - offsetY };
+    //};
 
     var bindResize = function (element, column) {
 
@@ -779,10 +780,11 @@ PivotView.prototype.renderRawData = function (data) {
         }
 
         el.addEventListener("mousedown", function (e) {
-            var cursorX = getMouseXY(e).x;
-            if (cursorX < el.offsetWidth - 5 && cursorX > 5) {
-                return;
-            }
+            //var cursorX = getMouseXY(e).x;
+            //if (cursorX < el.offsetWidth - 5 && cursorX > 5) {
+            //    return;
+            //}
+            if ((e.target || e.srcElement) !== el) return;
             e.cancelBubble = true;
             e.preventDefault();
             _RESIZING = true;
@@ -790,7 +792,7 @@ PivotView.prototype.renderRawData = function (data) {
             _RESIZING_ELEMENT_BASE_WIDTH = el.offsetWidth;
             _RESIZING_ELEMENT_BASE_X = e.pageX;
             _RESIZING_COLUMN_INDEX = colIndex;
-            el._CANCEL_CLICK_EVENT = true;
+            //el._CANCEL_CLICK_EVENT = true;
         });
 
         el.addEventListener("mouseup", function (e) {
@@ -806,7 +808,7 @@ PivotView.prototype.renderRawData = function (data) {
             _.recalculateSizes(container);
             _.restoreScrollPosition();
             setTimeout(function () {
-                _RESIZING_ELEMENT._CANCEL_CLICK_EVENT = false;
+                //_RESIZING_ELEMENT._CANCEL_CLICK_EVENT = false;
                 _RESIZING_ELEMENT = null;
             }, 1);
         });
@@ -890,12 +892,12 @@ PivotView.prototype.renderRawData = function (data) {
                 if (!vertical && y === yTo - 1 - ATTACH_TOTALS && !th["_hasSortingListener"]) {
                     th["_hasSortingListener"] = false; // why false?
                     //console.log("Click bind to", th);
-                    th.addEventListener(CLICK_EVENT, (function (i, th) {
+                    th.addEventListener(CLICK_EVENT, (function (i) {
                         return function () {
-                            if (th._CANCEL_CLICK_EVENT) return;
+                            //if (th._CANCEL_CLICK_EVENT) return;
                             _._columnClickHandler.call(_, i);
                         };
-                    })(x - info.leftHeaderColumnsNumber, th));
+                    })(x - info.leftHeaderColumnsNumber));
                     th.className = (th.className || "") + " lpt-clickable";
                 }
                 if (!vertical && y === yTo - 1) {
