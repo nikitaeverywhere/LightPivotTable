@@ -33,7 +33,10 @@
 }
 
 .lpt table {
-    border-collapse: collapse;
+    /*border-collapse: collapse !important;*/
+    border-collapse: separate;
+    border-spacing: 0;
+    border: none;
     width: 100%;
 }
 
@@ -63,7 +66,9 @@
     text-align: left;
     border-radius: 0;
     padding: 3px 6px !important; /* DeepSee style overriding fix */
-    border: 1px solid rgb(208, 208, 208);
+    /*border: 1px solid rgb(208, 208, 208);*/
+    border-right: 1px solid rgb(208, 208, 208);
+    border-bottom: 1px solid rgb(208, 208, 208);
 }
 
 .lpt th, .lpt .lpt-headerValue {
@@ -111,8 +116,10 @@
     position: relative;
     float: left;
     z-index: 2;
-    box-shadow: 0 0 0 1px rgb(208, 208, 208);
+    /*box-shadow: 0 0 0 1px rgb(208, 208, 208);*/
+    border-right: 1px solid rgb(208, 208, 208);
     white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .lpt .lpt-topHeader {
@@ -162,7 +169,7 @@
 }
 
 .lpt .lpt-leftHeader th {
-    border-right: none;
+    /*border-right: none;*/
 }
 
 .lpt .lpt-topHeader th {

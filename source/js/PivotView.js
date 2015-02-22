@@ -593,9 +593,9 @@ PivotView.prototype.recalculateSizes = function (container) {
             searchInput.style.width = searchInputSize + "px";
         }
 
-        if (hasVerticalScrollBar) {
-            leftHeader.className = leftHeader.className.replace(/\sbordered/, "") + " bordered";
-        }
+        //if (hasVerticalScrollBar) {
+        //    leftHeader.className = leftHeader.className.replace(/\sbordered/, "") + " bordered";
+        //}
 
         if (tableTr) for (i in tableTr.childNodes) {
             if (tableTr.childNodes[i].tagName !== "TD") continue;
@@ -613,6 +613,14 @@ PivotView.prototype.recalculateSizes = function (container) {
 
         containerParent.appendChild(container); // attach
         _.restoreScrollPosition();
+
+        // TEMPFIX: column sizes
+        //var gg = 0;
+        //if (tableTr && container["_primaryColumns"])
+        //    for (i in tableTr.childNodes) {
+        //        if (tableTr.childNodes[i].tagName !== "TD") continue;
+        //        container["_primaryColumns"][gg++].style.width = tableTr.childNodes[i].offsetWidth + "px";
+        //    }
 
     } catch (e) {
         console.error("Error when fixing sizes.", "ERROR:", e);
@@ -691,7 +699,7 @@ PivotView.prototype.renderRawData = function (data) {
         _RESIZING_ELEMENT_BASE_WIDTH, _RESIZING_ELEMENT_BASE_X,
         renderedGroups = {}, // keys of rendered groups; key = group, value = { x, y, element }
         i, x, y, tr = null, th, td, primaryColumns = [], primaryRows = [], ratio, cellStyle,
-        tempI, tempJ;
+        tempI, tempJ, div;
 
     this.SEARCH_ENABLED = SEARCH_ENABLED;
 
@@ -822,9 +830,11 @@ PivotView.prototype.renderRawData = function (data) {
                         th = document.createElement(rawData[y][x].isCaption ? "th" : "td")
                     );
                     div = document.createElement("div");
+                    //div2 = document.createElement("div");
                     if (rawData[y][x].value) {
                         div.textContent = rawData[y][x].value;
                     } else div.innerHTML = "&zwnj;";
+                    //div2.appendChild(div);
                     th.appendChild(div);
                     if (rawData[y][x].style) th.setAttribute("style", rawData[y][x].style);
                     if (info.leftHeaderColumnsNumber === 0
@@ -861,6 +871,7 @@ PivotView.prototype.renderRawData = function (data) {
                 }
                 if (!vertical && y === yTo - 1 - ATTACH_TOTALS && !th["_hasSortingListener"]) {
                     th["_hasSortingListener"] = false; // why false?
+                    console.log("Click bind to", th);
                     th.addEventListener(CLICK_EVENT, (function (i, th) {
                         return function () {
                             if (th._CANCEL_CLICK_EVENT) return;
@@ -936,9 +947,10 @@ PivotView.prototype.renderRawData = function (data) {
 
             cellStyle = "";
             tr.appendChild(td = document.createElement("td"));
+            td.appendChild(div = document.createElement("div"));
             formatContent(
                 rawData[y][x].value,
-                td,
+                div,
                 columnProps[x - info.leftHeaderColumnsNumber].format
             );
             if (
