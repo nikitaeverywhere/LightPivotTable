@@ -546,7 +546,8 @@ PivotView.prototype.recalculateSizes = function (container) {
             tTableHead.childNodes[0].appendChild(tr);
         };
 
-        headerContainer.style.width = headerW + "px";
+        topHeader.style.marginLeft = headerW + "px";
+        //return;
         //console.log(lTableHead.offsetHeight, pTableHead.offsetHeight, bodyHeight, this.SCROLLBAR_WIDTH);
         if (hasVerticalScrollBar && tTableHead.childNodes[0]) {
             applyExtraTopHeadCell();
@@ -576,13 +577,19 @@ PivotView.prototype.recalculateSizes = function (container) {
         if (mainHeaderWidth > headerW) leftHeader.style.width = mainHeaderWidth + "px";
         tableBlock.style.height = containerHeight - headerH - pagedHeight + "px";
         headerContainer.style.height = headerH + "px";
+        headerContainer.style.width = headerW + "px";
 
-        for (i in container["_primaryRows"]) {
-            container["_primaryRows"][i].style.height = columnHeights[i] + "px";
-        }
-        for (i in container["_primaryColumns"]) {
-            container["_primaryColumns"][i].style.width = cellWidths[i] + "px";
-        }
+        // @TEST beta.13
+        //for (i in container["_primaryRows"]) {
+        //    container["_primaryRows"][i].style.height = columnHeights[i] + "px";
+        //}
+        //for (i in container["_primaryColumns"]) {
+        //    container["_primaryColumns"][i].style.width = cellWidths[i] + "px";
+        //}
+
+        //console.log(cellWidths);
+        //containerParent.appendChild(container); // attach
+        //return;
 
         if (addEggs) { // horScroll?
             tr = document.createElement("tr");
