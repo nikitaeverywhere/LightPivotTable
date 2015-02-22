@@ -378,11 +378,11 @@
 }
 
 .lpt-searchBlock {
-    position: absolute;
+    /*position: absolute;*/
     box-sizing: border-box;
     overflow: hidden;
-    bottom: 0;
-    width: 100%;
+    /*top: 0;*/
+    /*width: 100%;*/
     height: 20px;
     font-size: 14px;
     border: 1px solid rgb(208, 208, 208);

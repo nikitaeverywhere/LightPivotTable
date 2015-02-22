@@ -1098,10 +1098,10 @@ PivotView.prototype.renderRawData = function (data) {
         searchBlock.className = "lpt-searchBlock";
         searchInput.className = "lpt-searchInput";
         searchSelect.className = "lpt-searchSelect";
-        if (pageSwitcher) {
-            pageSwitcher.style.borderBottom = "none";
-            pageSwitcher.style.bottom = "20px";
-        }
+        //if (pageSwitcher) {
+        //    pageSwitcher.style.borderBottom = "none";
+        //    pageSwitcher.style.bottom = "20px";
+        //}
         for (i in searchFields) {
             td = document.createElement("option");
             td.setAttribute("value", searchFields[i].columnIndex.toString());
@@ -1122,7 +1122,7 @@ PivotView.prototype.renderRawData = function (data) {
         searchSelectOuter.appendChild(searchSelect);
         searchBlock.appendChild(searchSelectOuter);
         searchBlock.appendChild(searchInput);
-        container.appendChild(searchBlock);
+        container.insertBefore(searchBlock, pivotTopSection);
         this.elements.searchInput = searchInput;
         this.elements.searchSelect = searchSelect;
         if (this.savedSearch.restore) {
