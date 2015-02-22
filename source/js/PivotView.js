@@ -524,21 +524,29 @@ PivotView.prototype.recalculateSizes = function (container) {
             containerHeight = container.offsetHeight,
             bodyHeight = containerHeight - headerH - pagedHeight,
             mainHeaderWidth = headerContainer.offsetWidth,
+            IS_LISTING = lTableHead.offsetHeight === 0,
             hasVerticalScrollBar =
                 Math.max(lTableHead.offsetHeight, pTableHead.offsetHeight) > bodyHeight
                 && this.SCROLLBAR_WIDTH > 0,
-            addEggs = hasVerticalScrollBar && lTableHead.offsetHeight > 0,
-            cell, tr, cellWidths = [], columnHeights = [], i;
+            addEggs = hasVerticalScrollBar && !IS_LISTING,
+            cell, tr, cellWidths = [], columnHeights = [], i,
+            headerCellApplied = false;
 
-        headerContainer.style.width = headerW + "px";
-        if (hasVerticalScrollBar && tTableHead.childNodes[0]) {
+        var applyExtraTopHeadCell = function () {
+            headerCellApplied = true;
             tr = document.createElement("th");
             tr.className = "lpt-extraCell";
-            tr.style.minWidth = this.SCROLLBAR_WIDTH + "px";
-            tr.style.width = this.SCROLLBAR_WIDTH + "px";
+            tr.style.minWidth = _.SCROLLBAR_WIDTH + "px";
+            tr.style.width = _.SCROLLBAR_WIDTH + "px";
             tr.rowSpan = tTableHead.childNodes.length;
             tr["_extraCell"] = true;
             tTableHead.childNodes[0].appendChild(tr);
+        };
+
+        headerContainer.style.width = headerW + "px";
+        //console.log(lTableHead.offsetHeight, pTableHead.offsetHeight, bodyHeight, this.SCROLLBAR_WIDTH);
+        if (hasVerticalScrollBar && tTableHead.childNodes[0]) {
+            applyExtraTopHeadCell();
         }
 
         if (container["_primaryColumns"]) {
@@ -613,6 +621,16 @@ PivotView.prototype.recalculateSizes = function (container) {
 
         containerParent.appendChild(container); // attach
         _.restoreScrollPosition();
+
+        /*
+        * View in (listing) may have another size after attaching just because of applying
+        * DEFAULT_CELL_HEIGHT to all of the rows. So if it is listing, we will check if
+        * extra cell was actually added and if we need to add it now.
+        **/
+        if (/*IS_LISTING &&*/ Math.max(lTableHead.offsetHeight, pTableHead.offsetHeight) > bodyHeight
+                && this.SCROLLBAR_WIDTH > 0 && !headerCellApplied) {
+            applyExtraTopHeadCell();
+        }
 
         // TEMPFIX: column sizes
         //var gg = 0;
@@ -871,7 +889,7 @@ PivotView.prototype.renderRawData = function (data) {
                 }
                 if (!vertical && y === yTo - 1 - ATTACH_TOTALS && !th["_hasSortingListener"]) {
                     th["_hasSortingListener"] = false; // why false?
-                    console.log("Click bind to", th);
+                    //console.log("Click bind to", th);
                     th.addEventListener(CLICK_EVENT, (function (i, th) {
                         return function () {
                             if (th._CANCEL_CLICK_EVENT) return;
