@@ -504,10 +504,12 @@ PivotView.prototype.recalculateSizes = function (container) {
 
         var headerContainer = container.getElementsByClassName("lpt-header")[0],
             topHeader = container.getElementsByClassName("lpt-topHeader")[0],
+            topHeaderTable = container.getElementsByTagName("table")[0],
             tTableHead = topHeader.getElementsByTagName("thead")[0],
             leftHeader = container.getElementsByClassName("lpt-leftHeader")[0],
             lTableHead = leftHeader.getElementsByTagName("thead")[0],
             tableBlock = container.getElementsByClassName("lpt-tableBlock")[0],
+            mainContentTable = tableBlock.getElementsByTagName("table")[0],
             pTableHead = tableBlock.getElementsByTagName("tbody")[0],
             searchInput = container.getElementsByClassName("lpt-searchInput")[0],
             searchInputSize = searchInput ? container.offsetWidth - this.SEARCHBOX_LEFT_MARGIN : 0,
@@ -523,19 +525,35 @@ PivotView.prototype.recalculateSizes = function (container) {
         var pagedHeight = (this.pagination.on ? this.PAGINATION_BLOCK_HEIGHT : 0)
                 + (this.SEARCH_ENABLED ? this.PAGINATION_BLOCK_HEIGHT : 0),
             headerW = Math.max(leftHeader.offsetWidth, headerContainer.offsetWidth),
-            headerH = topHeader.offsetHeight,
-            containerHeight = container.offsetHeight,
+            headerH = topHeader.offsetHeight;
+
+        topHeader.style.marginLeft = headerW + "px";
+
+        var containerHeight = container.offsetHeight,
             bodyHeight = containerHeight - headerH - pagedHeight,
             mainHeaderWidth = headerContainer.offsetWidth,
             IS_LISTING = lTableHead.offsetHeight === 0,
             hasVerticalScrollBar =
                 Math.max(lTableHead.offsetHeight, pTableHead.offsetHeight) > bodyHeight
                 && this.SCROLLBAR_WIDTH > 0,
-            addEggs = hasVerticalScrollBar && !IS_LISTING,
+            hasHorizontalScrollBar =
+                tTableHead.offsetWidth >
+                    topHeader.offsetWidth - (hasVerticalScrollBar ? this.SCROLLBAR_WIDTH : 0);
+
+        // horizontal scroll bar may change vertical scroll bar, so we need recalculate
+        if (!hasVerticalScrollBar && hasHorizontalScrollBar) {
+            hasVerticalScrollBar =
+                Math.max(lTableHead.offsetHeight, pTableHead.offsetHeight) > bodyHeight - this.SCROLLBAR_WIDTH
+                && this.SCROLLBAR_WIDTH > 0;
+        }
+
+        var addEggs = hasVerticalScrollBar && !IS_LISTING,
             cell, tr, cellWidths = [], columnHeights = [], i,
             headerCellApplied = false;
 
         var applyExtraTopHeadCell = function () {
+            if (!_.controller.CONFIG.stretchColumns &&
+                hasVerticalScrollBar && !hasHorizontalScrollBar) return;
             headerCellApplied = true;
             tr = document.createElement("th");
             tr.className = "lpt-extraCell";
@@ -546,7 +564,6 @@ PivotView.prototype.recalculateSizes = function (container) {
             tTableHead.childNodes[0].appendChild(tr);
         };
 
-        topHeader.style.marginLeft = headerW + "px";
         //return;
         //console.log(lTableHead.offsetHeight, pTableHead.offsetHeight, bodyHeight, this.SCROLLBAR_WIDTH);
         if (hasVerticalScrollBar && tTableHead.childNodes[0]) {
@@ -578,6 +595,10 @@ PivotView.prototype.recalculateSizes = function (container) {
         tableBlock.style.height = containerHeight - headerH - pagedHeight + "px";
         headerContainer.style.height = headerH + "px";
         headerContainer.style.width = headerW + "px";
+        if (!this.controller.CONFIG.stretchColumns) {
+            topHeaderTable.style.width = "auto";
+            mainContentTable.style.width = hasHorizontalScrollBar ? "100%" : "auto";
+        }
 
         // @TEST beta.13
         //for (i in container["_primaryRows"]) {
@@ -1006,7 +1027,7 @@ PivotView.prototype.renderRawData = function (data) {
                     data["conditionalFormatting"],
                     (y - info.topHeaderRowsNumber + 1) + "," + (x - info.leftHeaderColumnsNumber + 1),
                     rawData[y][x].value,
-                    td
+                    div
                 );
             }
 
@@ -1066,6 +1087,9 @@ PivotView.prototype.renderRawData = function (data) {
     pivotBottomSection.appendChild(tableBlock);
     container.appendChild(pivotTopSection);
     container.appendChild(pivotBottomSection);
+    if (!this.controller.CONFIG.stretchColumns) {
+        THTable.style.width = "auto"; // required for correct 1st resizing
+    }
 
     if (pageSwitcher) {
         pageSwitcher.className = "lpt-pageSwitcher";

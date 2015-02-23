@@ -298,6 +298,7 @@ LightPivotTable.prototype.normalizeConfiguration = function (config) {
     if (typeof config["columnResizing"] === "undefined") config.columnResizing = true;
     if (typeof config["pagination"] === "undefined") config.pagination = 200;
     if (typeof config["enableSearch"] === "undefined") config.enableSearch = true;
+    if (typeof config["stretchColumns"] === "undefined") config.stretchColumns = true;
     if (!config["triggers"]) config.triggers = {};
     if (!config["dataSource"]) config.dataSource = {};
 };
