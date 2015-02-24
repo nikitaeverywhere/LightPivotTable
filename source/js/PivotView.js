@@ -995,7 +995,7 @@ PivotView.prototype.renderRawData = function (data) {
         tr = document.createElement("tr");
         for (x = info.leftHeaderColumnsNumber; x < rawData[0].length; x++) {
 
-            cellStyle = "";
+            cellStyle = this.controller.CONFIG.pivotProperties["cellStyle"] || "";
             tr.appendChild(td = document.createElement("td"));
             td.appendChild(div = document.createElement("div"));
             formatContent(
