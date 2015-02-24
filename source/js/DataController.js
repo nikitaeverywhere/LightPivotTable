@@ -455,8 +455,10 @@ DataController.prototype.resetRawData = function () {
      * @returns {Function}
      */
     var getTotalFunction = function (columnIndex) {
-        if (!data["columnProps"][columnIndex]) return _.TOTAL_FUNCTIONS.totalSUM;
-        switch (data["columnProps"][columnIndex].summary) {
+        var pivotDefault = _.controller.getPivotProperty(["rowTotalAgg"]);
+        if (!data["columnProps"][columnIndex] && !pivotDefault)
+            return _.TOTAL_FUNCTIONS.totalSUM;
+        switch (data["columnProps"][columnIndex].summary || pivotDefault) {
             case "count": return _.TOTAL_FUNCTIONS.totalCOUNT;
             case "avg": return _.TOTAL_FUNCTIONS.totalAVG;
             case "min": return _.TOTAL_FUNCTIONS.totalMIN;
