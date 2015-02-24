@@ -505,6 +505,7 @@ PivotView.prototype.recalculateSizes = function (container) {
         var headerContainer = container.getElementsByClassName("lpt-header")[0],
             topHeader = container.getElementsByClassName("lpt-topHeader")[0],
             topHeaderTable = container.getElementsByTagName("table")[0],
+            topHeaderTableWidth = topHeaderTable.offsetWidth,
             tTableHead = topHeader.getElementsByTagName("thead")[0],
             leftHeader = container.getElementsByClassName("lpt-leftHeader")[0],
             lTableHead = leftHeader.getElementsByTagName("thead")[0],
@@ -597,7 +598,8 @@ PivotView.prototype.recalculateSizes = function (container) {
         headerContainer.style.width = headerW + "px";
         if (!this.controller.CONFIG.stretchColumns) {
             topHeaderTable.style.width = "auto";
-            mainContentTable.style.width = hasHorizontalScrollBar ? "100%" : "auto";
+            mainContentTable.style.width =
+                hasHorizontalScrollBar ? "100%" : topHeaderTableWidth + "px";
         }
 
         // @TEST beta.13
