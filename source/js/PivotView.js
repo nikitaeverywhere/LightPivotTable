@@ -769,7 +769,7 @@ PivotView.prototype.renderRawData = function (data) {
                 element.textContent = value ? _.numeral(value).format(format) : "";
             } else if (value && info.defaultFormat) {
                 element.textContent = _.numeral(value).format(
-                    info.defaultFormat[value % 1 === 0 ? "int" : "double"]
+                    value % 1 === 0 ? "#,###" : "#,###.##"
                 );
             } else {
                 element.textContent = value || "";
