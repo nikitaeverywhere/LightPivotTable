@@ -10,6 +10,8 @@ var PivotView = function (controller, container) {
 
     this.tablesStack = [];
 
+    numeral.call(this);
+
     this.elements = {
         container: container,
         base: document.createElement("div"),
@@ -752,15 +754,21 @@ PivotView.prototype.renderRawData = function (data) {
 
     this.SEARCH_ENABLED = SEARCH_ENABLED;
 
+    this.numeral.setup(
+        info["decimalSeparator"] || ".",
+        info["numericGroupSeparator"] || ",",
+        info["numericGroupSize"] || 3
+    );
+
     var formatContent = function (value, element, format) {
         if (!isFinite(value)) {
             element.className += " formatLeft";
             element.textContent = value || "";
         } else { // number
             if (format) { // set format
-                element.textContent = value ? numeral(value).format(format) : "";
+                element.textContent = value ? _.numeral(value).format(format) : "";
             } else if (value && info.defaultFormat) {
-                element.textContent = numeral(value).format(
+                element.textContent = _.numeral(value).format(
                     info.defaultFormat[value % 1 === 0 ? "int" : "double"]
                 );
             } else {

@@ -6,7 +6,7 @@
  * http://adamwdraper.github.com/Numeral-js/
  */
 
-(function () {
+var numeral = function () {
 
     /************************************
      Constants
@@ -20,6 +20,10 @@
         zeroFormat = null,
         defaultFormat = '0,0';
 
+    var NUMBER_GROUP_LENGTH = 3,
+        NUMBER_GROUP_SEPARATOR = ",",
+        DECIMAL_SEPARATOR = ".",
+        NUM_REGEX = new RegExp("(\\d)(?=(\\d{" + NUMBER_GROUP_LENGTH + "})+(?!\\d))", "g");
 
     /************************************
      Constructors
@@ -356,7 +360,7 @@
                 w = d.split('.')[0];
 
                 if (d.split('.')[1].length) {
-                    d = languages[currentLanguage].delimiters.decimal + d.split('.')[1];
+                    d = (DECIMAL_SEPARATOR || languages[currentLanguage].delimiters.decimal) + d.split('.')[1];
                 } else {
                     d = '';
                 }
@@ -375,7 +379,8 @@
             }
 
             if (thousands > -1) {
-                w = w.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1' + languages[currentLanguage].delimiters.thousands);
+                w = w.toString().replace(NUM_REGEX, '$1'
+                    + (NUMBER_GROUP_SEPARATOR || languages[currentLanguage].delimiters.thousands));
             }
 
             if (format.indexOf('.') === 0) {
@@ -574,6 +579,15 @@
      Numeral Prototype
      ************************************/
 
+    numeral.setup = function (decimalSeparator, numberGroupSeparator, numberGroupLength) {
+        if (decimalSeparator !== DECIMAL_SEPARATOR) DECIMAL_SEPARATOR = decimalSeparator;
+        if (numberGroupSeparator !== NUMBER_GROUP_SEPARATOR)
+            NUMBER_GROUP_SEPARATOR = numberGroupSeparator;
+        if (numberGroupLength !== NUMBER_GROUP_LENGTH) {
+            NUMBER_GROUP_LENGTH = numberGroupLength;
+            NUM_REGEX = new RegExp("(\\d)(?=(\\d{" + NUMBER_GROUP_LENGTH + "})+(?!\\d))", "g");
+        }
+    };
 
     numeral.fn = Numeral.prototype = {
 
@@ -653,4 +667,4 @@
 
     this.numeral = numeral;
 
-}).call(this);
+};
