@@ -29,7 +29,12 @@ var DataController = function (controller, dataChangeTrigger) {
 DataController.prototype.isValidData = function (data) {
 
     // add null column to display measures
-    if (!data.dimensions[0].length) data.dimensions[0] = [{}];
+    if (
+        data.dimensions instanceof Array
+        && data.dimensions[0] instanceof Array
+        && !data.dimensions[0].length
+    )
+        data.dimensions[0] = [{}];
 
     return data.dimensions instanceof Array
         && data.dimensions[0] instanceof Array
