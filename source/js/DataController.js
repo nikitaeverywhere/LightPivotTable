@@ -344,7 +344,7 @@ DataController.prototype.resetRawData = function () {
 
         for (var i in c) {
             cnum = groupNum;
-            if (c[i].children) {
+            if (c[i].children && c[i].children) {
                 groupNum++;
                 obj = {
                     group: cnum,
