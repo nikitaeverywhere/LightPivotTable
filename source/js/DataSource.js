@@ -17,6 +17,7 @@ var DataSource = function (config, globalConfig, lpt) {
     this.PASSWORD = config["password"];
     this.LPT = lpt;
     this.GLOBAL_CONFIG = globalConfig;
+    this.SEND_COOKIES = config["sendCookies"] || false;
 
     this.BASIC_MDX = config.basicMDX;
 
@@ -40,6 +41,7 @@ var DataSource = function (config, globalConfig, lpt) {
 DataSource.prototype._post = function (url, data, callback) {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url);
+    if (this.SEND_COOKIES) xhr.withCredentials = true;
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
             callback((function () {

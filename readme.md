@@ -45,6 +45,7 @@ var setup = { // Object that contain settings. Properties in brackets can be mis
             [ , namespace: "SAMPLES" ] // current namespace : default namespace
             [ , username: "USER" ] // user name : default user
             [ , password: "" ] // user password : default password
+            [ , sendCookies: false ] // also send cookies with each request to server
         }
         [ , triggers: { // provide your functions here to handle certain events
              drillDown: function ({Object { level: {number}, mdx: {string} }}) {}
