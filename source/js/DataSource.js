@@ -39,10 +39,21 @@ var DataSource = function (config, globalConfig, lpt) {
  * @private
  */
 DataSource.prototype._post = function (url, data, callback) {
-    var xhr = new XMLHttpRequest();
+    var xhr = new XMLHttpRequest(),
+        self = this;
     xhr.open("POST", url);
     if (this.SEND_COOKIES) xhr.withCredentials = true;
     xhr.onreadystatechange = function () {
+        var handler;
+        if (xhr.readyState === 4) {
+            handler = self.LPT.CONFIG.triggers["responseHandler"];
+            if (typeof handler === "function") {
+                handler.call(self.LPT, {
+                    url: url,
+                    status: xhr.status
+                });
+            }
+        }
         if (xhr.readyState === 4 && xhr.status === 200) {
             callback((function () {
                 try {
