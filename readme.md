@@ -16,14 +16,11 @@ Lightweight, fast and featured pivot table realization for
 
 ## Installation
 
-<ol>
-    <li>Install and configure [MDX2JSON](https://github.com/intersystems-ru/Cache-MDX2JSON) to
-        your Caché instance;</li>
-    <li>Build the project by running <code>gulp</code> command (see "Build" section below);</li>
-    <li>Edit a bit code in <code>build/WEBModule/index.html</code> (set MDX2JSONSource and basicMDX
-    properties according to your needs);</li>
-    <li>Use it!</li>
-</ol>
+There are several variants how to install Light pivot table.
++ Pre-requirement: install and configure [MDX2JSON](https://github.com/intersystems-ru/Cache-MDX2JSON) to your Caché instance;
++ If you want to use LPT as a DeepSee portlet, then just download latest release from [github releases](https://github.com/intersystems-ru/LightPivotTable/releases), unpack it and Simply inport XML file to Caché;
++ If you want to integrate LPT with your application, you need webModule/ directory contents;
++ If you want to build most up-to-date version from sources, see the "build" section below.
 
 ## Integration
 
@@ -97,7 +94,7 @@ it work with another MDX2JSON source.
 
 ## Build
 
-You need [NodeJS](http://nodejs.org/) to perform any build tasks.
+You need [NodeJS](http://nodejs.org/) to be installed to perform any build tasks.
 
 To build project and see working example, gulp and it's plugins must be installed. Simple run 
 <code>npm install -g gulp</code> and <code>npm install</code> commands to perform all required
