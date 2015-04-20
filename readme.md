@@ -6,7 +6,8 @@ Lightweight, fast and featured pivot table realization for
 
 ## Features
 <ul>
-    <li>Whole basic functionality of standard pivot table;</li>
+    <li>Basic functionality of standard pivot table;</li>
+    <li>Additional features like pagination and quick search;</li>
     <li>Simple good looking design;</li>
     <li>Lightweight and speedy realization comparing to common DeepSee pivot table;</li>
     <li>Mobile platforms support;</li>
@@ -19,7 +20,7 @@ Lightweight, fast and featured pivot table realization for
 There are several variants how to install Light pivot table.
 + Pre-requirement: install and configure [MDX2JSON](https://github.com/intersystems-ru/Cache-MDX2JSON) to your Caché instance;
 + If you want to use LPT as a DeepSee portlet, then just download latest release from [github releases](https://github.com/intersystems-ru/LightPivotTable/releases), unpack it and Simply inport XML file to Caché;
-+ If you want to integrate LPT with your application, you need webModule/ directory contents;
++ If you want to integrate LPT with your application, you need webModule/ directory contents that can be found in release you downloaded;
 + If you want to build most up-to-date version from sources, see the "build" section below.
 
 ## Integration
@@ -95,13 +96,14 @@ it work with another MDX2JSON source.
 
 ## Build
 
-You need [NodeJS](http://nodejs.org/) to be installed to perform any build tasks.
+You need [NodeJS](http://nodejs.org/) platform to be installed in your system to perform any build
+tasks.
 
 To build project and see working example, gulp and it's plugins must be installed. Simple run 
 <code>npm install -g gulp</code> and <code>npm install</code> commands to perform all required
 installations.
 
-By running <code>gulp</code> command later, <code>build</code> directory will be created with all
+By running <code>gulp</code> command later, <code>build</code> directory appears with all
 required files there.
 
 ## Debug
