@@ -707,6 +707,7 @@ PivotView.prototype.renderRawData = function (data) {
         COLUMN_RESIZE_ON = !!this.controller.CONFIG.columnResizing,
         LISTING = info.leftHeaderColumnsNumber === 0,
         SEARCH_ENABLED = LISTING && this.controller.CONFIG["enableSearch"],
+        RESIZE_ANIMATION = !!this.controller.CONFIG["columnResizeAnimation"],
 
         container = this.elements.tableContainer,
         pivotTopSection = document.createElement("div"),
@@ -746,8 +747,6 @@ PivotView.prototype.renderRawData = function (data) {
             return arr;
         })() : null,
 
-        _RESIZING = false, _RESIZING_ELEMENT = null, _RESIZING_COLUMN_INDEX = 0,
-        _RESIZING_ELEMENT_BASE_WIDTH, _RESIZING_ELEMENT_BASE_X,
         renderedGroups = {}, // keys of rendered groups; key = group, value = { x, y, element }
         i, x, y, tr = null, th, td, primaryColumns = [], primaryRows = [], ratio, cellStyle,
         tempI, tempJ, div;
@@ -788,67 +787,43 @@ PivotView.prototype.renderRawData = function (data) {
         }
     };
 
-    //var getMouseXY = function (e) {
-    //    var element = e.target || e.srcElement, offsetX = 0, offsetY = 0;
-    //    if (element.offsetParent) {
-    //        do {
-    //            offsetX += element.offsetLeft;
-    //            offsetY += element.offsetTop;
-    //        } while ((element = element.offsetParent));
-    //    }
-    //    return { x: e.pageX - offsetX, y: e.pageY - offsetY };
-    //};
-
     var bindResize = function (element, column) {
 
-        var el = element,
-            colIndex = column;
+        var baseWidth = 0,
+            baseX = 0;
 
         var moveListener = function (e) {
-            if (!_RESIZING) return;
             e.cancelBubble = true;
             e.preventDefault();
-            _RESIZING_ELEMENT.style.width = _RESIZING_ELEMENT.style.minWidth =
-                _RESIZING_ELEMENT_BASE_WIDTH - _RESIZING_ELEMENT_BASE_X + e.pageX + "px";
+            element.style.width = element.style.minWidth =
+                baseWidth - baseX + e.pageX + "px";
+            if (RESIZE_ANIMATION) {
+                _.saveScrollPosition();
+                _.recalculateSizes(container);
+                _.restoreScrollPosition();
+            }
         };
 
-        if (!el._HAS_MOUSE_MOVE_LISTENER) {
-            el.parentNode.addEventListener("mousemove", moveListener);
-            el._HAS_MOUSE_MOVE_LISTENER = true;
-        }
-
-        el.addEventListener("mousedown", function (e) {
-            //var cursorX = getMouseXY(e).x;
-            //if (cursorX < el.offsetWidth - 5 && cursorX > 5) {
-            //    return;
-            //}
-            if ((e.target || e.srcElement) !== el) return;
+        var upListener = function (e) {
             e.cancelBubble = true;
             e.preventDefault();
-            _RESIZING = true;
-            _RESIZING_ELEMENT = el;
-            _RESIZING_ELEMENT_BASE_WIDTH = el.offsetWidth;
-            _RESIZING_ELEMENT_BASE_X = e.pageX;
-            _RESIZING_COLUMN_INDEX = colIndex;
-            //el._CANCEL_CLICK_EVENT = true;
-        });
-
-        el.addEventListener("mouseup", function (e) {
-            if (!_RESIZING) return;
-            e.cancelBubble = true;
-            e.preventDefault();
-            _RESIZING = false;
-            _RESIZING_ELEMENT.style.width = _RESIZING_ELEMENT.style.minWidth =
-                (_.FIXED_COLUMN_SIZES[_RESIZING_COLUMN_INDEX] =
-                    _RESIZING_ELEMENT_BASE_WIDTH - _RESIZING_ELEMENT_BASE_X + e.pageX
-                ) + "px";
+            element.style.width = element.style.minWidth =
+                (_.FIXED_COLUMN_SIZES[column] = baseWidth - baseX + e.pageX) + "px";
             _.saveScrollPosition();
             _.recalculateSizes(container);
             _.restoreScrollPosition();
-            setTimeout(function () {
-                //_RESIZING_ELEMENT._CANCEL_CLICK_EVENT = false;
-                _RESIZING_ELEMENT = null;
-            }, 1);
+            document.removeEventListener("mousemove", moveListener);
+            document.removeEventListener("mouseup", upListener);
+        };
+
+        element.addEventListener("mousedown", function (e) {
+            if ((e.target || e.srcElement) !== element) return;
+            e.cancelBubble = true;
+            e.preventDefault();
+            baseWidth = element.offsetWidth;
+            baseX = e.pageX;
+            document.addEventListener("mousemove", moveListener);
+            document.addEventListener("mouseup", upListener);
         });
 
     };
@@ -888,11 +863,9 @@ PivotView.prototype.renderRawData = function (data) {
                         th = document.createElement(rawData[y][x].isCaption ? "th" : "td")
                     );
                     div = document.createElement("div");
-                    //div2 = document.createElement("div");
                     if (rawData[y][x].value) {
                         div.textContent = rawData[y][x].value;
                     } else div.innerHTML = "&nbsp;";
-                    //div2.appendChild(div);
                     th.appendChild(div);
                     if (rawData[y][x].style) th.setAttribute("style", rawData[y][x].style);
                     if (info.leftHeaderColumnsNumber === 0

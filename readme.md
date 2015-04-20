@@ -69,6 +69,7 @@ var setup = { // Object that contain settings. Properties in brackets can be mis
         [ , listingColumnMinWidth: 200 ] // minimal width of column in listing
         [ , maxHeaderWidth: 100 ] // maximum width of header
         [ , columnResizing: true ] // make columns resizable (default: true)
+        [ , columnResizeAnimation: false ] // animate column when resizing
         [ , enableSearch: true ] // enables search panel in listing (default: true)
     },
     lp = new LightPivotTable(setup);
