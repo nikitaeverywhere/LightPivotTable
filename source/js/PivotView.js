@@ -302,6 +302,25 @@ PivotView.prototype._drillThroughClickHandler = function (event) {
 };
 
 /**
+ * Get selected text if selection was made.
+ * @returns {string}
+ * @private
+ */
+PivotView.prototype._getSelectedText = function () {
+
+    var text = "";
+
+    if (typeof window.getSelection != "undefined") {
+        text = window.getSelection().toString();
+    } else if (typeof document.selection != "undefined" && document.selection.type == "Text") {
+        text = document.selection.createRange().text;
+    }
+
+    return text;
+
+};
+
+/**
  * @param {object} cell
  * @param {number} x
  * @param {number} y
@@ -314,6 +333,8 @@ PivotView.prototype._cellClickHandler = function (cell, x, y, event, drillThroug
         f = [], f1, f2, callbackRes = true,
         ATTACH_TOTALS = this.controller.CONFIG["showSummary"]
             && this.controller.CONFIG["attachTotals"] ? 1 : 0;
+
+    if (this._getSelectedText()) return; // exit if text in cell was selected
 
     try {
         f1 = data.rawData[y][data.info.leftHeaderColumnsNumber - 1].source.path;
