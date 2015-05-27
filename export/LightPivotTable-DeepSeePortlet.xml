@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63699,75399.850452</TimeChanged>
+<TimeChanged>63699,80103.61817</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -58,6 +58,10 @@
 <Type>%Boolean</Type>
 </Property>
 
+<Property name="ShowRowNumbers">
+<Type>%Boolean</Type>
+</Property>
+
 <Method name="%OnGetPortletName">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
@@ -89,6 +93,7 @@
     set pInfo($I(pInfo)) = $LB("ColumnResizing", 1, "%Boolean", "Column resizing", "Allow resizing columns with cursor")
     set pInfo($I(pInfo)) = $LB("EnableSearch", 1, "%Boolean", "Enable listing search", "Show search tools in listing mode")
     set pInfo($I(pInfo)) = $LB("StretchColumns", 0, "%Boolean", "Stretch columns", "Stretch columns to fill all available width")
+    set pInfo($I(pInfo)) = $LB("ShowRowNumbers", 0, "%Boolean", "Show row nums", "Show row number in listing")
 
     quit $$$OK
 ]]></Implementation>
@@ -272,6 +277,7 @@
                 setup["columnResizing"] = !!parseInt(container.getAttribute("columnResizing"));
                 setup["enableSearch"] = !!parseInt(container.getAttribute("enableSearch"));
                 setup["stretchColumns"] = !!parseInt(container.getAttribute("stretchColumns"));
+                setup["showRowNumbers"] = !!parseInt(container.getAttribute("showRowNumbers"));
                 if (parseInt(container.getAttribute("pagination"))) {
                     setup["pagination"] = parseInt(container.getAttribute("pagination"))
                 }
@@ -408,7 +414,7 @@
     }
 
     &html<
-        <div stretchColumns="#(..StretchColumns)#" namespace="#($NAMESPACE)#" enableSearch="#(..EnableSearch)#" columnResizing="#(..ColumnResizing)#" session="#(%session.CSPSessionCookie)#" maxHeaderWidth="#(..MaxHeaderWidth)#" listingColumnMinWidth="#(..ListingColumnMinWidth)#" fixTotals="#(..FixTotals)#" pagination="#(..Pagination)#" export-csv="#(..ExportCSV)#" data-source="#(..DataSourceApp)#" show-summary="#(..ShowSummary)#" class="lpt-container" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;">
+        <div stretchColumns="#(..StretchColumns)#" showRowNumbers="#(..ShowRowNumbers)#" namespace="#($NAMESPACE)#" enableSearch="#(..EnableSearch)#" columnResizing="#(..ColumnResizing)#" session="#(%session.CSPSessionCookie)#" maxHeaderWidth="#(..MaxHeaderWidth)#" listingColumnMinWidth="#(..ListingColumnMinWidth)#" fixTotals="#(..FixTotals)#" pagination="#(..Pagination)#" export-csv="#(..ExportCSV)#" data-source="#(..DataSourceApp)#" show-summary="#(..ShowSummary)#" class="lpt-container" style="position: absolute; left: 0; bottom: 0; width: 100%; height: 100%;">
 
         </div>
     >

@@ -924,7 +924,7 @@ PivotView.prototype.renderRawData = function (data) {
                 if (!vertical && y === yTo - 1 - ATTACH_TOTALS && !th["_hasSortingListener"]) {
                     th["_hasSortingListener"] = false; // why false?
                     //console.log("Click bind to", th);
-                    th.addEventListener(CLICK_EVENT, (function (i) {
+                    if (!rawData[y][x].noClick) th.addEventListener(CLICK_EVENT, (function (i) {
                         return function () {
                             //if (th._CANCEL_CLICK_EVENT) return;
                             _._columnClickHandler.call(_, i);

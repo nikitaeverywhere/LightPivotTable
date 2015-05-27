@@ -71,6 +71,13 @@
     border-bottom: 1px solid rgb(208, 208, 208);
 }
 
+.lpt th {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 .lpt th, .lpt .lpt-headerValue {
     background: #F0F0F0;
 }

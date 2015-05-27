@@ -69,6 +69,7 @@ var setup = { // Object that contain settings. Properties in brackets can be mis
         [ , columnResizing: true ] // make columns resizable (default: true)
         [ , columnResizeAnimation: false ] // animate column when resizing
         [ , enableSearch: true ] // enables search panel in listing (default: true)
+        [ , showRowNumbers: true ] // show the row number in first column
     },
     lp = new LightPivotTable(setup);
     

@@ -100,6 +100,7 @@ DataController.prototype.setData = function (data) {
     this.resetDimensionProps();
     this.resetConditionalFormatting();
     this.resetRawData();
+    this.modifyRawData(data);
 
     if (data.info.mdxType === "drillthrough") {
         this.setDrillThroughHandler(function (params) {
@@ -564,6 +565,7 @@ DataController.prototype.sortByColumn = function (columnIndex) {
 
     if (order === 0) {
         data.rawData = data._rawDataOrigin;
+        this.modifyRawData(data);
         this._trigger();
         return;
     }
@@ -585,6 +587,8 @@ DataController.prototype.sortByColumn = function (columnIndex) {
     data.rawData[data.info.topHeaderRowsNumber - totalsAttached - 1]
         [data.info.leftHeaderColumnsNumber + columnIndex]
         .className = order === 0 ? "" : order === 1 ? "lpt-sortDesc" : "lpt-sortAsc";
+
+    this.modifyRawData(data);
 
     this._trigger();
 
@@ -627,6 +631,41 @@ DataController.prototype.filterByValue = function (valuePart, columnIndex) {
             : []
     );
 
+    this.modifyRawData(data);
+
     this._trigger();
+
+};
+
+/**
+ * Modifies data if such settings are present.
+ */
+DataController.prototype.modifyRawData = function (data) {
+
+    // modify data.rawData and original properties (such as width and height) if needed.
+
+    var i = -1;
+
+    if (this.controller.CONFIG.showRowNumbers && !data.info.leftHeaderColumnsNumber) { // listing
+        if (data.rawData[0] && data.rawData[0][0].special) { // just update indexes
+            data.rawData.forEach(function (row) {
+                row[0].value = ++i === 0 ? "#" : i;
+                row[0].isCaption = i === 0;
+            });
+        } else { // re-create indexes
+            data.rawData.forEach(function (row) {
+                row.unshift({
+                    value: ++i === 0 ? "#" : i,
+                    isCaption: i === 0,
+                    special: true,
+                    noClick: true
+                });
+            });
+            if (data.columnProps instanceof Array) {
+                data.columnProps.unshift({});
+            }
+            data.info.colCount++;
+        }
+    }
 
 };
