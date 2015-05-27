@@ -133,6 +133,12 @@ MDXParser.prototype.mdxType = function (mdx) {
  */
 MDXParser.prototype.applyFilter = function (basicMDX, filterSpec) {
 
+    var re = /\((([^\),])+,?)+\)/; // gathered filter
+
+    if (re.test(filterSpec)) {
+        return basicMDX + " %FILTER " + filterSpec.substr(1, filterSpec.length-2).split(",").join(" %FILTER ");
+    }
+
     return basicMDX + " %FILTER " + filterSpec;
 
 };

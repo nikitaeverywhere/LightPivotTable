@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63606,42413.124862</TimeChanged>
+<TimeChanged>63699,75399.850452</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -128,6 +128,9 @@
         // updateFilters
         for (var i in controller.filters) {
             this.LightPivotTable.CONFIG["defaultFilterSpecs"].push(controller.filters[i].spec);
+        }
+        if (controller.contextFilterSpec) {
+            this.LightPivotTable.CONFIG["defaultFilterSpecs"].push(controller.contextFilterSpec);
         }
 
         this.LightPivotTable.refresh();
@@ -256,6 +259,9 @@
                         MDX2JSONSource: source,
                         namespace: container.getAttribute("namespace")
                     }
+                }
+                if (controller.contextFilterSpec) {
+                    defaultFilters.push(controller.contextFilterSpec);
                 }
                 if (defaultFilters.length) { setup["defaultFilterSpecs"] = defaultFilters; }
                 if (controller && controller["data"] && controller["data"]["rowCaptions"] && typeof controller["data"]["rowCaptions"][0] === "string") setup.caption = controller["data"]["rowCaptions"][0];
