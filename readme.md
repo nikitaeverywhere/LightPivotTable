@@ -52,6 +52,7 @@ var setup = { // Object that contain settings. Properties in brackets can be mis
             // if cellDrillThrough callback returns boolean false, DrillThrough won't be performed.
             , cellDrillThrough: function ({Object { event: {event}, filters: {string[]}, cellData: {object} }}) {}
             , responseHandler: function ({Object {url: {string}, status: {number}}}) {}
+            , rowSelect: function ({Array}) {}
         } ]
         [ , pagination: 30 ] // Maximum rows number on one page (default: 200, turn off: 0)
         [ , hideButtons: true ] // hides "back" and "drillThrough" buttons
@@ -70,6 +71,7 @@ var setup = { // Object that contain settings. Properties in brackets can be mis
         [ , columnResizeAnimation: false ] // animate column when resizing
         [ , enableSearch: true ] // enables search panel in listing (default: true)
         [ , showRowNumbers: true ] // show the row number in first column
+        [ , enableListingSelect: true ] // enable listing selection, true by default
     },
     lp = new LightPivotTable(setup);
     
@@ -86,6 +88,7 @@ lp.refresh(); // refresh pivot contents
 lp.updateSizes(); // recalculate pivot sizes
 lp.changeBasicMDX("..."); // change mdx for LPT
 lp.getActualMDX(); // returns currently displayed MDX
+lp.getSelectedRows(); // returns array with selected rows indexes. First row have index 1.
 ```
 
 #### Caché DeepSee

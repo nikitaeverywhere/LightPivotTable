@@ -9,6 +9,7 @@ var PivotView = function (controller, container) {
         "instance \"container\" into pivot table configuration.");
 
     this.tablesStack = [];
+    this.selectedRows = {}; // rowNumber: 1
 
     numeral.call(this);
 
@@ -150,6 +151,7 @@ PivotView.prototype.pushTable = function (opts) {
     if (this.tablesStack.length) {
         this.tablesStack[this.tablesStack.length - 1].FIXED_COLUMN_SIZES = this.FIXED_COLUMN_SIZES;
         this.tablesStack[this.tablesStack.length - 1].savedSearch = this.savedSearch;
+        this.tablesStack[this.tablesStack.length - 1].selectedRows = this.selectedRows;
         this.savedSearch = { restore: false, value: "", columnIndex: 0 };
         tableElement.style.left = "100%";
     }
@@ -166,6 +168,7 @@ PivotView.prototype.pushTable = function (opts) {
     });
 
     this.FIXED_COLUMN_SIZES = [];
+    this.selectedRows = {};
     this.elements.base.appendChild(tableElement);
     this.elements.tableContainer = tableElement;
     this.pagination = pg;
@@ -189,6 +192,7 @@ PivotView.prototype.popTable = function () {
     this.pagination = (currentTable = this.tablesStack[this.tablesStack.length - 1]).pagination;
     if (currentTable.FIXED_COLUMN_SIZES) this.FIXED_COLUMN_SIZES = currentTable.FIXED_COLUMN_SIZES;
     if (currentTable.savedSearch) this.savedSearch = currentTable.savedSearch;
+    if (currentTable.selectedRows) this.selectedRows = currentTable.selectedRows;
 
     setTimeout(function () {
         garbage.element.parentNode.removeChild(garbage.element);
@@ -237,9 +241,7 @@ PivotView.prototype.dataChanged = function (data) {
 
     if (this.controller.CONFIG.pagination) this.pagination.on = true;
     this.pagination.rows = this.controller.CONFIG.pagination || Infinity;
-        //? this.controller.CONFIG.pagination
-            //+ data.info.topHeaderRowsNumber + (data.info.SUMMARY_SHOWN ? 1 : 0)
-        //: Infinity;
+    this.selectedRows = {};
     this.pagination.page = 0;
     this.pagination.pages = Math.ceil(dataRows / this.pagination.rows);
     if (this.pagination.pages < 2) this.pagination.on = false;
@@ -506,6 +508,23 @@ PivotView.prototype.colorNameToRGB = function (name) {
 };
 
 /**
+ * @param {boolean} select - select or not.
+ * @param {number} rowNumber - row number start from 0.
+ */
+PivotView.prototype.selectRow = function (select, rowNumber) {
+
+    if (select)
+        this.selectedRows[rowNumber] = 1;
+    else
+        delete this.selectedRows[rowNumber];
+
+    if (typeof this.controller.CONFIG.triggers["rowSelect"] === "function") {
+        this.controller.CONFIG.triggers["rowSelect"](this.controller.getSelectedRows());
+    }
+
+};
+
+/**
  * Size updater for LPT.
  * Do not affect scroll positions in this function.
  *
@@ -728,6 +747,7 @@ PivotView.prototype.renderRawData = function (data) {
         COLUMN_RESIZE_ON = !!this.controller.CONFIG.columnResizing,
         LISTING = info.leftHeaderColumnsNumber === 0,
         SEARCH_ENABLED = LISTING && this.controller.CONFIG["enableSearch"],
+        LISTING_SELECT_ENABLED = this.controller.CONFIG["enableListingSelect"],
         RESIZE_ANIMATION = !!this.controller.CONFIG["columnResizeAnimation"],
 
         container = this.elements.tableContainer,
@@ -856,7 +876,26 @@ PivotView.prototype.renderRawData = function (data) {
     var renderHeader = function (xFrom, xTo, yFrom, yTo, targetElement) {
 
         var vertical = targetElement === LHTHead,
-            rendered, separatelyGrouped, tr, th, div;
+            rendered, separatelyGrouped, tr, th, div, checkbox;
+
+        if (xFrom === xTo && LISTING_SELECT_ENABLED) { // listing
+            for (y = yFrom; y < yTo; y++) {
+                tr = document.createElement("tr");
+                th = document.createElement("td");
+                checkbox = document.createElement("input");
+                checkbox.setAttribute("type", "checkbox");
+                checkbox.checked = !!_.selectedRows[y];
+                th.setAttribute("style", "padding: 0 !important;");
+                checkbox.addEventListener("change", (function (y) { return function (e) {
+                    _.selectRow.call(_, (e.srcElement || e.target).checked, y);
+                }})(y));
+                th.appendChild(checkbox);
+                tr.appendChild(th);
+                primaryRows.push(th);
+                targetElement.appendChild(tr);
+            }
+            return;
+        }
 
         for (y = yFrom; y < yTo; y++) {
             for (x = xFrom; x < xTo; x++) {

@@ -106,6 +106,21 @@ LightPivotTable.prototype.getActualMDX = function () {
 };
 
 /**
+ * Return array with selected rows indexes.
+ */
+LightPivotTable.prototype.getSelectedRows = function () {
+
+    var arr = [], rows = this.pivotView.selectedRows, i;
+
+    for (i in rows) {
+        if (rows[i]) arr.push(+i);
+    }
+
+    return arr;
+
+};
+
+/**
  * Performs resizing.
  */
 LightPivotTable.prototype.updateSizes = function () {
@@ -299,6 +314,7 @@ LightPivotTable.prototype.normalizeConfiguration = function (config) {
     if (typeof config["pagination"] === "undefined") config.pagination = 200;
     if (typeof config["enableSearch"] === "undefined") config.enableSearch = true;
     if (typeof config["stretchColumns"] === "undefined") config.stretchColumns = true;
+    if (typeof config["enableListingSelect"] === "undefined") config.enableListingSelect = true;
     if (!config["triggers"]) config.triggers = {};
     if (!config["dataSource"]) config.dataSource = {};
 };

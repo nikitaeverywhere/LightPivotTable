@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63699,80103.61817</TimeChanged>
+<TimeChanged>63700,68026.762239</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -263,6 +263,13 @@
                         basicMDX: info["mdx"],
                         MDX2JSONSource: source,
                         namespace: container.getAttribute("namespace")
+                    },
+                    triggers: {
+                        rowSelect: function (selectedRows) {
+                            var ss = [];
+                            selectedRows.forEach(function (e) { ss.push(e + ",," + (e + 1) + ",,,1") });
+                            controller.setProperty("selectedRange", ss.join("\n"));
+                        }
                     }
                 }
                 if (controller.contextFilterSpec) {

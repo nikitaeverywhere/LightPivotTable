@@ -114,6 +114,7 @@
                 //, back: function ({Object { level: {number} }}) {}
                 // if cellDrillThrough callback returns boolean false, DrillThrough won't be performed.
                 //, cellDrillThrough: function ({Object { event: {event}, filters: {string[]} }}) {}
+                //, rowSelect: function (rs) { console.log("Rows: ", rs); }
             }
             , pagination: 30 // Maximum rows number on one page (default: 200, turn off: 0)
             //, hideButtons: true // hides "back" and "drillThrough" buttons
@@ -132,6 +133,7 @@
             //, enableSearch: false // enables search panel in listing
             //, stretchColumns: true // stretch columns to fill all available width (default: true)
             //, showRowNumbers: true // show the row number in first column
+            //, enableListingSelect: true // enable selection in listing
         };
 
         var e;
