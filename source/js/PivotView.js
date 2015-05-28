@@ -886,8 +886,14 @@ PivotView.prototype.renderRawData = function (data) {
                 checkbox.setAttribute("type", "checkbox");
                 checkbox.checked = !!_.selectedRows[y];
                 th.setAttribute("style", "padding: 0 !important;");
-                checkbox.addEventListener("change", (function (y) { return function (e) {
-                    _.selectRow.call(_, (e.srcElement || e.target).checked, y);
+                checkbox.addEventListener("click", (function (y) { return function (e) {
+                    var element = e.srcElement || e.target;
+                    e.preventDefault();
+                    e.cancelBubble = true;
+                    setTimeout(function () { // bad, but only working workaround for ISC DeepSee
+                        element.checked = !element.checked;
+                        _.selectRow.call(_, element.checked, y);
+                    }, 1);
                 }})(y));
                 th.appendChild(checkbox);
                 tr.appendChild(th);
