@@ -807,7 +807,7 @@ PivotView.prototype.renderRawData = function (data) {
         } else { // number
             if (format) { // set format
                 element.textContent = value ? _.numeral(value).format(format) : "";
-            } else if (value && info.defaultFormat) {
+            } else if (value) {
                 element.textContent = _.numeral(value).format(
                     value % 1 === 0 ? "#,###" : "#,###.##"
                 );
