@@ -801,9 +801,13 @@ PivotView.prototype.renderRawData = function (data) {
     );
 
     var formatContent = function (value, element, format) {
-        if (!isFinite(value)) {
+        if (!isFinite(value)) { // not number, format as string
             element.className += " formatLeft";
-            element.textContent = value || "";
+            element.innerHTML = (value || "").replace(/(https?|ftp):\/\/[^\s]+/ig, function linkReplace (p) {
+                return "<a href='" + p
+                    + "' target='_blank' onclick='var e=event||window.event;e.stopPropagation();e.cancelBubble=true;'>"
+                    + p + "</a>";
+            });
         } else { // number
             if (format) { // set format
                 element.textContent = value ? _.numeral(value).format(format) : "";
