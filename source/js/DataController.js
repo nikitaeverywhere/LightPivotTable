@@ -432,13 +432,11 @@ DataController.prototype.resetRawData = function () {
                     rawData[y][x] = {
                         group: 1,
                         isCaption: true,
-                        value: lp.getPivotProperty(["showRowCaption"]) !== false
-                            ? (
-                                this.controller.CONFIG["caption"]
-                                || dimCaption
-                                || (data["info"] || {})["cubeName"]
-                                || ""
-                            ) : ""
+                        value: lp.getPivotProperty(["showRowCaption"]) === false ? "" :
+                            this.controller.CONFIG["caption"]
+                            || dimCaption
+                            || (data["info"] || {})["cubeName"]
+                            || ""
                     };
                     applyHeaderStyle(rawData[y][x], false);
                 } else {
