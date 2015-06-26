@@ -1080,7 +1080,7 @@ PivotView.prototype.renderRawData = function (data) {
                     data["conditionalFormatting"],
                     (y - info.topHeaderRowsNumber + 1) + "," + (x - info.leftHeaderColumnsNumber + 1),
                     rawData[y][x].value,
-                    div
+                    td
                 );
             }
 

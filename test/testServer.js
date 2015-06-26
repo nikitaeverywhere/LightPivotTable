@@ -1,8 +1,9 @@
 var express = require("express"),
-    app = express();
+    app = express(),
+    PORT = 81;
 
 app.use(express.static(__dirname + "/.."));
 
-app.listen(81);
+app.listen(PORT);
 
-console.info("Server ready on port 80.");
+console.info("Server ready on port " + PORT + ".");
