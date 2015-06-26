@@ -374,21 +374,25 @@ DataController.prototype.resetRawData = function () {
         if (!_.controller.CONFIG["pivotProperties"]) return rawData;
         var x, y, i, xEnd = rawData[0].length,
             colLevels = _.controller.getPivotProperty(["columnLevels"]),
+            rowLevels = _.controller.getPivotProperty(["rowLevels"]),
             formatColumn = {
                 // "<spec>": { style: "<style>" }
             };
         var fillLevels = function (obj) {
             if (typeof obj === "undefined") return;
             for (var i in obj["childLevels"]) {
-                if (obj["childLevels"][i]["spec"] && obj["childLevels"][i]["levelStyle"]) {
-                    formatColumn[obj["childLevels"][i]["spec"]] =
-                        { style: obj["childLevels"][i]["levelStyle"] };
+                if (obj["childLevels"][i] && obj["childLevels"][i]["spec"]) {
+                    formatColumn[(obj["childLevels"][i]["spec"] || "").replace(/[^.]*$/, "")] = {
+                        style: obj["childLevels"][i]["levelStyle"] || "",
+                        headStyle: obj["childLevels"][i]["levelHeaderStyle"] || ""
+                    };
                 }
                 fillLevels(obj["childLevels"][i]);
             }
         };
         for (i in colLevels) {
-            fillLevels(colLevels[i]);
+            fillLevels({ childLevels: [colLevels[i]] });
+            fillLevels({ childLevels: [rowLevels[i]] });
         }
         for (y = 0; y < rawData.length; y++) {
             for (x = 0; x < xEnd; x++) {
@@ -398,10 +402,14 @@ DataController.prototype.resetRawData = function () {
                 if (rawData[y][x].source && rawData[y][x].source["path"]) {
                     for (i in formatColumn) {
                         if (rawData[y][x].source["path"].indexOf(i) >= 0) {
-                            for (var yy = y + 1; yy < rawData.length; yy++) {
+                            var yy;
+                            for (yy = y; yy < rawData.length; yy++) {
                                 if (!rawData[yy][x].isCaption) {
-                                    rawData[yy][x].style = (rawData[yy][x].style || "")
+                                    if (formatColumn[i].style) rawData[yy][x].style = (rawData[yy][x].style || "")
                                         + formatColumn[i].style || "";
+                                } else {
+                                    if (formatColumn[i].headStyle) rawData[yy][x].style = (rawData[yy][x].style || "")
+                                        + formatColumn[i].headStyle || "";
                                 }
                             }
                             break;
