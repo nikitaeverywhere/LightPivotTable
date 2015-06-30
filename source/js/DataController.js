@@ -440,7 +440,7 @@ DataController.prototype.resetRawData = function () {
                     rawData[y][x] = {
                         group: 1,
                         isCaption: true,
-                        value: lp.getPivotProperty(["showRowCaption"]) === false ? "" :
+                        value: this.controller.getPivotProperty(["showRowCaption"]) === false ? "" :
                             this.controller.CONFIG["caption"]
                             || dimCaption
                             || (data["info"] || {})["cubeName"]
