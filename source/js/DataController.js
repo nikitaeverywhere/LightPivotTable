@@ -335,18 +335,32 @@ DataController.prototype.resetRawData = function () {
         }
     };
 
-    var dim1raw = function (a, c, arr, hor) {
+    var getMaxLevel = function (c) {
+        var lev = 0;
+        for (var i in c) {
+            if (c[i].children && c[i].children.length) {
+                lev = Math.max(lev, getMaxLevel(c[i].children));
+            }
+        }
+        return lev + 1;
+    };
+
+    var dim1raw = function (a, c, arr, hor, level, maxLevel) {
+
+        var cnum, obj, sameGroup;
 
         if (!arr) {
             arr = [];
         }
 
-        var cnum, obj;
-
         for (var i in c) {
             cnum = groupNum;
+            if (level < maxLevel && !(c[i].children && c[i].children.length)) { // maxLevel is not reached, but no child
+                c[i].children = [{}];
+                sameGroup = true; // let the child cells join parent cell
+            }
             if (c[i].children && c[i].children.length) {
-                groupNum++;
+                if (!sameGroup) groupNum++; else sameGroup = false;
                 obj = {
                     group: cnum,
                     source: c[i],
@@ -354,7 +368,7 @@ DataController.prototype.resetRawData = function () {
                     value: c[i].caption || ""
                 };
                 applyHeaderStyle(obj, hor);
-                dim1raw(a, c[i].children, arr.concat(obj), hor);
+                dim1raw(a, c[i].children, arr.concat(obj), hor, level?++level:level, maxLevel);
             } else {
                 obj = {
                     group: groupNum,
@@ -421,8 +435,12 @@ DataController.prototype.resetRawData = function () {
         return rawData;
     };
 
-    if (data.dimensions[0].length) dim0raw(rd0, data.dimensions[0]);
-    if (data.dimensions[1].length) dim1raw(rd1, data.dimensions[1]);
+    if (data.dimensions[0].length) {
+        dim0raw(rd0, data.dimensions[0]);
+    }
+    if (data.dimensions[1].length) {
+        dim1raw(rd1, data.dimensions[1], undefined, undefined, 1, getMaxLevel(data.dimensions[1]));
+    }
     if (rd1[0]) dimCaption = (rd1[0][rd1[0].length - 1] || { source: {} }).source["dimension"];
 
     var xw = (rd0[0] || []).length,
