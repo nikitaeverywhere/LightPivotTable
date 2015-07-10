@@ -262,13 +262,17 @@
                         }
                     }
                 }
-                // Getting filters from controller, if it has filters filled...
+                // Getting filters from controller, if it has filters added from URL or default...
+                // such filters are marked as "transient"
                 if (controller.filters.length) {
                     for (i in controller.filters) {
-                        if (controller.filters[i].enabled) defaultFilters.push(controller.filters[i].spec);
+                        if (controller.filters[i].enabled && controller.filters[i].transient)
+                            defaultFilters.push(controller.filters[i].spec);
                     }
+                }
                 // ... if not, we'll get filters from widget's controls
-                } else if (widget.filterState instanceof Object) {
+                // Only if the controller didn't have transient filters - (!defaultFilters.length)
+                if (!defaultFilters.length && widget.filterState instanceof Object) {
                     for (i in widget.filterState)
                         if (widget.filterState[i]) defaultFilters.push(widget.constructMDXClause(i,widget.filterState[i]));
                 }
