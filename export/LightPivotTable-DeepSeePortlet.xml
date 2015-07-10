@@ -183,9 +183,13 @@
         exportToExcel = !!parseInt(container.getAttribute("export-csv"));
 
     // !ultra-bydlocode (get the widget object)
-    while (widget["parent"]) {
+    // ++ VP
+    // Following "parent" until we find widget object
+    while (!widget["widgetKey"]) {
         widget = widget["parent"];
     }
+    // -- VP
+
     // !ultra-bydlocode (possible you will have better suggestions to get widget key)
     widgetKey = parseInt(_.parent.parent.onwindowgrab.match(/[0-9]+/)[0]);
 
@@ -233,7 +237,7 @@
         (source = location.origin + "/" + container.getAttribute("data-source"))
         + "/Widgets?Namespace=" + container.getAttribute("namespace"),
         {
-            Dashboard: widget["dashboardName"]
+            Dashboard: zenPage["dashboardName"]
         },
         function (data) {
             if (data.error) {
@@ -246,16 +250,6 @@
                     }
                 }
                 //console.log(info);
-                if (info.controls instanceof Array) {
-                    for (i in info.controls) {
-                        if ((info.controls[i].action === "applyFilter" || info.controls[i].action === "setFilter") && info.controls[i].value) {
-                            if ((filterValue = info.controls[i].value).charAt(0) === "%" && filterValue.indexOf(" ") > 1) {
-                                filterValue = filterValue.split(" ")[1] + "." + filterValue.split(" ")[0]
-                            }
-                            defaultFilters.push(info.controls[i].targetProperty + "." + filterValue);
-                        }
-                    }
-                }
                 setup = {
                     container: container,
                     dataSource: {
@@ -272,6 +266,19 @@
                         }
                     }
                 }
+                // ++ VP
+                // Getting filters from controller, if it has filters filled...
+                if (controller.filters.length) {
+                    for (i in controller.filters) {
+                        if (controller.filters[i].enabled) defaultFilters.push(controller.filters[i].spec);
+                    }
+                // ... if not, we'll get filters from widget's controls
+                } else if (widget.filterState instanceof Object) {
+                    for (i in widget.filterState)
+                        if (widget.filterState[i]) defaultFilters.push(widget.constructMDXClause(i,widget.filterState[i]));
+                }
+                // -- VP
+                
                 if (controller.contextFilterSpec) {
                     defaultFilters.push(controller.contextFilterSpec);
                 }
