@@ -53,6 +53,7 @@ var setup = { // Object that contain settings. Properties in brackets can be mis
             , cellDrillThrough: function ({Object { event: {event}, filters: {string[]}, cellData: {object} }}) {}
             , responseHandler: function ({Object {url: {string}, status: {number}}}) {}
             , rowSelect: function ({Array}) {}
+            , contentRendered: function () {}
         } ]
         [ , pagination: 30 ] // Maximum rows number on one page (default: 200, turn off: 0)
         [ , hideButtons: true ] // hides "back" and "drillThrough" buttons
