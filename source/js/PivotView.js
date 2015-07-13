@@ -1236,4 +1236,8 @@ PivotView.prototype.renderRawData = function (data) {
         setCaretPosition(this.elements.searchInput, this.savedSearch.value.length);
     }
 
+    if (typeof this.controller.CONFIG.triggers.contentRendered === "function") {
+        this.controller.CONFIG.triggers.contentRendered();
+    }
+
 };

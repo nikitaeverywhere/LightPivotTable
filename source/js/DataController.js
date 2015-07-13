@@ -101,6 +101,7 @@ DataController.prototype.setData = function (data) {
     this.resetConditionalFormatting();
     this.resetRawData();
     this.modifyRawData(data);
+    this.postDataProcessing(data);
 
     if (data.info.mdxType === "drillthrough") {
         this.setDrillThroughHandler(function (params) {
@@ -164,6 +165,51 @@ DataController.prototype.resetDimensionProps = function () {
     parse({ children: data.dimensions[0] }, {});
 
     data.columnProps = columnProps;
+
+};
+
+/**
+ * Try to recognise type by given value.
+ * @param {*} value
+ */
+DataController.prototype.getTypeByValue = function (value) {
+
+    if (!isNaN(value)) {
+        return { type: "number" };
+    } else if ((value + "").match(/[0-9]{2}\.[0-9]{2}\.[0-9]{2,4}/)) { // local date (unique case for RU)
+        return {
+            type: "date",
+            comparator: function (value) {
+                var arr = value.split(".");
+                return new Date(arr[2], arr[1], arr[0]); // day
+            }
+        };
+    } else if (Date.parse(value)) { // standard date recognized by JS
+        return {
+            type: "date",
+            comparator: function (value) {
+                return new Date(value);
+            }
+        }
+    } else {
+        return { type: "string" };
+    }
+
+};
+
+DataController.prototype.postDataProcessing = function (data) {
+
+    var cell, col;
+
+    if (!data || !data.rawData || !data.rawData[data.info.topHeaderRowsNumber]) return;
+    if (!data.columnProps) data.columnProps = [];
+
+    // Inserts pseudo-type to cell. If data.columnProps[col]["$FORMAT"].comparator is a function, then this function
+    // will be used to sort value of columns. @see DataController.sortByColumn.
+    for (col = data.info.leftHeaderColumnsNumber; cell = data.rawData[data.info.topHeaderRowsNumber][col]; col++) {
+        if (!data.columnProps[col]) data.columnProps[col] = {};
+        data.columnProps[col]["$FORMAT"] = this.getTypeByValue(cell.value);
+    }
 
 };
 
@@ -568,7 +614,8 @@ DataController.prototype._trigger = function () {
 DataController.prototype.sortByColumn = function (columnIndex) {
 
     var data = this._dataStack[this._dataStack.length - 1].data,
-        totalsAttached = this.SUMMARY_SHOWN && this.controller.CONFIG["attachTotals"] ? 1 : 0;
+        totalsAttached = this.SUMMARY_SHOWN && this.controller.CONFIG["attachTotals"] ? 1 : 0,
+        comparator;
 
     if (this.SORT_STATE.column !== columnIndex) {
         order = this.SORT_STATE.order = 0;
@@ -599,11 +646,19 @@ DataController.prototype.sortByColumn = function (columnIndex) {
 
     order = -order;
 
-    newRawData.sort(function (a, b) {
-        if (b[xIndex].value > a[xIndex].value) return order;
-        if (b[xIndex].value < a[xIndex].value) return -order;
-        return 0;
-    });
+    if (typeof (comparator = ((data.columnProps[columnIndex] || {})["$FORMAT"] || {}).comparator) === "function") {
+        newRawData.sort(function (a, b) { // sort using comparator function
+            if (comparator(b[xIndex].value) > comparator(a[xIndex].value)) return order;
+            if (comparator(b[xIndex].value) < comparator(a[xIndex].value)) return -order;
+            return 0;
+        });
+    } else { // simple sort
+        newRawData.sort(function (a, b) {
+            if (b[xIndex].value > a[xIndex].value) return order;
+            if (b[xIndex].value < a[xIndex].value) return -order;
+            return 0;
+        });
+    }
 
     data.rawData = data._rawDataOrigin.slice(0, data.info.topHeaderRowsNumber)
         .concat(newRawData)

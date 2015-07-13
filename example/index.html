@@ -14,7 +14,6 @@
     <script type="text/javascript" src="../source/js/DataController.js"></script>
     <script type="text/javascript" src="../source/js/MDXParser.js"></script>
     <script type="text/javascript" src="../source/js/PivotLocale.js"></script>
-    <script type="text/javascript" src="../source/js/ExcelExport.js"></script>
     <!-- endbuild -->
     <style>
         a {
@@ -115,6 +114,7 @@
                 // if cellDrillThrough callback returns boolean false, DrillThrough won't be performed.
                 //, cellDrillThrough: function ({Object { event: {event}, filters: {string[]} }}) {}
                 //, rowSelect: function (rs) { console.log("Rows: ", rs); }
+                //, contentRendered: function () { console.log("Rendered, wow!"); }
             }
             , pagination: 30 // Maximum rows number on one page (default: 200, turn off: 0)
             //, hideButtons: true // hides "back" and "drillThrough" buttons
