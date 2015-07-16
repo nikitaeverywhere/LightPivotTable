@@ -90,6 +90,7 @@ lp.updateSizes(); // recalculate pivot sizes
 lp.changeBasicMDX("..."); // change mdx for LPT
 lp.getActualMDX(); // returns currently displayed MDX
 lp.getSelectedRows(); // returns array with selected rows indexes. First row have index 1.
+lp.attachTrigger("contentRendered", function () {  }); // attaches trigger during runtime
 ```
 
 #### Caché DeepSee
