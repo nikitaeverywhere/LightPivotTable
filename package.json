@@ -1,7 +1,7 @@
 {
   "name": "LightPivotTable",
   "author": "ZitRo",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "A lightweight pivot table for MDX2JSON source for InterSystems Cache",
   "main": "test/testServer.js",
   "repository": {
