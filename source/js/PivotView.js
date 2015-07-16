@@ -801,7 +801,7 @@ PivotView.prototype.renderRawData = function (data) {
     );
 
     var formatContent = function (value, element, format) {
-        if (!isFinite(value)) { // not number, format as string
+        if (typeof(value) === 'string') { // not number, format as string
             element.className += " formatLeft";
             element.innerHTML = (value || "").replace(/(https?|ftp):\/\/[^\s]+/ig, function linkReplace (p) {
                 return "<a href='" + p
