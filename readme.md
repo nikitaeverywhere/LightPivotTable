@@ -90,6 +90,7 @@ lp.updateSizes(); // recalculate pivot sizes
 lp.changeBasicMDX("..."); // change mdx for LPT
 lp.getActualMDX(); // returns currently displayed MDX
 lp.getSelectedRows(); // returns array with selected rows indexes. First row have index 1.
+lp.attachTrigger("contentRendered", function () {  }); // attaches trigger during runtime
 ```
 
 #### Caché DeepSee
@@ -98,6 +99,10 @@ To integrate light pivot widget into DeepSee, just perform build and then import
 build/LightPivotTable.xml</code> into namespace you want. Make sure that MDX2JSON source is
 installed and configured. Also you may need to change the widget property "MDX2JSON source" to make
 it work with another MDX2JSON source.
+
+You can obtain LPT instance from widget by calling widgetInstance.registerLPTOnCreateCallback method.
+This method takes one argument - anonymous function, which will be executed when LPT instance is created.
+The anonymous function takes one argument - LPT instance.
 
 ## Build
 

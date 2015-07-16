@@ -11,7 +11,7 @@
 
 <Class name="DeepSee.LightPivotTable">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
-<TimeChanged>63700,68026.762239</TimeChanged>
+<TimeChanged>63749,65155.748273</TimeChanged>
 <TimeCreated>63515,61322.546099</TimeCreated>
 
 <Parameter name="INCLUDEFILES">
@@ -148,6 +148,20 @@
 <Language>javascript</Language>
 <ClientMethod>1</ClientMethod>
 <Implementation><![CDATA[    this.InitLPT();
+]]></Implementation>
+</Method>
+
+<Method name="registerLPTOnCreateCallback">
+<Description>
+Call this method when widget is created to handle moment when pivot table will be created.
+If LPT has been created before, method fires given callback immidiately.</Description>
+<FormalSpec>callback</FormalSpec>
+<Language>javascript</Language>
+<ClientMethod>1</ClientMethod>
+<Implementation><![CDATA[
+	if (typeof callback !== "function") return;
+	if (this.LightPivotTable) callback(this.LightPivotTable);
+		else this._registeredLPTOnCreateCallback = callback;
 ]]></Implementation>
 </Method>
 
@@ -301,6 +315,7 @@
                 }
 
                 _.LightPivotTable = new LightPivotTable(setup);
+                if (this._registeredLPTOnCreateCallback) this._registeredLPTOnCreateCallback(_.LightPivotTable);
 
                 // hack to enable some change events
                 setTimeout(function () { _._INITIALIZED = true; }, 800);

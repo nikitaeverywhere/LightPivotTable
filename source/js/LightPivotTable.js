@@ -305,6 +305,19 @@ LightPivotTable.prototype.getPivotProperty = function (path) {
 };
 
 /**
+ * Attaches the trigger during the runtime.
+ * @param {string} triggerName
+ * @param {function} trigger
+ */
+LightPivotTable.prototype.attachTrigger = function (triggerName, trigger) {
+    if (typeof trigger !== "function") {
+        console.warn("LPT.addTrigger: pass the trigger as a second argument.");
+        return;
+    }
+    this.CONFIG.triggers[triggerName] = trigger;
+};
+
+/**
  * Fill up to normal config structure to avoid additional checks and issues.
  *
  * @param config
