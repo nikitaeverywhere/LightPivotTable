@@ -315,7 +315,7 @@ If LPT has been created before, method fires given callback immidiately.</Descri
                 }
 
                 _.LightPivotTable = new LightPivotTable(setup);
-                if (this._registeredLPTOnCreateCallback) this._registeredLPTOnCreateCallback(_.LightPivotTable);
+                if (_._registeredLPTOnCreateCallback) _._registeredLPTOnCreateCallback(_.LightPivotTable);
 
                 // hack to enable some change events
                 setTimeout(function () { _._INITIALIZED = true; }, 800);
