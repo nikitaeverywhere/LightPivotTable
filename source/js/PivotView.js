@@ -109,6 +109,102 @@ PivotView.prototype.init = function () {
 
 };
 
+/**
+ * Return cell element which contains table data.
+ * @param {number} x
+ * @param {number} y
+ * @param {boolean} [considerHeaders] - With this flag origin will be set to actual table look
+ *                                      origin. If false, only table body's first cell will become
+ *                                      as origin.
+ * @return {HTMLElement}
+ */
+PivotView.prototype.getCellElement = function (x, y, considerHeaders) {
+
+    var element = this.tablesStack[this.tablesStack.length - 1].element,
+        table, hh, hw, table2;
+
+    var getTableCell = function (table, x, y) {
+        var m = [], row, cell, xx, tx, ty, xxx, yyy;
+        for(yyy = 0; yyy < table.rows.length; yyy++) {
+            row = table.rows[yyy];
+            for(xxx = 0; xxx < row.cells.length; xxx++) {
+                cell = row.cells[xxx];
+                xx = xxx;
+                for(; m[yyy] && m[yyy][xx]; ++xx) {}
+                for(tx = xx; tx < xx + cell.colSpan; ++tx) {
+                    for(ty = yyy; ty < yyy + cell.rowSpan; ++ty) {
+                        if (!m[ty])
+                            m[ty] = [];
+                        m[ty][tx] = true;
+                    }
+                }
+                if (xx <= x && x < xx + cell.colSpan && yyy <= y && y < yyy + cell.rowSpan)
+                    return cell;
+            }
+        }
+        return null;
+    };
+
+    if (considerHeaders) {
+        table = element.getElementsByClassName("lpt-topHeader")[0]; if (!table) return null;
+        table = table.getElementsByTagName("table")[0]; if (!table) return null;
+        hh = 0; [].slice.call(table.rows).forEach(function (e) {
+            hh += e.rowSpan || 1;
+        });
+        table2 = element.getElementsByClassName("lpt-leftHeader")[0]; if (!table) return null;
+        table2 = table2.getElementsByTagName("table")[0]; if (!table) return null;
+        hw = 0; [].slice.call((table2.rows[0] || { cells: [] }).cells).forEach(function (e) {
+            hw += e.colSpan || 1;
+        });
+        if (x < hw && y < hh)
+            return element.getElementsByClassName("lpt-headerValue")[0] || null;
+        if (x >= hw && y < hh)
+            return (getTableCell(table, x - hw, y) || { childNodes: [null] }).childNodes[0];
+        if (x < hw && y >= hh)
+            return (getTableCell(table2, x, y - hh) || { childNodes: [null] }).childNodes[0];
+        x -= hw; y -= hh;
+    }
+
+    table = element.getElementsByClassName("lpt-tableBlock")[0]; if (!table) return null;
+    table = table.getElementsByTagName("table")[0]; if (!table) return null;
+    return ((table.rows[y] || { cells: [] }).cells[x] || { childNodes: [null] }).childNodes[0];
+
+};
+
+/**
+ * @see getCellElement
+ * @param {boolean} [considerHeaders]
+ */
+PivotView.prototype.getTableSize = function (considerHeaders) {
+
+    var table, hw = 0, hh = 0, element = this.tablesStack[this.tablesStack.length - 1].element;
+
+    table = element.getElementsByClassName("lpt-tableBlock")[0]; if (!table) return 0;
+    table = table.getElementsByTagName("table")[0]; if (!table) return 0;
+    [].slice.call(table.rows).forEach(function (e) {
+        hh += e.rowSpan || 1;
+    });
+    [].slice.call((table.rows[0] || { cells: [] }).cells).forEach(function (e) {
+        hw += e.colSpan || 1;
+    });
+
+    if (!considerHeaders) return { width: hw, height: hh };
+
+    table = element.getElementsByClassName("lpt-topHeader")[0]; if (!table) return 0;
+    table = table.getElementsByTagName("table")[0]; if (!table) return 0;
+    [].slice.call(table.rows).forEach(function (e) {
+        hh += e.rowSpan || 1;
+    });
+    table = element.getElementsByClassName("lpt-leftHeader")[0]; if (!table) return 0;
+    table = table.getElementsByTagName("table")[0]; if (!table) return 0;
+    [].slice.call((table.rows[0] || { cells: [] }).cells).forEach(function (e) {
+        hw += e.colSpan || 1;
+    });
+
+    return { width: hw, height: hh };
+
+};
+
 PivotView.prototype.displayLoading = function () {
 
     this.displayMessage(

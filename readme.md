@@ -91,6 +91,10 @@ lp.changeBasicMDX("..."); // change mdx for LPT
 lp.getActualMDX(); // returns currently displayed MDX
 lp.getSelectedRows(); // returns array with selected rows indexes. First row have index 1.
 lp.attachTrigger("contentRendered", function (lpInstance) {  }); // attaches trigger during runtime
+
+// Additional calls:
+lp.pivotView.getCellElement(x, y, considerHeaders); // returns cell element by given coordinates
+lp.pivotView.getTableSize(considerHeaders); // returns { width: N, height: M }
 ```
 
 #### Caché DeepSee
