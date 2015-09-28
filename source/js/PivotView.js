@@ -904,7 +904,7 @@ PivotView.prototype.renderRawData = function (data) {
                     + "' target='_blank' onclick='var e=event||window.event;e.stopPropagation();e.cancelBubble=true;'>"
                     + p + "</a>";
             });
-        } else { // number
+        } else if (!LISTING) { // number
             if (format) { // set format
                 element.textContent = value ? _.numeral(value).format(format) : "";
             } else if (value) {
@@ -914,6 +914,8 @@ PivotView.prototype.renderRawData = function (data) {
             } else {
                 element.textContent = value || "";
             }
+        } else {
+            element.textContent = value;
         }
     };
 
