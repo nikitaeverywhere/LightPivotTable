@@ -36,6 +36,7 @@ Then use global object constructed from <i>LightPivotTable</i>:
 var setup = { // Object that contain settings. Properties in brackets can be missed.
         container: document.getElementById("pivot") // HTMLElement which will contain table.
         [, locale: "en" ] // language to use (default: browser default or "en")
+        logs: false, // enable logs
         , dataSource: {
             MDX2JSONSource: "http://localhost:57772/SAMPLES", // MDX2JSON server address
             basicMDX: typeof req === "object" ? req.basicMDX : req
@@ -54,6 +55,9 @@ var setup = { // Object that contain settings. Properties in brackets can be mis
             , responseHandler: function ({Object {url: {string}, status: {number}}}) {}
             , rowSelect: function ({Array}) {}
             , contentRendered: function () {}
+            , cellSelected: function ({ x: Number, y: Number, leftHeaderColumnsNumber: Number, topHeaderRowsNumber: Number }) {
+                return false; // return false to block default click action
+            }
         } ]
         [ , pagination: 30 ] // Maximum rows number on one page (default: 200, turn off: 0)
         [ , hideButtons: true ] // hides "back" and "drillThrough" buttons

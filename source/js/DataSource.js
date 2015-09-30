@@ -226,7 +226,7 @@ DataSource.prototype.getCurrentData = function (callback) {
 
     var requestData = function () {
 
-        console.log("LPT MDX request:", mdx);
+        if (_.LPT.CONFIG["logs"]) console.log("LPT MDX request:", mdx);
 
         _._post(
             _.SOURCE_URL + "/" +

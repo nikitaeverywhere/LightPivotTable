@@ -54,6 +54,9 @@ var PivotView = function (controller, container) {
         columnIndex: 0
     };
 
+    /**
+     * @type {LightPivotTable}
+     */
     this.controller = controller;
 
     this.SCROLLBAR_WIDTH = (function () {
@@ -428,11 +431,21 @@ PivotView.prototype._getSelectedText = function () {
 PivotView.prototype._cellClickHandler = function (cell, x, y, event, drillThroughHandler) {
 
     var data = this.controller.dataController.getData(),
-        f = [], f1, f2, callbackRes = true,
+        f = [], f1, f2, callbackRes = true, result,
         ATTACH_TOTALS = this.controller.CONFIG["showSummary"]
             && this.controller.CONFIG["attachTotals"] ? 1 : 0;
 
     if (this._getSelectedText()) return; // exit if text in cell was selected
+
+    if (typeof this.controller.CONFIG.triggers["cellSelected"] === "function") {
+        result = this.controller.CONFIG.triggers["cellSelected"].call(this.controller, {
+            x: x - data.info.leftHeaderColumnsNumber,
+            y: y - data.info.topHeaderRowsNumber,
+            leftHeaderColumnsNumber: data.info.leftHeaderColumnsNumber,
+            topHeaderRowsNumber: data.info.topHeaderRowsNumber
+        });
+        if (result === false) return;
+    }
 
     try {
         f1 = data.rawData[y][data.info.leftHeaderColumnsNumber - 1].source.path;
