@@ -36,7 +36,7 @@ Then use global object constructed from <i>LightPivotTable</i>:
 var setup = { // Object that contain settings. Properties in brackets can be missed.
         container: document.getElementById("pivot") // HTMLElement which will contain table.
         [, locale: "en" ] // language to use (default: browser default or "en")
-        logs: false, // enable logs
+        [, logs: false ] // logging disabled by default
         , dataSource: {
             MDX2JSONSource: "http://localhost:57772/SAMPLES", // MDX2JSON server address
             basicMDX: typeof req === "object" ? req.basicMDX : req

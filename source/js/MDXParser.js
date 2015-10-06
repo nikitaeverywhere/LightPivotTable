@@ -49,8 +49,12 @@ MDXParser.prototype.prependNonEmpty = function (expression) {
 MDXParser.prototype.drillDown = function (mdx, filter, expression) {
 
     if (!filter) {
-        this._warnMDX(mdx, "no filter specified");
-        return "";
+        if (/]\s+ON\s+1/.test(mdx)) {
+            return mdx = mdx.replace(/]\s+ON\s+1/, "].children ON 1");
+        } else {
+            this._warnMDX(mdx, "no filter specified");
+            return "";
+        }
     }
 
     var parts = mdx.split(/(select\s*)(.*?)(\s*from)/ig); // split by SELECT queries
@@ -133,6 +137,6 @@ MDXParser.prototype.mdxType = function (mdx) {
  */
 MDXParser.prototype.applyFilter = function (basicMDX, filterSpec) {
 
-    return basicMDX + " %FILTER " + filterSpec;
+    return basicMDX + (filterSpec ? " %FILTER " + filterSpec : "");
 
 };
