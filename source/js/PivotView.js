@@ -156,9 +156,11 @@ PivotView.prototype.getCellElement = function (x, y, considerHeaders) {
         });
         table2 = element.getElementsByClassName("lpt-leftHeader")[0]; if (!table) return null;
         table2 = table2.getElementsByTagName("table")[0]; if (!table) return null;
-        hw = 0; [].slice.call((table2.rows[0] || { cells: [] }).cells).forEach(function (e) {
-            hw += e.colSpan || 1;
-        });
+        hw = 0; if (!(this.getCurrentTableData().element || {})["_listing"]) {
+            [].slice.call((table2.rows[0] || { cells: [] }).cells).forEach(function (e) {
+                hw += e.colSpan || 1;
+            });
+        }
         if (x < hw && y < hh)
             return element.getElementsByClassName("lpt-headerValue")[0] || null;
         if (x >= hw && y < hh)
@@ -200,9 +202,11 @@ PivotView.prototype.getTableSize = function (considerHeaders) {
     });
     table = element.getElementsByClassName("lpt-leftHeader")[0]; if (!table) return 0;
     table = table.getElementsByTagName("table")[0]; if (!table) return 0;
-    [].slice.call((table.rows[0] || { cells: [] }).cells).forEach(function (e) {
-        hw += e.colSpan || 1;
-    });
+    if (!(this.getCurrentTableData().element || {})["_listing"]) {
+        [].slice.call((table.rows[0] || { cells: [] }).cells).forEach(function (e) {
+            hw += e.colSpan || 1;
+        });
+    }
 
     return { width: hw, height: hh };
 
@@ -451,7 +455,9 @@ PivotView.prototype._cellClickHandler = function (cell, x, y, event, drillThroug
         f1 = data.rawData[y][data.info.leftHeaderColumnsNumber - 1].source.path;
         f2 = data.rawData[data.info.topHeaderRowsNumber - 1 - ATTACH_TOTALS][x].source.path;
     } catch (e) {
-        console.warn("Unable to get filters for cell (%d, %d)", x, y);
+        if (this.controller.CONFIG["logs"]) {
+            console.warn("Unable to get filters for cell (%d, %d)", x, y);
+        }
     }
 
     if (f1) f.push(f1);
@@ -1339,6 +1345,7 @@ PivotView.prototype.renderRawData = function (data) {
 
     container["_primaryColumns"] = primaryColumns;
     container["_primaryRows"] = primaryRows;
+    container["_listing"] = LISTING;
 
     this.recalculateSizes(container);
 
