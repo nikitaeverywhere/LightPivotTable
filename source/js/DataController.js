@@ -97,6 +97,7 @@ DataController.prototype.setData = function (data) {
 
     this._dataStack[this._dataStack.length - 1].data = data;
     //this.data = data;
+    this.setLeftHeaderColumnsNumber(data); // required in resetDimensionProps()
     this.resetDimensionProps();
     this.resetConditionalFormatting();
     this.resetRawData();
@@ -130,12 +131,15 @@ DataController.prototype.setDrillThroughHandler = function (handler) {
  */
 DataController.prototype.resetDimensionProps = function () {
 
-    var data, columnProps = [];
+    var data, columnProps;
 
     if (!(data = this._dataStack[this._dataStack.length - 1].data)) {
         console.error("Unable to get dimension props for given data set.");
         return;
     }
+
+    columnProps = new Array(data.info.leftHeaderColumnsNumber || 0); // fill left headers as empty
+    for (var i = 0; i < columnProps.length; i++) { columnProps[i] = {}; }
 
     var cloneObj = function (obj) {
         var i, newObj = {};
@@ -153,12 +157,14 @@ DataController.prototype.resetDimensionProps = function () {
                 if (tObj["style"]) clonedProps["style"] =
                     (clonedProps["style"] || "") + tObj["style"];
                 if (tObj["summary"]) clonedProps["summary"] = tObj["summary"];
+                // somehow "summary" were changed to "total" - reapplying
+                if (tObj["total"]) clonedProps["summary"]
+                    = (tObj["total"] || "").toLowerCase().replace(/:.*/, ""); // what is "max:Days"?
                 if (tObj["type"]) clonedProps["type"] = tObj["type"];
                 parse(tObj, clonedProps);
             }
         } else {
-            clonedProps = cloneObj(props);
-            columnProps.push(clonedProps);
+            columnProps.push(cloneObj(props));
         }
     };
 
@@ -270,11 +276,16 @@ DataController.prototype.resetConditionalFormatting = function () {
  * @see getTotalFunction
  */
 DataController.prototype.TOTAL_FUNCTIONS = {
+
+    isNumber: function (a) {
+        if (a == "") return false;
+        return isFinite(a);
+    },
     
     totalSUM: function (array, iStart, iEnd, column) {
         var sum = 0;
         for (var i = iStart; i < iEnd; i++) {
-            if (isFinite(array[i][column]["value"])) {
+            if (this.isNumber(array[i][column]["value"])) {
                 sum += parseFloat(array[i][column]["value"]) || 0;
             }
         }
@@ -284,7 +295,7 @@ DataController.prototype.TOTAL_FUNCTIONS = {
     totalAVG: function (array, iStart, iEnd, column) {
         var sum = 0;
         for (var i = iStart; i < iEnd; i++) {
-            if (!isFinite(array[i][column]["value"])) {
+            if (!this.isNumber(array[i][column]["value"])) {
                 sum = 0;
                 break;
             }
@@ -300,7 +311,7 @@ DataController.prototype.TOTAL_FUNCTIONS = {
     totalMIN: function (array, iStart, iEnd, column) {
         var min = Infinity;
         for (var i = iStart; i < iEnd; i++) {
-            if (isFinite(array[i][column]["value"]) && array[i][column]["value"] < min) {
+            if (this.isNumber(array[i][column]["value"]) && array[i][column]["value"] < min) {
                 min = array[i][column]["value"];
             }
         }
@@ -310,7 +321,7 @@ DataController.prototype.TOTAL_FUNCTIONS = {
     totalMAX: function (array, iStart, iEnd, column) {
         var max = -Infinity;
         for (var i = iStart; i < iEnd; i++) {
-            if (isFinite(array[i][column]["value"]) && array[i][column]["value"] > max) {
+            if (this.isNumber(array[i][column]["value"]) && array[i][column]["value"] > max) {
                 max = array[i][column]["value"];
             }
         }
@@ -330,6 +341,21 @@ DataController.prototype.TOTAL_FUNCTIONS = {
         return "";
     }
     
+};
+
+DataController.prototype.setLeftHeaderColumnsNumber = function (data) {
+
+    function getLev (o, lev) {
+        if (!(o.children instanceof Array)) return lev;
+        var nextLev = lev + 1;
+        for (var i = 0; i < o.children.length; i++) {
+            lev = Math.max(getLev(o.children[i], nextLev), lev);
+        }
+        return lev;
+    }
+
+    data.info.leftHeaderColumnsNumber = getLev({ children: data.dimensions[1] || [] }, 0);
+
 };
 
 /**
@@ -540,7 +566,7 @@ DataController.prototype.resetRawData = function () {
         var pivotDefault = _.controller.getPivotProperty(["rowTotalAgg"]);
         if (!data["columnProps"][columnIndex] && !pivotDefault)
             return _.TOTAL_FUNCTIONS.totalSUM;
-        switch (data["columnProps"][columnIndex].summary || pivotDefault) {
+        switch ((data["columnProps"][columnIndex] || {}).summary || pivotDefault) {
             case "count": return _.TOTAL_FUNCTIONS.totalCOUNT;
             case "avg": return _.TOTAL_FUNCTIONS.totalAVG;
             case "min": return _.TOTAL_FUNCTIONS.totalMIN;
@@ -570,7 +596,7 @@ DataController.prototype.resetRawData = function () {
                 applyHeaderStyle(summary[i], false);
             } else {
                 summary[i] = {
-                    value: getTotalFunction(parseInt(i) - data.info.leftHeaderColumnsNumber).call(
+                    value: getTotalFunction(parseInt(i)).call(
                         this.TOTAL_FUNCTIONS,
                         rawData, xh, rawData.length, i, data.info.leftHeaderColumnsNumber
                     ),

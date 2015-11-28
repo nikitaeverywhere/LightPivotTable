@@ -835,6 +835,63 @@ PivotView.prototype.recalculateSizes = function (container) {
 };
 
 /**
+ * Converts retrieved from mdx2json date to JS date format.
+ * @param {string} s Date as string
+ * @returns {number} Date as number
+ * @author Anton Gnibeda (https://github.com/gnibeda)
+ */
+PivotView.prototype.getUnixDateFromCacheFormat = function (s) {
+    function addDays(date, days) {
+        var result = new Date(date);
+        result.setDate(date.getDate() + days);
+        return result;
+    }
+    function getDate(str) {
+        var months = [
+            "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"
+        ];
+
+        var d = Date.parse(str);
+        if (!isNaN(d)) return d;
+        if (str.split("-").length == 2) {
+            var parts = str.split("-");
+            var idx = months.indexOf(parts[0].toLowerCase());
+            if (idx != -1) {
+                return Date.parse((idx+1).toString() + "/01/" + parts[1]);
+            }
+        } else
+        if (str.split(" ").length == 2) {
+            //like 2015-01-07 05
+            var timeParts = str.split(" ")[1].split(":").length;
+            if (timeParts === 0) str += ":00";
+            d = Date.parse(str.replace(/-/g, "/"));
+            if (!isNaN(d)) return d;
+        }
+        return 0;
+    }
+    if (s === "" && s === undefined || s === null) return null;
+    var str = s.toString();
+    if (str.length == 4) return getDate(s);
+    if (str.indexOf("-") != -1) return getDate(s);
+    if (str.indexOf(" ") != -1) return getDate(s);
+    if (str.length == 6) {
+        var y = str.substr(0, 4);
+        var m = str.substr(4, 2);
+        return Date.parse(new Date(parseInt(y), parseInt(m)-1, 1));
+    }
+    if (str.length == 5 && !isNaN(parseInt(str))) {
+        var base = new Date(1840, 11, 31);
+        var p = str.toString().split(",");
+        var d = parseInt(p[0]);
+        var t = null;
+        if (p.length > 1) t = parseInt(p[1]);
+        base = addDays(base, parseInt(d));
+        if (t) base.setSeconds(t);
+        return Date.parse(base);
+    } else return getDate(s);
+};
+
+/**
  * Raw data - plain 2-dimensional array of data to render.
  *
  * group - makes able to group cells together. Cells with same group number will be gathered.
@@ -924,7 +981,12 @@ PivotView.prototype.renderRawData = function (data) {
                     + p + "</a>";
             });
         } else if (!LISTING) { // number
-            if (format) { // set format
+            if (format === "%date%") { // Cach? internal date
+                var d = new Date(_.getUnixDateFromCacheFormat(value));
+                if (isNaN(d.getTime())) { element.textContent = value; return; }
+                element.textContent = d.getHours() + d.getMinutes() + d.getSeconds() === 0
+                        ? d.toLocaleDateString() : d.toLocaleString();
+            } else if (format) { // set format
                 element.textContent = value ? _.numeral(value).format(format) : "";
             } else if (value) {
                 element.textContent = _.numeral(value).format(
@@ -1074,7 +1136,7 @@ PivotView.prototype.renderRawData = function (data) {
                     if (!rawData[y][x].isCaption) formatContent(
                         rawData[y][x].value,
                         th,
-                        columnProps[x - info.leftHeaderColumnsNumber].format
+                        columnProps[x].format
                     );
                 }
 
@@ -1169,7 +1231,7 @@ PivotView.prototype.renderRawData = function (data) {
             formatContent(
                 rawData[y][x].value,
                 div,
-                columnProps[x - info.leftHeaderColumnsNumber].format
+                columnProps[x].format
             );
             if (
                 colorScale

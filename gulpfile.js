@@ -36,8 +36,8 @@ gulp.task("gatherScripts", ["clean"], function () {
         .pipe(uglify({
             output: {
                 ascii_only: true,
-                width: 30000,
-                max_line_len: 30000
+                width: 25000,
+                max_line_len: 25000
             }
         }))
         .pipe(header(banner, { pkg: pkg }))
