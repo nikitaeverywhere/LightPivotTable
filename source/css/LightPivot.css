@@ -396,11 +396,8 @@
 }
 
 .lpt-searchBlock {
-    /*position: absolute;*/
     box-sizing: border-box;
     overflow: hidden;
-    /*top: 0;*/
-    /*width: 100%;*/
     height: 20px;
     font-size: 14px;
     border: 1px solid rgb(208, 208, 208);
@@ -427,6 +424,7 @@
     top: 0;
     right: 5px;
     color: gray;
+    pointer-events: none;
 }
 
 .lpt-searchSelectOuter select {
