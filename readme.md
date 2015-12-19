@@ -77,6 +77,7 @@ var setup = { // Object that contain settings. Properties in brackets can be mis
         [ , enableSearch: true ] // enables search panel in listing (default: true)
         [ , showRowNumbers: true ] // show the row number in first column
         [ , enableListingSelect: true ] // enable listing selection, true by default
+        [ , showListingRowsNumber: true ] // show rows number in listing and tables if paginated
     },
     lp = new LightPivotTable(setup);
     

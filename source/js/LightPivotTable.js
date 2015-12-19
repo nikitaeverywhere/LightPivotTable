@@ -328,6 +328,8 @@ LightPivotTable.prototype.normalizeConfiguration = function (config) {
     if (typeof config["enableSearch"] === "undefined") config.enableSearch = true;
     if (typeof config["stretchColumns"] === "undefined") config.stretchColumns = true;
     if (typeof config["enableListingSelect"] === "undefined") config.enableListingSelect = true;
+    if (typeof config["showListingRowsNumber"] === "undefined")
+        config.showListingRowsNumber = true;
     if (!config["triggers"]) config.triggers = {};
     if (!config["dataSource"]) config.dataSource = {};
 };

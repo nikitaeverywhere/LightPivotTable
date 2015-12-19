@@ -937,8 +937,10 @@ PivotView.prototype.renderRawData = function (data) {
         mainTable = document.createElement("table"),
         mainTBody = document.createElement("tbody"),
 
-        pageSwitcher = this.pagination.on ? document.createElement("div") : null,
-        pageNumbers = this.pagination.on ? [] : null,
+        showBottomBar = this.pagination.on
+            || (LISTING && this.controller.CONFIG["showListingRowsNumber"]),
+        pageSwitcher = showBottomBar ? document.createElement("div") : null,
+        pageNumbers = showBottomBar ? [] : null,
         pageSwitcherContainer = pageSwitcher ? document.createElement("div") : null,
 
         searchBlock = SEARCH_ENABLED ? document.createElement("div") : null,
@@ -1363,6 +1365,18 @@ PivotView.prototype.renderRawData = function (data) {
             return pagesArr;
 
         })(this.pagination.page + 1, this.pagination.pages);
+        if (this.controller.CONFIG.showListingRowsNumber) {
+            td = document.createElement("div");
+            tr = document.createElement("span");
+            tr.className = "lpt-icon-rows";
+            td.className = "lpt-bottomInfo";
+            td.appendChild(tr);
+            tr = document.createElement("span");
+            tr.textContent = data["rawData"].length - (data["info"].topHeaderRowsNumber || 0)
+                - (data["info"].SUMMARY_SHOWN ? 1 : 0);
+            td.appendChild(tr);
+            pageSwitcherContainer.appendChild(td);
+        }
         for (i in pageNumbers) {
             i = parseInt(i);
             td = document.createElement("span");
