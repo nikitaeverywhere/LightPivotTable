@@ -186,7 +186,7 @@ DataSource.prototype.getCurrentData = function (callback) {
                     obj, i, u;
 
                 if (!arr.length) return {
-                    error: "No DrillThrough data."
+                    error: pivotLocale.get(4)
                 };
 
                 for (i in arr[0]) {

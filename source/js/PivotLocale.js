@@ -38,6 +38,11 @@ PivotLocale.prototype.LOCALES = [
         "ru": "Возникла ошибка при получении данных с сервера.",
         "en": "Error while trying to retrieve data from server.",
         "de": "Beim Abrufen der Daten vom Server ist ein Fehler aufgetreten."
+    },
+    { // 4
+        "ru": "Нет данных для отображения.",
+        "en": "No data to display.",
+        "de": "Keine Daten zum anzeigen."
     }
 ];
 
@@ -71,7 +76,7 @@ PivotLocale.prototype.setLocale = function (locale) {
  */
 PivotLocale.prototype.get = function (index) {
 
-    return (this.LOCALES[index] || {})[this.LOCALE] || "{not localized}";
+    return (this.LOCALES[index] || {})[this.LOCALE] || ("{not localized: " + index + "}");
 
 };
 
