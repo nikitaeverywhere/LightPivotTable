@@ -1061,6 +1061,19 @@ PivotView.prototype.renderRawData = function (data) {
         var vertical = targetElement === LHTHead,
             rendered, separatelyGrouped, tr, th, div, checkbox;
 
+        function applySelect (element) { // checkbox element
+            var checked = element.checked;
+            while (element = element.parentNode) {
+                if (element.tagName === "TR") {
+                    element.classList[checked ? "add" : "remove"]("lpt-selectedRow");
+                    _.elements.tableContainer.querySelector(".lpt-tableBlock table")
+                        .rows[element.rowIndex]
+                        .classList[checked ? "add" : "remove"]("lpt-selectedRow");
+                    break;
+                }
+            }
+        }
+
         if (xFrom === xTo && LISTING_SELECT_ENABLED) { // listing
             for (y = yFrom; y < yTo; y++) {
                 tr = document.createElement("tr");
@@ -1068,14 +1081,20 @@ PivotView.prototype.renderRawData = function (data) {
                 checkbox = document.createElement("input");
                 checkbox.setAttribute("type", "checkbox");
                 checkbox.checked = !!_.selectedRows[y];
+                if (checkbox.checked) (function (checkbox) {
+                    setTimeout(function () { // highlight the rows after html generated
+                        applySelect(checkbox);
+                    }, 1);
+                })(checkbox);
                 th.setAttribute("style", "padding: 0 !important;");
                 checkbox.addEventListener("click", (function (y) { return function (e) {
                     var element = e.srcElement || e.target;
                     e.preventDefault();
                     e.cancelBubble = true;
-                    setTimeout(function () { // bad, but only working workaround for ISC DeepSee
+                    setTimeout(function () { // bad, but the only working workaround for ISC DeepSee
                         element.checked = !element.checked;
                         _.selectRow.call(_, element.checked, y);
+                        applySelect(element);
                     }, 1);
                 }})(y));
                 th.appendChild(checkbox);
