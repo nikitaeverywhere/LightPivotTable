@@ -131,8 +131,19 @@
         this.LightPivotTable.CONFIG["defaultFilterSpecs"] = [];
 
         // updateFilters
-        for (var i in controller.filters) {
-            this.LightPivotTable.CONFIG["defaultFilterSpecs"].push(controller.filters[i].spec);
+        // Getting filters from controller, if it has filters added from URL or default...
+        // such filters are marked as "transient"
+        if (controller.filters.length) {
+            for (i in controller.filters) {
+                if (controller.filters[i].enabled && controller.filters[i].transient)
+                    this.LightPivotTable.CONFIG["defaultFilterSpecs"].push(controller.filters[i].spec);
+            }
+        }
+        // ... if not, we'll get filters from widget's controls
+        // Only if the controller didn't have transient filters - (!defaultFilters.length)
+        if (!this.LightPivotTable.CONFIG["defaultFilterSpecs"].length && widget.filterState instanceof Object) {
+            for (i in widget.filterState)
+                if (widget.filterState[i]) this.LightPivotTable.CONFIG["defaultFilterSpecs"].push(widget.constructMDXClause(i, widget.filterState[i]));
         }
         if (controller.contextFilterSpec) {
             this.LightPivotTable.CONFIG["defaultFilterSpecs"].push(controller.contextFilterSpec);
