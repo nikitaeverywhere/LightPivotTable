@@ -78,6 +78,7 @@ var setup = { // Object that contain settings. Properties in brackets can be mis
         [ , showRowNumbers: true ] // show the row number in first column
         [ , enableListingSelect: true ] // enable listing selection, true by default
         [ , showListingRowsNumber: true ] // show rows number in listing and tables if paginated
+        [ , rowCount: 5 ] // number of rows to show. Use lp.setRowCount(N) to change rowCount. Manual lp.refresh() needed to apply.
     },
     lp = new LightPivotTable(setup);
     
@@ -96,6 +97,7 @@ lp.changeBasicMDX("..."); // change mdx for LPT
 lp.getActualMDX(); // returns currently displayed MDX
 lp.getSelectedRows(); // returns array with selected rows indexes. First row have index 1.
 lp.attachTrigger("contentRendered", function (lpInstance) {  }); // attaches trigger during runtime
+lp.setRowCount(5); // sets the number of rows to display
 
 // Additional calls:
 lp.pivotView.getCellElement(x, y, considerHeaders); // returns cell element by given coordinates

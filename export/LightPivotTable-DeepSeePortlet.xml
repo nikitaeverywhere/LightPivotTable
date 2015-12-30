@@ -286,6 +286,12 @@ If LPT has been created before, method fires given callback immidiately.</Descri
                             controller.setProperty("selectedRange", ss.join("\n"));
                         }
                     }
+                };
+                // widget controls processing
+                for (var c in info.controls) {
+                    if (info.controls[c].action === "setRowCount") {
+                        setup.rowCount = info.controls[c].value;
+                    }
                 }
                 // Getting filters from controller, if it has filters added from URL or default...
                 // such filters are marked as "transient"

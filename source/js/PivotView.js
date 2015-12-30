@@ -91,6 +91,7 @@ PivotView.prototype.init = function () {
         els = this.elements;
 
     els.base.className = "lpt";
+    els.base.setAttribute("LPTVersion", this.controller.VERSION);
     els.container.appendChild(els.base);
 
     this.pushTable();

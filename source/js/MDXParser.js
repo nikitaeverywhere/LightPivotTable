@@ -39,8 +39,21 @@ MDXParser.prototype.prependNonEmpty = function (expression) {
 };
 
 /**
+ * Applies Row Count to mdx.
+ * Source: SELECT [Test].Members ON 0, NON EMPTY      [Test2].Members     ON 1 FROM [Tests] %FILTER
+ * Out:    SELECT [Test].Members ON 0, NON EMPTY HEAD([Test2].Members, N) ON 1 FROM [Tests] %FILTER
+ * @param {string} expression - MDX expression.
+ * @param {number} n - Number of rows to return.
+ * @returns {string}
+ */
+MDXParser.prototype.applyRowCount = function (expression, n) {
+    return expression.replace(/\s*on\s*0\s*,\s*(?:non\s*empty\s*)?(.*)\s*on\s*1/i, function (a,b) {
+        return typeof n !== "undefined" ? " ON 0, NON EMPTY HEAD(" + b + ", " + n + ") ON 1" : a;
+    });
+};
+
+/**
  * Performs DrillDown on MDX query.
- *
  * @param {string} mdx
  * @param {string} filter
  * @param {string} [expression] - if is set, "* ON 1" will be replaced with "{value} ON 1"
@@ -49,8 +62,8 @@ MDXParser.prototype.prependNonEmpty = function (expression) {
 MDXParser.prototype.drillDown = function (mdx, filter, expression) {
 
     if (!filter) {
-        if (/]\s+ON\s+1/.test(mdx)) {
-            return mdx = mdx.replace(/]\s+ON\s+1/, "].children ON 1");
+        if (/]\s+ON\s+1/i.test(mdx)) {
+            return mdx = mdx.replace(/]\s+ON\s+1/i, "].children ON 1");
         } else {
             this._warnMDX(mdx, "no filter specified");
             return "";

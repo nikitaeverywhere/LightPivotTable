@@ -86,6 +86,12 @@ LightPivotTable.prototype.changeBasicMDX = function (mdx) {
 
 };
 
+LightPivotTable.prototype.setRowCount = function (n) {
+
+    this.CONFIG.rowCount = n;
+
+};
+
 /**
  * Returns current mdx including filters.
  * @returns {string}
@@ -99,6 +105,10 @@ LightPivotTable.prototype.getActualMDX = function () {
 
     for (var i in filters) {
         mdx = mdxParser.applyFilter(mdx, filters[i]);
+    }
+
+    if (typeof this.CONFIG.rowCount === "number") {
+        mdx = mdxParser.applyRowCount(mdx, this.CONFIG.rowCount);
     }
 
     return mdx;

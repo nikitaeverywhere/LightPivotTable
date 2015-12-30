@@ -148,6 +148,10 @@ DataSource.prototype.getCurrentData = function (callback) {
         mdx = mdxParser.applyFilter(mdx, this.FILTERS[i]);
     }
 
+    if (typeof this.GLOBAL_CONFIG.rowCount === "number") {
+        mdx = mdxParser.applyRowCount(mdx, this.GLOBAL_CONFIG.rowCount);
+    }
+
     var setupPivotOptions = function () {
 
         var data = ready.pivotData;
