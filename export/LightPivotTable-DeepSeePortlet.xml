@@ -360,7 +360,8 @@ If LPT has been created before, method fires given callback immidiately.</Descri
 <ClientMethod>1</ClientMethod>
 <Implementation><![CDATA[
     var container = document.getElementById(this.id),
-        controller = this.getConnectedController();
+        controller = this.getConnectedController(),
+        page = encodeURIComponent("%DeepSee.UI.MDXExcel.cls");
 
     if (!this.LightPivotTable) return;
 
@@ -381,9 +382,30 @@ If LPT has been created before, method fires given callback immidiately.</Descri
             filter = document.getElementById(controls + (++i));
         } while (filter);
 
+		var nonce = '',
+		    url,
+            mdx = this.controller.mdx;
+
+        // try to make download request with NONCE
+        if (mdx.toString().length > 500) {
+            nonce = zenPage.CreateQueryNonce(mdx);
+            if (nonce.toString().indexOf("ERROR:") >= 0) {
+                alert(nonce);
+                return;
+            }
+        } else {
+            mdx = this.LightPivotTable.getActualMDX();
+        }
+        if (nonce) {
+            url = page + '?NONCE=' + encodeURIComponent(nonce);
+        } else {
+            url = page + '?MDX=' + encodeURIComponent(mdx);
+        }
+
         window.open(
-            (location.origin + location.pathname).replace(/\/[^\/]*$/, "/_DeepSee.UI.MDXExcel.zen?MDX=")
-            + encodeURIComponent(this.LightPivotTable.getActualMDX())
+            //(location.origin + location.pathname).replace(/\/[^\/]*$/, "/" + page + "?MDX=")
+            //+ encodeURIComponent(mdx)
+            url
             + "&ROWTOTALS=" + container.getElementsByTagName("div")[0].getAttribute("show-summary")
             + "&ROWTOTALAGG=sum"
             + "&COLUMNTOTALAGG=sum"
