@@ -1133,6 +1133,9 @@ PivotView.prototype.renderRawData = function (data) {
                     tr.appendChild(
                         th = document.createElement(rawData[y][x].isCaption ? "th" : "td")
                     );
+                    if (rawData[y][x].source && rawData[y][x].source.title) {
+                        th.setAttribute("title", rawData[y][x].source.title);
+                    }
                     div = document.createElement("div");
                     if (rawData[y][x].value) {
                         div.textContent = rawData[y][x].value;
