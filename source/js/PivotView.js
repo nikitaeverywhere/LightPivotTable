@@ -672,7 +672,8 @@ PivotView.prototype.recalculateSizes = function (container) {
             pTableHead = tableBlock.getElementsByTagName("tbody")[0],
             searchInput = container.getElementsByClassName("lpt-searchInput")[0],
             searchInputSize = searchInput ? container.offsetWidth - this.SEARCHBOX_LEFT_MARGIN : 0,
-            tableTr = tableBlock.getElementsByTagName("tr")[0];
+            tableTr = tableBlock.getElementsByTagName("tr")[0],
+            pageSwitcher = container.getElementsByClassName("lpt-pageSwitcher")[0];
 
         if (tTableHead.childNodes[0] && tTableHead.childNodes[0].lastChild["_extraCell"]) {
             tTableHead.childNodes[0].removeChild(tTableHead.childNodes[0].lastChild);
@@ -681,7 +682,7 @@ PivotView.prototype.recalculateSizes = function (container) {
             lTableHead.removeChild(lTableHead.lastChild);
         }
 
-        var pagedHeight = (this.pagination.on ? this.PAGINATION_BLOCK_HEIGHT : 0)
+        var pagedHeight = (pageSwitcher ? this.PAGINATION_BLOCK_HEIGHT : 0)
                 + (this.SEARCH_ENABLED ? this.PAGINATION_BLOCK_HEIGHT : 0),
             headerW = Math.max(leftHeader.offsetWidth, headerContainer.offsetWidth),
             headerH = topHeader.offsetHeight;
