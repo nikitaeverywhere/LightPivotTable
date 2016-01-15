@@ -50,6 +50,11 @@ LightPivotTable.prototype.refresh = function () {
     var _  = this,
         i;
 
+    if (!this.dataSource.BASIC_MDX) {
+        console.log("Unable to refresh: no basic MDX set.");
+        return;
+    }
+
     this.clearFilters();
     if (this.CONFIG["defaultFilterSpecs"] instanceof Array) {
         for (i in this.CONFIG["defaultFilterSpecs"]) {
