@@ -98,6 +98,7 @@ DataController.prototype.setData = function (data) {
     this._dataStack[this._dataStack.length - 1].data = data;
     //this.data = data;
     this.setLeftHeaderColumnsNumber(data); // required in resetDimensionProps()
+    this.pivotDataProcess(data);
     this.resetDimensionProps();
     this.resetConditionalFormatting();
     this.resetRawData();
@@ -113,6 +114,20 @@ DataController.prototype.setData = function (data) {
     //console.log(data);
     this._trigger();
     return data;
+
+};
+
+/**
+ * Function that process pivot data.
+ * @param [data]
+ */
+DataController.prototype.pivotDataProcess = function ( data ) {
+
+    var totals = this.controller.getPivotProperty(["columnTotals"]);
+
+    if (typeof totals === "boolean") {
+        this.controller.CONFIG["showSummary"] = totals;
+    }
 
 };
 
