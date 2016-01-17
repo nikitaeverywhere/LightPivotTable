@@ -433,7 +433,7 @@ PivotView.prototype._getSelectedText = function () {
  * @param {event} event
  * @param {function} [drillThroughHandler]
  */
-PivotView.prototype._cellClickHandler = function (cell, x, y, event, drillThroughHandler, data) {
+PivotView.prototype._cellClickHandler = function (cell, x, y, event, drillThroughHandler) {
 
     var data = this.controller.dataController.getData(),
         f = [], f1, f2, callbackRes = true, result,
@@ -492,6 +492,27 @@ PivotView.prototype._cellClickHandler = function (cell, x, y, event, drillThroug
 
 };
 
+PivotView.prototype.copyToClipboard = function (text) {
+
+    var $temp = document.createElement("input");
+    document.body.appendChild($temp);
+
+    $temp.setAttribute("value", text);
+    document.body.appendChild($temp);
+    $temp.select();
+
+    var result = false;
+    try {
+        result = document.execCommand("copy");
+    } catch (err) {
+        console.log("Copy error: " + err);
+    }
+
+    document.body.removeChild($temp);
+    return result;
+
+};
+
 PivotView.prototype.listingClickHandler = function (params, data) {
 
     if (data.info.leftHeaderColumnsNumber !== 0) {
@@ -499,9 +520,10 @@ PivotView.prototype.listingClickHandler = function (params, data) {
         return;
     }
 
-    var self = this,
+    var CLICK_EVENT = this.controller.CONFIG["triggerEvent"] || "click",
+        self = this,
         el = function (e) { return document.createElement(e); },
-        d1 = document.createElement("div"),
+        d1 = el("div"),
         headers = data.rawData[0].map(function (v) {
             return v.value + (v.source && v.source.title ? "(" + v.source.title + ")" : "");
         }),
@@ -511,19 +533,35 @@ PivotView.prototype.listingClickHandler = function (params, data) {
     d1.style.fontSize = "12pt";
     d1.style.opacity = 0;
 
-    var h, val, hr;
+    var h, val, hr, c, sp;
     for (var i = 0; i < headers.length; i++) {
-        h = el("div"); val = el("div"); hr = el("hr");
-        h.className = "lpt-messageHead";
-        h.textContent = headers[i];
+        h = el("div"); sp = el("span"); val = el("div"); hr = el("hr"); c = el("div");
+        c.className = "lpt-icon-copy";
+        c.title = "Copy";
+        c.style.marginRight = "6px";
+        sp.className = "lpt-messageHead";
+        sp.textContent = headers[i];
         val.className = "lpt-messageBody";
+        h.style.marginBottom = ".3em";
+
         if (values[i] !== "")
             val.textContent = values[i];
         else
             val.innerHTML = "&nbsp;";
+
+        h.appendChild(c);
+        h.appendChild(sp);
         d1.appendChild(h);
         d1.appendChild(val);
         d1.appendChild(hr);
+        c.addEventListener(CLICK_EVENT, (function (value) { return function (e) {
+            if (self.copyToClipboard(value) === false) {
+                alert("Your browser does not support dynamic content copying.");
+            }
+            e.preventDefault();
+            e.cancelBubble = true;
+            e.preventBubble = true;
+        }})(values[i]));
     }
 
     this.elements.base.appendChild(d1);
@@ -1346,9 +1384,7 @@ PivotView.prototype.renderRawData = function (data) {
             // add handlers
             td.addEventListener(CLICK_EVENT, (function (x, y, cell) {
                 return function (event) {
-                    _._cellClickHandler.call(
-                        _, cell, x, y, event, info.drillThroughHandler, data
-                    );
+                    _._cellClickHandler.call(_, cell, x, y, event, info.drillThroughHandler);
                 };
             })(x, y, rawData[y][x]));
 
