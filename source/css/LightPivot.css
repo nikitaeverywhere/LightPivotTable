@@ -52,6 +52,7 @@
 }
 
 .lpt input[type=checkbox] {
+    display: block; /* Fixes firefox .5 px cell size addition */
     cursor: pointer;
 }
 
