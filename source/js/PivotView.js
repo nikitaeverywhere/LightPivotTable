@@ -745,7 +745,6 @@ PivotView.prototype.recalculateSizes = function (container) {
 
         var _ = this,
             CLICK_EVENT = this.controller.CONFIG["triggerEvent"] || "click",
-            IE_EXTRA_SIZE = window.navigator.userAgent.indexOf("MSIE ") > -1 ? 1/3 : 0,
             header = container.getElementsByClassName("lpt-headerValue")[0];
 
         if (!header) { return; } // pivot not ready - nothing to fix
@@ -835,6 +834,19 @@ PivotView.prototype.recalculateSizes = function (container) {
             console.warn("No _primaryRows property in container, cell sizes won't be fixed.");
         }
 
+        /**
+         * #keepSizes
+         * This fixes FF/IE strange issue that assigns, for example, "12.05" instead of "12" to
+         * the cell height and, as a result, row headers and rows are inconsistent.
+         * @type {Array}
+         */
+        var keepSizes = [].slice.call(leftHeader.getElementsByTagName("th")).map(function (e) {
+            return {
+                el: e.getElementsByTagName("div")[0],
+                height: e.getElementsByTagName("div")[0].offsetHeight
+            };
+        });
+
         container.parentNode.removeChild(container); // detach
 
         topHeader.style.marginLeft = headerW + "px";
@@ -895,10 +907,14 @@ PivotView.prototype.recalculateSizes = function (container) {
             if (pTableHead.childNodes[i].firstChild) {
                 pTableHead.childNodes[i].firstChild.style.height =
                     (columnHeights[i] || columnHeights[i - 1] || DEFAULT_CELL_HEIGHT)
-                    + IE_EXTRA_SIZE
                     + "px";
             }
         }
+
+        // #keepSizes
+        keepSizes.forEach(function (o) {
+            o.el.style.height = parseInt(o.height) + "px";
+        });
 
         containerParent.appendChild(container); // attach
 
