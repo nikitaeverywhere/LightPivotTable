@@ -797,7 +797,7 @@ PivotView.prototype.recalculateSizes = function (container) {
         }
 
         var addEggs = hasVerticalScrollBar && !IS_LISTING,
-            cell, tr, cellWidths = [], columnHeights = [], i,
+            cell, tr, cellWidths = [], rowHeadersHeights = [], rowDataHeights = [], i,
             headerCellApplied = false;
 
         var applyExtraTopHeadCell = function () {
@@ -826,9 +826,12 @@ PivotView.prototype.recalculateSizes = function (container) {
         } else {
             console.warn("No _primaryColumns property in container, cell sizes won't be fixed.");
         }
-        if (container["_primaryRows"]) {
+        if (container["_primaryRows"] && container["_primaryCells"]) {
             for (i in container["_primaryRows"]) {
-                columnHeights.push(container["_primaryRows"][i].offsetHeight);
+                rowHeadersHeights.push(container["_primaryRows"][i].offsetHeight);
+            }
+            for (i in container["_primaryCells"]) {
+                rowDataHeights.push(container["_primaryCells"][i].offsetHeight);
             }
         } else {
             console.warn("No _primaryRows property in container, cell sizes won't be fixed.");
@@ -902,14 +905,24 @@ PivotView.prototype.recalculateSizes = function (container) {
             if (tableTr.childNodes[i].tagName !== "TD") continue;
             tableTr.childNodes[i].style.width = cellWidths[i] + "px";
         }
-        for (i in pTableHead.childNodes) {
-            if (pTableHead.childNodes[i].tagName !== "TR") continue;
-            if (pTableHead.childNodes[i].firstChild) {
-                pTableHead.childNodes[i].firstChild.style.height =
-                    (columnHeights[i] || columnHeights[i - 1] || DEFAULT_CELL_HEIGHT)
-                    + "px";
-            }
-        }
+        //for (i in pTableHead.childNodes) {
+        //    if (pTableHead.childNodes[i].tagName !== "TR") continue;
+        //    if (pTableHead.childNodes[i].firstChild) {
+        //        pTableHead.childNodes[i].firstChild.style.height =
+        //            Math.max(
+        //                (rowHeadersHeights[i] || rowHeadersHeights[i - 1] || DEFAULT_CELL_HEIGHT),
+        //                (rowDataHeights[i] || rowDataHeights[i - 1] || DEFAULT_CELL_HEIGHT)
+        //            ) + "px";
+        //
+        //    }
+        //}
+        container["_primaryRows"].forEach(function (val, i) {
+            container["_primaryCells"][i].style.height =
+                container["_primaryRows"][i].style.height = Math.max(
+                        rowHeadersHeights[i] || rowHeadersHeights[i - 1] || DEFAULT_CELL_HEIGHT,
+                        rowDataHeights[i] || rowDataHeights[i - 1] || DEFAULT_CELL_HEIGHT
+                    ) + "px";
+        });
 
         // #keepSizes
         keepSizes.forEach(function (o) {
@@ -1071,8 +1084,8 @@ PivotView.prototype.renderRawData = function (data) {
         })() : null,
 
         renderedGroups = {}, // keys of rendered groups; key = group, value = { x, y, element }
-        i, x, y, tr = null, th, td, primaryColumns = [], primaryRows = [], ratio, cellStyle,
-        tempI, tempJ, div;
+        i, x, y, tr = null, th, td, primaryColumns = [], primaryRows = [], primaryCells = [],
+        ratio, cellStyle, tempI, tempJ, div;
 
     this.SEARCH_ENABLED = SEARCH_ENABLED;
 
@@ -1273,7 +1286,7 @@ PivotView.prototype.renderRawData = function (data) {
                 }
 
                 // add listeners
-                if (vertical && x === xTo - 1 && !rawData[y][x]["noDrillDown"]) {
+                if (vertical && x === xTo - 1) {
                     primaryRows.push(th);
                     th.addEventListener(CLICK_EVENT, (function (index, data) {
                         return function () {
@@ -1360,6 +1373,7 @@ PivotView.prototype.renderRawData = function (data) {
             cellStyle = this.controller.getPivotProperty(["cellStyle"]) || "";
             tr.appendChild(td = document.createElement("td"));
             td.appendChild(div = document.createElement("div"));
+            if (x === info.leftHeaderColumnsNumber) primaryCells.push(td);
             formatContent(
                 rawData[y][x].value,
                 div,
@@ -1549,6 +1563,7 @@ PivotView.prototype.renderRawData = function (data) {
 
     container["_primaryColumns"] = primaryColumns;
     container["_primaryRows"] = primaryRows;
+    container["_primaryCells"] = primaryCells;
     container["_listing"] = LISTING;
 
     this.recalculateSizes(container);
