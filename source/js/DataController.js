@@ -106,10 +106,9 @@ DataController.prototype.setData = function (data) {
     this.postDataProcessing(data);
 
     if (data.info.mdxType === "drillthrough") {
-        this.setDrillThroughHandler(function (params) {
-            _.controller.pivotView.displayMessage(params["cellData"]["value"] || "", true);
-            return false;
-        });
+        this.setDrillThroughHandler(
+            this.controller.pivotView.listingClickHandler.bind(this.controller.pivotView)
+        );
     }
     //console.log(data);
     this._trigger();

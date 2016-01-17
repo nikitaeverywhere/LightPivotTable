@@ -276,11 +276,19 @@
 
 /* lpt-dataWait */
 .lpt .lpt-hoverMessage {
+    position: absolute;
+    box-sizing: border-box;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    padding: .5em;
     z-index: 999;
     opacity: 0;
     font-size: xx-large;
     font-family: serif;
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.95);
     white-space: normal;
     line-height: 1;
     -webkit-transition: opacity 1s ease;
@@ -538,4 +546,15 @@
     border-top: none;
     border-bottom: none;
     outline: none;
+}
+
+.lpt-messageHead {
+    font-size: 14pt;
+    font-weight: 900;
+    text-decoration: underline;
+    margin-bottom: .2em;
+}
+
+.lpt-messageBody {
+    font-size: 12pt;
 }

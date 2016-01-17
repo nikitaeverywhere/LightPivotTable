@@ -433,7 +433,7 @@ PivotView.prototype._getSelectedText = function () {
  * @param {event} event
  * @param {function} [drillThroughHandler]
  */
-PivotView.prototype._cellClickHandler = function (cell, x, y, event, drillThroughHandler) {
+PivotView.prototype._cellClickHandler = function (cell, x, y, event, drillThroughHandler, data) {
 
     var data = this.controller.dataController.getData(),
         f = [], f1, f2, callbackRes = true, result,
@@ -473,18 +473,70 @@ PivotView.prototype._cellClickHandler = function (cell, x, y, event, drillThroug
             callbackRes = this.controller.CONFIG.triggers["cellDrillThrough"]({
                 event: event,
                 filters: f,
-                cellData: cell
-            });
+                cellData: cell,
+                x: x,
+                y: y
+            }, data);
         }
         if (typeof drillThroughHandler === "function") {
             callbackRes = !(!(false !== drillThroughHandler({
                 event: event,
                 filters: f,
-                cellData: cell
-            })) || !(callbackRes !== false));
+                cellData: cell,
+                x: x,
+                y: y
+            }, data)) || !(callbackRes !== false));
         }
         if (callbackRes !== false) this.controller.tryDrillThrough(f);
     }
+
+};
+
+PivotView.prototype.listingClickHandler = function (params, data) {
+
+    if (data.info.leftHeaderColumnsNumber !== 0) {
+        console.warn("Listing handler called not for a listing!");
+        return;
+    }
+
+    var self = this,
+        el = function (e) { return document.createElement(e); },
+        d1 = document.createElement("div"),
+        headers = data.rawData[0].map(function (v) {
+            return v.value + (v.source && v.source.title ? "(" + v.source.title + ")" : "");
+        }),
+        values = data.rawData[params.y].map(function (v) { return v.value; });
+
+    d1.className = "lpt-hoverMessage";
+    d1.style.fontSize = "12pt";
+    d1.style.opacity = 0;
+
+    var h, val, hr;
+    for (var i = 0; i < headers.length; i++) {
+        h = el("div"); val = el("div"); hr = el("hr");
+        h.className = "lpt-messageHead";
+        h.textContent = headers[i];
+        val.className = "lpt-messageBody";
+        if (values[i] !== "")
+            val.textContent = values[i];
+        else
+            val.innerHTML = "&nbsp;";
+        d1.appendChild(h);
+        d1.appendChild(val);
+        d1.appendChild(hr);
+    }
+
+    this.elements.base.appendChild(d1);
+
+    setTimeout(function () {
+        if (d1) d1.style.opacity = 1;
+    }, 1);
+    d1.addEventListener(this.controller.CONFIG["triggerEvent"] || "click", function () {
+        if (self._getSelectedText()) return;
+        self.removeMessage();
+    });
+
+    return false;
 
 };
 
@@ -1295,7 +1347,7 @@ PivotView.prototype.renderRawData = function (data) {
             td.addEventListener(CLICK_EVENT, (function (x, y, cell) {
                 return function (event) {
                     _._cellClickHandler.call(
-                        _, cell, x, y, event, info.drillThroughHandler
+                        _, cell, x, y, event, info.drillThroughHandler, data
                     );
                 };
             })(x, y, rawData[y][x]));
