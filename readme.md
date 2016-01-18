@@ -98,6 +98,7 @@ lp.getActualMDX(); // returns currently displayed MDX
 lp.getSelectedRows(); // returns array with selected rows indexes. First row have index 1.
 lp.attachTrigger("contentRendered", function (lptInstance) {  }); // attaches trigger during runtime
 lp.setRowCount(5); // sets the number of rows to display
+console.log( lp.isListing() ); // returns true if current data display is listing
 
 // Additional calls:
 lp.pivotView.getCellElement(x, y, considerHeaders); // returns cell element by given coordinates

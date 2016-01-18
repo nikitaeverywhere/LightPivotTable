@@ -121,6 +121,15 @@ LightPivotTable.prototype.getActualMDX = function () {
 };
 
 /**
+ * Returns if current display is listing.
+ */
+LightPivotTable.prototype.isListing = function () {
+
+    return (this.dataController.getData().info || {}).leftHeaderColumnsNumber === 0;
+
+};
+
+/**
  * Return array with selected rows indexes.
  */
 LightPivotTable.prototype.getSelectedRows = function () {

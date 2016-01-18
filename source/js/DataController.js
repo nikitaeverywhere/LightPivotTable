@@ -88,15 +88,12 @@ DataController.prototype.getData = function () {
 
 DataController.prototype.setData = function (data) {
 
-    var _ = this;
-
     if (!this.isValidData(data)) {
         console.error("Invalid data to set.", data);
         return;
     }
 
     this._dataStack[this._dataStack.length - 1].data = data;
-    //this.data = data;
     this.setLeftHeaderColumnsNumber(data); // required in resetDimensionProps()
     this.pivotDataProcess(data);
     this.resetDimensionProps();
