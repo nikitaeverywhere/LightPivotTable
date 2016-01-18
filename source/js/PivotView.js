@@ -1574,7 +1574,7 @@ PivotView.prototype.renderRawData = function (data) {
     }
 
     if (typeof this.controller.CONFIG.triggers.contentRendered === "function") {
-        this.controller.CONFIG.triggers.contentRendered();
+        this.controller.CONFIG.triggers.contentRendered(this.controller);
     }
 
 };
