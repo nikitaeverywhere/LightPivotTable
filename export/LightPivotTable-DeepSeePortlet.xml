@@ -62,6 +62,10 @@
 <Type>%Boolean</Type>
 </Property>
 
+<Property name="ExcelExportClass">
+<Type>%String</Type>
+</Property>
+
 <Method name="%OnGetPortletName">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
@@ -94,6 +98,7 @@
     set pInfo($I(pInfo)) = $LB("EnableSearch", 1, "%Boolean", "Enable listing search", "Show search tools in listing mode")
     set pInfo($I(pInfo)) = $LB("StretchColumns", 0, "%Boolean", "Stretch columns", "Stretch columns to fill all available width")
     set pInfo($I(pInfo)) = $LB("ShowRowNumbers", 0, "%Boolean", "Show row nums", "Show row number in listing")
+    set pInfo($I(pInfo)) = $LB("ExcelExportClass", "_DeepSee.UI.MDXExcel.cls", "%String", "Excel export class", "Class which exports MDX to Excel")
 
     quit $$$OK
 ]]></Implementation>
@@ -366,30 +371,53 @@ If LPT has been created before, method fires given callback immidiately.</Descri
 <ClientMethod>1</ClientMethod>
 <Implementation><![CDATA[
     var container = document.getElementById(this.id),
-        controller = this.getConnectedController();
+        controller = this.getConnectedController(),
+        page = this.ExcelExportClass;
 
     if (!this.LightPivotTable) return;
 
     if (true) { // *.XLS export, false - *.CSV.
 
         var controls = this.id.replace(/\/.*/, "") + "/control/",
-            i = 1, n,
-            filter = document.getElementById(controls + i),
+            control, i = 1, n,
+            //filter = document.getElementById(controls + i),
+            widget = this.parent.parent,
 
             filterNames = [],
             filterValues = [];
 
-        if (filter) do {
+        /*if (filter) do {
             if ((n = (filter.getElementsByTagName("input")[0] || {}).name) === "$V_applyFilter" || n === "$V_setFilter") {
                 filterNames.push((filter.parentNode.getElementsByClassName("zenLabel")[0] || {}).innerText || "");
                 filterValues.push("SET");
             }
             filter = document.getElementById(controls + (++i));
-        } while (filter);
+        } while (filter);*/
+
+        for (j in widget.controlIndices) {
+			control = zenPage.getComponent(widget.controlIndices[j]);
+			if (control) {
+				filterNames.push(control.label);
+				filterValues.push(control.text);
+			}
+		}
+
+		var mdx = this.LightPivotTable.getActualMDX(),
+		    nonce, url;
+
+		if (zenPage.CreateQueryNonce) {
+            nonce = zenPage.CreateQueryNonce(mdx);
+            if (nonce.toString().indexOf('ERROR:') >= 0) {
+                alert(nonce);
+                return;
+            }
+            url = page + '?NONCE=' + encodeURIComponent(nonce);
+		} else {
+            url = page + '?MDX=' + encodeURIComponent(mdx);
+		}
 
         window.open(
-            (location.origin + location.pathname).replace(/\/[^\/]*$/, "/_DeepSee.UI.MDXExcel.zen?MDX=")
-            + encodeURIComponent(this.LightPivotTable.getActualMDX())
+            url
             + "&ROWTOTALS=" + container.getElementsByTagName("div")[0].getAttribute("show-summary")
             + "&ROWTOTALAGG=sum"
             + "&COLUMNTOTALAGG=sum"
