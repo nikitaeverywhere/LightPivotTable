@@ -1390,8 +1390,8 @@ PivotView.prototype.renderRawData = function (data) {
                 + "," + Math.round((colorScale.to.b - colorScale.from.b)*ratio + colorScale.from.b)
                 + ");" + (colorScale.invert ? "color: white;" : "");
             }
-            if (columnProps[x - info.leftHeaderColumnsNumber].style) {
-                cellStyle += columnProps[x - info.leftHeaderColumnsNumber].style;
+            if (columnProps[x].style) {
+                cellStyle += columnProps[x].style;
             }
             if (rawData[y][x].style) {
                 cellStyle += rawData[y][x].style;
