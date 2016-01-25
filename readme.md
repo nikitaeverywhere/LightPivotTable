@@ -59,6 +59,7 @@ var setup = { // Object that contain settings. Properties in brackets can be mis
                 return false; // return false to block default click action
             }
         } ]
+        [ , stretchColumns: true ] // Stretch columns to fill available container space
         [ , pagination: 30 ] // Maximum rows number on one page (default: 200, turn off: 0)
         [ , hideButtons: true ] // hides "back" and "drillThrough" buttons
         [ , triggerEvent: "touchstart" ] // all "click" events will be replaced by this event
