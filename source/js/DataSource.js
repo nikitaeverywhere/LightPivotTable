@@ -6,9 +6,10 @@
  * @param {Object} config
  * @param {Object} globalConfig
  * @param {LightPivotTable} lpt
+ * @param {number=1} [drillLevel]
  * @constructor
  */
-var DataSource = function (config, globalConfig, lpt) {
+var DataSource = function (config, globalConfig, lpt, drillLevel) {
 
     this.SOURCE_URL = config.MDX2JSONSource ||
         location.host + ":" + location.port + "/" + (location.pathname.split("/") || [])[1];
@@ -18,9 +19,9 @@ var DataSource = function (config, globalConfig, lpt) {
     this.LPT = lpt;
     this.GLOBAL_CONFIG = globalConfig;
     this.SEND_COOKIES = config["sendCookies"] || false;
+    this.DRILL_LEVEL = typeof drillLevel !== "number" ? 1 : drillLevel;
 
     this.BASIC_MDX = config.basicMDX;
-
     /**
      * Name of data source pivot.
      *
@@ -232,18 +233,27 @@ DataSource.prototype.getCurrentData = function (callback) {
 
         if (_.LPT.CONFIG["logs"]) console.log("LPT MDX request:", mdx);
 
+        var setData = function (data) {
+            _.LPT.pivotView.removeMessage();
+            ready.data = data;
+            ready.state++;
+            handleDataReady();
+        };
+
+        // fill initial data first time and exit
+        if (_.DRILL_LEVEL === 0 && _.LPT.CONFIG["initialData"]) {
+            setData(_.LPT.CONFIG["initialData"]);
+            return;
+        }
+
         _._post(
             _.SOURCE_URL + "/" +
             (mdxType === "drillthrough" ? "MDXDrillthrough" : "MDX")
             + (_.NAMESPACE ? "?Namespace=" + _.NAMESPACE : ""
         ), {
             MDX: mdx
-        }, function (data) {
-            _.LPT.pivotView.removeMessage();
-            ready.data = data;
-            ready.state++;
-            handleDataReady();
-        });
+        }, setData);
+
     };
 
     _.LPT.pivotView.displayLoading();

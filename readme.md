@@ -80,6 +80,7 @@ var setup = { // Object that contain settings. Properties in brackets can be mis
         [ , enableListingSelect: true ] // enable listing selection, true by default
         [ , showListingRowsNumber: true ] // show rows number in listing and tables if paginated
         [ , rowCount: 5 ] // number of rows to show. Use lp.setRowCount(N) to change rowCount. Manual lp.refresh() needed to apply.
+        [ , initialData: { ... } ] // initial data from /MDX query (if present, in MDX2JSON format). Pivot won't request /MDX first time if initial data set. Check twice that dataSource.basicMDX is consistent with the data in this option.
     },
     lp = new LightPivotTable(setup);
     

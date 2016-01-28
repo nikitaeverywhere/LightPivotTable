@@ -183,7 +183,9 @@ LightPivotTable.prototype.pushDataSource = function (config) {
     var newDataSource;
 
     this.DRILL_LEVEL++;
-    this._dataSourcesStack.push(newDataSource = new DataSource(config || {}, this.CONFIG, this));
+    this._dataSourcesStack.push(
+        newDataSource = new DataSource(config || {}, this.CONFIG, this, this.DRILL_LEVEL)
+    );
     this.dataSource = newDataSource;
 
     return newDataSource;
