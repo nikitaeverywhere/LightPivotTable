@@ -1100,7 +1100,8 @@ PivotView.prototype.renderRawData = function (data) {
             element.className += " formatLeft";
             element.innerHTML = (value || "").replace(/(https?|ftp):\/\/[^\s]+/ig, function linkReplace (p) {
                 return "<a href='" + p
-                    + "' target='_blank' onclick='var e=event||window.event;e.stopPropagation();e.cancelBubble=true;'>"
+                    + "' target='" + (_.controller.CONFIG["linksTarget"] || "_blank")
+                    + "' onclick='var e=event||window.event;e.stopPropagation();e.cancelBubble=true;'>"
                     + p + "</a>";
             });
         } else if (!LISTING) { // number

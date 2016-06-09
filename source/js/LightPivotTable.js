@@ -104,7 +104,7 @@ LightPivotTable.prototype.setRowCount = function (n) {
  */
 LightPivotTable.prototype.getActualMDX = function () {
 
-    var mdx = this.CONFIG.dataSource.basicMDX,
+    var mdx = this.dataSource.BASIC_MDX,
         mdxParser = new MDXParser(),
         filters = this.dataSource.FILTERS;
 
@@ -262,7 +262,8 @@ LightPivotTable.prototype.tryDrillDown = function (filter) {
             if (typeof _.CONFIG.triggers["drillDown"] === "function") {
                 _.CONFIG.triggers["drillDown"].call(_, {
                     level: _.DRILL_LEVEL,
-                    mdx: ds.basicMDX
+                    mdx: ds.basicMDX,
+                    path: data.dimensions[1][0]["path"] || ""
                 });
             }
         } else {
