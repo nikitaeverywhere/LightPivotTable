@@ -664,7 +664,8 @@ PivotView.prototype.applyConditionalFormatting = function (rules, key, value, el
         p, i, rule, html, xs, num;
     actualRules = actualRules.concat(rules[key] || []);
     if ((xs = key.split(",")).length === 2) {
-        actualRules = actualRules.concat(rules[xs[0] + ","] || [], rules["," + xs[1]] || []);
+        actualRules = actualRules.concat(rules[xs[0]] || [], rules[xs[0] + ","] || [],
+            rules["," + xs[1]] || []);
     }
 
     for (p in actualRules) {
