@@ -119,7 +119,7 @@ DataController.prototype.setData = function (data) {
  */
 DataController.prototype.pivotDataProcess = function ( data ) {
 
-    var totals = this.controller.getPivotProperty(["columnTotals"]);
+    var totals = this.controller.getPivotProperty(["rowTotals"]);
 
     if (typeof totals === "boolean") {
         this.controller.CONFIG["showSummary"] = totals;

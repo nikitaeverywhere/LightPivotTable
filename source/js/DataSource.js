@@ -222,9 +222,16 @@ DataSource.prototype.getCurrentData = function (callback) {
 
             })(data));
         } else if (mdxType === "mdx") {
+            if (!data || !data.Data || !data.Cols
+            || (!data.Data.length && !((data.Cols[0]||{}).tuples||[]).length)
+            && !((data.Cols[1]||{}).tuples||[]).length) {
+                return callback({
+                    error: pivotLocale.get(4)
+                });
+            }
             callback(_._convert(data));
         } else {
-            callback({ error: "Unrecognised MDX: " + mdx || true });
+            callback({ error: "Unrecognised MDX type: " + mdx || true });
         }
 
     };
