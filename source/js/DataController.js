@@ -82,7 +82,7 @@ DataController.prototype.popData = function () {
 
 DataController.prototype.getData = function () {
 
-    return this._dataStack[this._dataStack.length - 1].data;
+    return this._dataStack[this._dataStack.length - 1].data || {};
 
 };
 
