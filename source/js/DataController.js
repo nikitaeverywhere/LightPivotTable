@@ -107,7 +107,7 @@ DataController.prototype.setData = function (data) {
             this.controller.pivotView.listingClickHandler.bind(this.controller.pivotView)
         );
     }
-    //console.log(data);
+    // console.log(data);
     this._trigger();
     return data;
 
@@ -561,7 +561,7 @@ DataController.prototype.resetRawData = function () {
                     rawData[y][x] = rd0[y][x-yw];
                 } else {
                     rawData[y][x] = {
-                        value: data.dataArray[(xw)*(y - xh) + x - yw] || ""
+                        value: data.dataArray[(xw)*(y - xh) + x - yw]
                     };
                 }
             }

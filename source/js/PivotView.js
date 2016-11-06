@@ -624,14 +624,15 @@ PivotView.prototype.removeMessage = function () {
 };
 
 /**
- * @param {*} value1
+ * @param {*} value
  * @param {string} operator
  * @param {*} value2 - fixed value
  * @private
  * @return {boolean}
  */
-PivotView.prototype._matchCondition = function (value1, operator, value2) {
+PivotView.prototype._matchCondition = function (value, operator, value2) {
 
+    var value1 = parseFloat(value);
     switch (operator) {
         case "=": return value1 == value2;
         case "<>": return value1 != value2;
@@ -1099,7 +1100,7 @@ PivotView.prototype.renderRawData = function (data) {
 
     var formatContent = function (value, element, format) {
         if (typeof(value) === 'string') { // not number, format as string
-            element.className += " formatLeft";
+            element.parentNode.className += " formatLeft";
             element.innerHTML = (value || "").replace(/(https?|ftp):\/\/[^\s]+/ig, function linkReplace (p) {
                 return "<a href='" + p
                     + "' target='" + (_.controller.CONFIG["linksTarget"] || "_blank")
@@ -1113,13 +1114,13 @@ PivotView.prototype.renderRawData = function (data) {
                 element.textContent = d.getHours() + d.getMinutes() + d.getSeconds() === 0
                         ? d.toLocaleDateString() : d.toLocaleString();
             } else if (format) { // set format
-                element.textContent = value ? _.numeral(value).format(format) : "";
+                element.textContent = value ? _.numeral(value).format(format) : value;
             } else if (value) {
                 element.textContent = _.numeral(value).format(
                     value % 1 === 0 ? "#,###" : "#,###.##"
                 );
             } else {
-                element.textContent = value || "";
+                element.textContent = value;
             }
         } else {
             element.textContent = value;
