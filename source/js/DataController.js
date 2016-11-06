@@ -142,15 +142,15 @@ DataController.prototype.setDrillThroughHandler = function (handler) {
  */
 DataController.prototype.resetDimensionProps = function () {
 
-    var data, columnProps;
+    var data, columnProps, rowProps;
 
     if (!(data = this._dataStack[this._dataStack.length - 1].data)) {
         console.error("Unable to get dimension props for given data set.");
         return;
     }
 
-    columnProps = new Array(data.info.leftHeaderColumnsNumber || 0); // fill left headers as empty
-    for (var i = 0; i < columnProps.length; i++) { columnProps[i] = {}; }
+    columnProps = []; // fill left headers as empty
+    rowProps = []; // fill left headers as empty
 
     var cloneObj = function (obj) {
         var i, newObj = {};
@@ -158,7 +158,7 @@ DataController.prototype.resetDimensionProps = function () {
         return newObj;
     };
 
-    var parse = function (obj, props) {
+    var parse = function (dimProps, obj, props) {
         var tObj, clonedProps, i;
         if (obj["children"] && obj["children"].length > 0) {
             for (i in obj.children) {
@@ -172,16 +172,18 @@ DataController.prototype.resetDimensionProps = function () {
                 if (tObj["total"]) clonedProps["summary"]
                     = (tObj["total"] || "").toLowerCase().replace(/:.*/, ""); // what is "max:Days"?
                 if (tObj["type"]) clonedProps["type"] = tObj["type"];
-                parse(tObj, clonedProps);
+                parse(dimProps, tObj, clonedProps);
             }
         } else {
-            columnProps.push(cloneObj(props));
+            dimProps.push(cloneObj(props));
         }
     };
 
-    parse({ children: data.dimensions[0] }, {});
+    parse(columnProps, { children: data.dimensions[0] }, {});
+    parse(rowProps, { children: data.dimensions[1] }, {});
 
     data.columnProps = columnProps;
+    data.rowProps = rowProps;
 
 };
 
@@ -474,12 +476,15 @@ DataController.prototype.resetRawData = function () {
             rowLevels = _.controller.getPivotProperty(["rowLevels"]),
             formatColumn = {
                 // "<spec>": { style: "<style>" }
+            },
+            formatRow = {
+                // "<spec>": { style: "<style>" } // unused
             };
-        var fillLevels = function (obj) {
+        var fillLevels = function (temp, obj) {
             if (typeof obj === "undefined") return;
             for (var i in obj["childLevels"]) {
                 if (obj["childLevels"][i] && obj["childLevels"][i]["spec"]) {
-                    formatColumn[(obj["childLevels"][i]["spec"] || "").replace(/[^.]*$/, "")] = {
+                    temp[(obj["childLevels"][i]["spec"] || "").replace(/[^.]*$/, "")] = {
                         style: obj["childLevels"][i]["levelStyle"] || "",
                         headStyle: obj["childLevels"][i]["levelHeaderStyle"] || ""
                     };
@@ -488,8 +493,8 @@ DataController.prototype.resetRawData = function () {
             }
         };
         for (i in colLevels) {
-            fillLevels({ childLevels: [colLevels[i]] });
-            fillLevels({ childLevels: [rowLevels[i]] });
+            fillLevels(formatColumn, { childLevels: [colLevels[i]] });
+            fillLevels(formatRow, { childLevels: [rowLevels[i]] });
         }
         for (y = 0; y < rawData.length; y++) {
             for (x = 0; x < xEnd; x++) {
@@ -568,6 +573,9 @@ DataController.prototype.resetRawData = function () {
     data.info.leftHeaderColumnsNumber = yw;
     this.SUMMARY_SHOWN = false;
     this._dataStack[this._dataStack.length - 1].SUMMARY_SHOWN = false;
+
+    for (i = 0; i < data.info.leftHeaderColumnsNumber; i++) { data.columnProps.unshift({}); }
+    for (i = 0; i < data.info.topHeaderRowsNumber; i++) { data.rowProps.unshift({}); }
 
     /**
      * @param {number} columnIndex

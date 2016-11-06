@@ -1033,6 +1033,7 @@ PivotView.prototype.renderRawData = function (data) {
         rawData = data["rawData"],
         info = data["info"],
         columnProps = data["columnProps"],
+        rowProps = data["rowProps"],
         colorScale =
             data["conditionalFormatting"] ? data["conditionalFormatting"]["colorScale"] : undefined,
 
@@ -1106,7 +1107,7 @@ PivotView.prototype.renderRawData = function (data) {
                     + p + "</a>";
             });
         } else if (!LISTING) { // number
-            if (format === "%date%") { // Cach? internal date
+            if (format === "%date%") { // Caché internal date
                 var d = new Date(_.getUnixDateFromCacheFormat(value));
                 if (isNaN(d.getTime())) { element.textContent = value; return; }
                 element.textContent = d.getHours() + d.getMinutes() + d.getSeconds() === 0
@@ -1283,7 +1284,7 @@ PivotView.prototype.renderRawData = function (data) {
                     if (!rawData[y][x].isCaption) formatContent(
                         rawData[y][x].value,
                         th,
-                        columnProps[x].format
+                        rowProps[y].format || columnProps[x].format
                     );
                 }
 
@@ -1379,7 +1380,7 @@ PivotView.prototype.renderRawData = function (data) {
             formatContent(
                 rawData[y][x].value,
                 div,
-                columnProps[x].format
+                (rowProps[y] && rowProps[y].format) || columnProps[x].format
             );
             if (
                 colorScale
@@ -1392,8 +1393,9 @@ PivotView.prototype.renderRawData = function (data) {
                 + "," + Math.round((colorScale.to.b - colorScale.from.b)*ratio + colorScale.from.b)
                 + ");" + (colorScale.invert ? "color: white;" : "");
             }
-            if (columnProps[x].style) {
-                cellStyle += columnProps[x].style;
+            if (columnProps[x].style || (rowProps[y] && rowProps[y].style)) {
+                cellStyle += ((rowProps[y] && rowProps[y].style) || "") +
+                    ((rowProps[y] && rowProps[y].style) ? " " : "") + (columnProps[x].style || "");
             }
             if (rawData[y][x].style) {
                 cellStyle += rawData[y][x].style;
