@@ -364,7 +364,15 @@ PivotView.prototype._columnClickHandler = function (columnIndex) {
 
 PivotView.prototype._rowClickHandler = function (rowIndex, cellData) {
 
-    this.controller.tryDrillDown(cellData.source.path);
+    var res = true;
+    if (typeof this.controller.CONFIG.triggers["rowClick"] === "function") {
+        var d = this.controller.getRowsValues([rowIndex])[0].slice(
+            this.controller.dataController.getData().info.leftHeaderColumnsNumber
+        );
+        res = this.controller.CONFIG.triggers["rowClick"](rowIndex, d);
+    }
+    if (res !== false)
+        this.controller.tryDrillDown(cellData.source.path);
 
 };
 
@@ -727,7 +735,11 @@ PivotView.prototype.selectRow = function (select, rowNumber) {
         delete this.selectedRows[rowNumber];
 
     if (typeof this.controller.CONFIG.triggers["rowSelect"] === "function") {
-        this.controller.CONFIG.triggers["rowSelect"](this.controller.getSelectedRows());
+        var rows = this.controller.getSelectedRows();
+        this.controller.CONFIG.triggers["rowSelect"](
+            rows,
+            this.controller.getRowsValues(rows)
+        );
     }
 
 };

@@ -145,6 +145,33 @@ LightPivotTable.prototype.getSelectedRows = function () {
 };
 
 /**
+ * Return array of passed rows values.
+ * @param {Number[]} rows - Rows indices in the table. Index 1 points to the first row with data.
+ * @returns {*[]}
+ */
+LightPivotTable.prototype.getRowsValues = function (rows) {
+    if (typeof rows === "undefined")
+        return [];
+    if (!(rows instanceof Array))
+        rows = [rows];
+    if (rows.length === 0)
+        return [];
+    var d = this.dataController.getData(),
+        arr = [];
+    for (var i = 0; i < rows.length; i++) {
+        arr.push(d.rawData[rows[i] - 1 + (d.info.topHeaderRowsNumber || 1)]);
+    }
+    return arr;
+};
+
+/**
+ * Returns currently rendered model.
+ */
+LightPivotTable.prototype.getModel = function () {
+    return this.dataController.getData();
+};
+
+/**
  * Performs resizing.
  */
 LightPivotTable.prototype.updateSizes = function () {

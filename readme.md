@@ -53,7 +53,10 @@ var setup = { // Object that contain settings. Properties in brackets can be mis
             // if cellDrillThrough callback returns boolean false, DrillThrough won't be performed.
             , cellDrillThrough: function ({Object { event: {event}, filters: {string[]}, cellData: {object} }}) {}
             , responseHandler: function ({Object {url: {string}, status: {number}}}) {}
-            , rowSelect: function ({Array}) {}
+            // triggers when row selected in listing:
+            , rowSelect: function (row, rowData) { console.log("Row #", row, rowData); }
+            // if rowClick callback returns boolean false, DrillDown won't be performed.
+            , rowClick: function (row, rowData) { console.log(row, rowData); }
             , contentRendered: function () {}
             , cellSelected: function ({ x: Number, y: Number, leftHeaderColumnsNumber: Number, topHeaderRowsNumber: Number }) {
                 return false; // return false to block default click action
@@ -98,6 +101,8 @@ lp.refresh(); // refresh pivot contents
 lp.updateSizes(); // recalculate pivot sizes
 lp.changeBasicMDX("..."); // change mdx for LPT
 lp.getActualMDX(); // returns currently displayed MDX
+var rows = lp.getRowsValues([1,2,3]); // returns the values in rows 1, 2, 3
+var model = lp.getModel(); // returns data model representing currently rendered data set
 lp.getSelectedRows(); // returns array with selected rows indexes. First row have index 1.
 lp.attachTrigger("contentRendered", function (lptInstance) {  }); // attaches trigger during runtime
 lp.setRowCount(5); // sets the number of rows to display
