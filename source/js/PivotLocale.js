@@ -23,27 +23,31 @@ var PivotLocale = function (locale) {
  * @type {{ru: string, en: string, de: string}[]}
  */
 PivotLocale.prototype.LOCALES = [
-    { "ru": "Всего", "en": "Total", "de": "Summe" },
-    {
-        "ru": "Невозможно отобразить данные",
-        "en": "Unable to render data",
-        "de": "Daten können nicht rendern"
-    },
-    {
-        "ru": "Неправильные данные для отображения.",
-        "en": "Invalid data to display.",
-        "de": "Nicht korrekt Informationen angezeigt werden soll."
-    },
-    {
-        "ru": "Возникла ошибка при получении данных с сервера.",
-        "en": "Error while trying to retrieve data from server.",
-        "de": "Beim Abrufen der Daten vom Server ist ein Fehler aufgetreten."
-    },
-    { // 4
-        "ru": "Нет данных для отображения.",
-        "en": "No data to display.",
-        "de": "Keine Daten zum anzeigen."
-    }
+ { "ru": "Всего", "en": "Total", "de": "Summe","cs":"Celkem" },
+ {
+     "ru": "Невозможно отобразить данные",
+     "en": "Unable to render data",
+     "de": "Daten können nicht rendern",
+     "cs": "Nebylo možné zobrazit data"
+ },
+ {
+     "ru": "Неправильные данные для отображения.",
+     "en": "Invalid data to display.",
+     "de": "Nicht korrekt Informationen angezeigt werden soll.",
+     "cs": "Nevhodná data k zobrazení"
+ },
+ {
+     "ru": "Возникла ошибка при получении данных с сервера.",
+     "en": "Error while trying to retrieve data from server.",
+     "de": "Beim Abrufen der Daten vom Server ist ein Fehler aufgetreten.",
+     "cs": "Chyba při pokusu o získání dat ze serveru"
+ },
+ { // 4
+     "ru": "Нет данных для отображения.",
+     "en": "No data to display.",
+     "de": "Keine Daten zum anzeigen.",
+     "cs": "Žádná data k zobrazení"
+ }
 ];
 
 /**
