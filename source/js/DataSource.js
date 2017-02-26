@@ -276,6 +276,7 @@ DataSource.prototype.getCurrentData = function (callback) {
             requestData();
         });
     } else {
+        _.GLOBAL_CONFIG["pivotProperties"] = {};
         requestData();
     }
 

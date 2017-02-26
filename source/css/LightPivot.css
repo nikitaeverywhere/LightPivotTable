@@ -258,7 +258,7 @@
 }
 
 .lpt .lpt-topHeader th {
-    min-width: 100px;
+    min-width: 10px;
     text-align: center;
     /*border-bottom: none;*/
 }

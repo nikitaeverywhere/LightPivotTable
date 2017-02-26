@@ -774,7 +774,7 @@ DataController.prototype.modifyRawData = function (data) {
     var i = -1;
 
     if (this.controller.CONFIG.showRowNumbers && !data.info.leftHeaderColumnsNumber) { // listing
-        if (data.rawData[0] && data.rawData[0][0].special) { // just update indexes
+        if (data.rawData[0] && data.rawData[0][0].special) { // just update indices
             data.rawData.forEach(function (row) {
                 row[0].value = ++i === 0 ? "#" : i;
                 row[0].isCaption = i === 0;
@@ -793,6 +793,13 @@ DataController.prototype.modifyRawData = function (data) {
             }
             data.info.colCount++;
         }
+    }
+
+    var y = data.info.topHeaderRowsNumber - 1;
+    for (i = data.info.leftHeaderColumnsNumber; i < data.rawData[y].length; i++) {
+        data.rawData[y][i].style = "min-width:"
+            + (this.controller.CONFIG.pivotProperties["cellWidth"] || 100) + "px;"
+            + (data.rawData[y][i].style ? data.rawData[y][i].style : "");
     }
 
 };
