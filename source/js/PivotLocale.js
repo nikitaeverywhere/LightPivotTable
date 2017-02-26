@@ -23,20 +23,25 @@ var PivotLocale = function (locale) {
  * @type {{ru: string, en: string, de: string}[]}
  */
 PivotLocale.prototype.LOCALES = [
- { "ru": "Всего", "en": "Total", "de": "Summe","cs":"Celkem" },
  {
+     "ru": "Всего",
+     "en": "Total",
+     "de": "Summe",
+     "cs": "Celkem"
+ },
+ { // 1
      "ru": "Невозможно отобразить данные",
      "en": "Unable to render data",
      "de": "Daten können nicht rendern",
      "cs": "Nebylo možné zobrazit data"
  },
- {
+ { // 2
      "ru": "Неправильные данные для отображения.",
      "en": "Invalid data to display.",
      "de": "Nicht korrekt Informationen angezeigt werden soll.",
      "cs": "Nevhodná data k zobrazení"
  },
- {
+ { // 3
      "ru": "Возникла ошибка при получении данных с сервера.",
      "en": "Error while trying to retrieve data from server.",
      "de": "Beim Abrufen der Daten vom Server ist ein Fehler aufgetreten.",

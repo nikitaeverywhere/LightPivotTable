@@ -295,59 +295,78 @@ DataController.prototype.TOTAL_FUNCTIONS = {
         return isFinite(a);
     },
     
-    totalSUM: function (array, iStart, iEnd, column) {
+    totalSUM: function (array, iStart, iEnd, column, xStart, row) {
         var sum = 0;
         for (var i = iStart; i < iEnd; i++) {
-            if (this.isNumber(array[i][column]["value"])) {
-                sum += parseFloat(array[i][column]["value"]) || 0;
+            var r = typeof row === "undefined" ? i : row,
+                c = typeof column === "undefined" ? i : column;
+            if (this.isNumber(array[r][c]["value"])) {
+                sum += parseFloat(array[r][c]["value"]) || 0;
             }
         }
         return sum;
     },
 
-    totalAVG: function (array, iStart, iEnd, column) {
+    totalAVG: function (array, iStart, iEnd, column, xStart, row) {
         var sum = 0;
         for (var i = iStart; i < iEnd; i++) {
-            if (!this.isNumber(array[i][column]["value"])) {
+            var r = typeof row === "undefined" ? i : row,
+                c = typeof column === "undefined" ? i : column;
+            if (!this.isNumber(array[r][c]["value"])) {
                 sum = 0;
                 break;
             }
-            sum += parseFloat(array[i][column]["value"]) || 0;
+            sum += parseFloat(array[r][c]["value"]) || 0;
         }
         return sum/(iEnd - iStart) || "";
     },
 
-    totalCOUNT: function (array, iStart, iEnd) {
-        return iEnd - iStart;
+    totalCOUNT: function (array, iStart, iEnd, column, xStart, row) {
+        var count = 0;
+        for (var i = iStart; i < iEnd; i++) {
+            var r = typeof row === "undefined" ? i : row,
+                c = typeof column === "undefined" ? i : column;
+            if (array[r][c]["value"]) {
+                count++;
+            }
+        }
+        return count;
     },
     
-    totalMIN: function (array, iStart, iEnd, column) {
+    totalMIN: function (array, iStart, iEnd, column, xStart, row) {
         var min = Infinity;
         for (var i = iStart; i < iEnd; i++) {
-            if (this.isNumber(array[i][column]["value"]) && array[i][column]["value"] < min) {
-                min = array[i][column]["value"];
+            var r = typeof row === "undefined" ? i : row,
+                c = typeof column === "undefined" ? i : column;
+            if (this.isNumber(array[r][c]["value"]) && array[r][c]["value"] < min) {
+                min = array[r][c]["value"];
             }
         }
         return min;
     },
 
-    totalMAX: function (array, iStart, iEnd, column) {
+    totalMAX: function (array, iStart, iEnd, column, xStart, row) {
         var max = -Infinity;
         for (var i = iStart; i < iEnd; i++) {
-            if (this.isNumber(array[i][column]["value"]) && array[i][column]["value"] > max) {
-                max = array[i][column]["value"];
+            var r = typeof row === "undefined" ? i : row,
+                c = typeof column === "undefined" ? i : column;
+            if (this.isNumber(array[r][c]["value"]) && array[r][c]["value"] > max) {
+                max = array[r][c]["value"];
             }
         }
         return max;
     },
     
-    totalPERCENTAGE: function (array, iStart, iEnd, column, xStart) {
+    totalPERCENTAGE: function (array, iStart, iEnd, column, xStart, row) {
         var averages = [], x, summ;
-        for (x = xStart; x < array[0].length; x++) {
-            averages.push(this.totalSUM(array, iStart, iEnd, x));
+        for (x = xStart; x < typeof column === "undefined" ? array.length : array[0].length; x++) {
+            averages.push(this.totalSUM(array, iStart, iEnd,
+                typeof column === "undefined" ? column : x, xStart,
+                typeof row === "undefined" ? row : x));
         }
         summ = averages.reduce(function(a, b) { return a + b; });
-        return (averages[column - xStart] / summ * 100 || 0).toFixed(2) + "%";
+        return (averages[(typeof row === "undefined" ? column : row) - xStart]
+            / summ * 100 || 0).toFixed(2) + "%";
     },
     
     totalNONE: function () {
@@ -377,6 +396,8 @@ DataController.prototype.setLeftHeaderColumnsNumber = function (data) {
  * @returns {Object}
  */
 DataController.prototype.resetRawData = function () {
+
+    var TOTALS_STYLE = "font-weight: bold;text-align: right;";
 
     var data, summary, y, x,
         dimCaption,
@@ -579,13 +600,16 @@ DataController.prototype.resetRawData = function () {
 
     /**
      * @param {number} columnIndex
+     * @param {boolean=false} byColumns
      * @returns {Function}
      */
-    var getTotalFunction = function (columnIndex) {
-        var pivotDefault = _.controller.getPivotProperty(["rowTotalAgg"]);
-        if (!data["columnProps"][columnIndex] && !pivotDefault)
+    var getTotalFunction = function (columnIndex, byColumns) {
+        var pivotDefault = _.controller.getPivotProperty(["rowTotalAgg"]) || "sum",
+            pivotDefaultCol = _.controller.getPivotProperty(["columnTotalAgg"]) || "sum",
+            props = byColumns ? "rowProps" : "columnProps";
+        if (!data[props][columnIndex] && !(byColumns ? pivotDefaultCol : pivotDefault))
             return _.TOTAL_FUNCTIONS.totalSUM;
-        switch ((data["columnProps"][columnIndex] || {}).summary || pivotDefault) {
+        switch ((data[props][columnIndex] || {}).summary || pivotDefault) {
             case "count": return _.TOTAL_FUNCTIONS.totalCOUNT;
             case "avg": return _.TOTAL_FUNCTIONS.totalAVG;
             case "min": return _.TOTAL_FUNCTIONS.totalMIN;
@@ -596,7 +620,7 @@ DataController.prototype.resetRawData = function () {
         }
     };
 
-    if (this.controller.CONFIG["showSummary"] && rawData.length - xh > 1 // xh - see above
+    if (this.controller.CONFIG["showSummary"] && rawData.length - data.info.topHeaderRowsNumber > 1
         && (rawData[rawData.length - 1][0] || {})["isCaption"]) {
         data.info.SUMMARY_SHOWN = true;
         this.SUMMARY_SHOWN = true;
@@ -619,7 +643,7 @@ DataController.prototype.resetRawData = function () {
                         this.TOTAL_FUNCTIONS,
                         rawData, xh, rawData.length, i, data.info.leftHeaderColumnsNumber
                     ),
-                    style: "font-weight: bold;text-align: right;"
+                    style: TOTALS_STYLE
                 }
             }
         }
@@ -629,6 +653,31 @@ DataController.prototype.resetRawData = function () {
             data.info.topHeaderRowsNumber++;
         } else {
             rawData.push(summary);
+        }
+    }
+
+    if (this.controller.getPivotProperty(["columnTotals"])
+        && rawData.length - data.info.topHeaderRowsNumber > 1
+        && data.info.leftHeaderColumnsNumber > 0) {
+        var group = ++groupNum,
+            row;
+        for (row = 0; row < data.info.topHeaderRowsNumber; row++) {
+            rawData[row].push({
+                group: group,
+                isCaption: true,
+                value: pivotLocale.get(0)
+            });
+        }
+        for (row = data.info.topHeaderRowsNumber; row < rawData.length; row++) {
+            rawData[row].push({
+                isCaption: true,
+                value: getTotalFunction(row, true).call(
+                    this.TOTAL_FUNCTIONS,
+                    rawData, data.info.leftHeaderColumnsNumber, rawData[row].length, undefined,
+                    data.info.leftHeaderColumnsNumber, row
+                ),
+                style: TOTALS_STYLE
+            });
         }
     }
 
