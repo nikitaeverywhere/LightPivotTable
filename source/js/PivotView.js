@@ -1340,17 +1340,16 @@ PivotView.prototype.renderRawData = function (data) {
 
     // top left header setup
     header.textContent = info.leftHeaderColumnsNumber ? rawData[0][0].value : "";
-    if (rawData[0][0].style) header.setAttribute("style", rawData[0][0].style);
+    if (rawData[0][0].style && !LISTING) header.setAttribute("style", rawData[0][0].style);
     if (this.tablesStack.length > 1 && !this.controller.CONFIG["hideButtons"]) {
         header.className += "back ";
         header.addEventListener(CLICK_EVENT, function (e) {
             _._backClickHandler.call(_, e);
         });
     }
-    if (info.leftHeaderColumnsNumber > 0
-        && _.controller.CONFIG["maxHeaderWidth"]) {
+    if (info.leftHeaderColumnsNumber > 0 && _.controller.CONFIG["maxHeaderWidth"]) {
         pivotHeader.style.maxWidth =
-            _.controller.CONFIG["maxHeaderWidth"]*info.leftHeaderColumnsNumber + "px";
+            _.controller.CONFIG["maxHeaderWidth"] * info.leftHeaderColumnsNumber + "px";
         pivotHeader.style.whiteSpace = "normal";
         pivotHeader.style.wordWrap = "normal";
     }
