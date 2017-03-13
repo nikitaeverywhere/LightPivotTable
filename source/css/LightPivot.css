@@ -10,7 +10,7 @@
 }
 
 .lpt .formatLeft {
-    text-align: left;
+    text-align: left !important;
 }
 
 .lpt .central {
