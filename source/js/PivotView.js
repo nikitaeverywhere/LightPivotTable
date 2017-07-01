@@ -1111,8 +1111,9 @@ PivotView.prototype.renderRawData = function (data) {
     );
 
     var formatContent = function (value, element, format) {
-        if (typeof(value) === 'string') { // not number, format as string
-            element.parentNode.className += " formatLeft";
+        if (typeof(value) === 'string') {
+            if (!(value[value.length - 1] === "%" && !isNaN(parseFloat(value)))) // string as %
+                element.parentNode.className += " formatLeft";
             element.innerHTML = (value || "").replace(/(https?|ftp):\/\/[^\s]+/ig, function linkReplace (p) {
                 return "<a href='" + p
                     + "' target='" + (_.controller.CONFIG["linksTarget"] || "_blank")
