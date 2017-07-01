@@ -100,7 +100,6 @@ lp.setFilter("[DateOfSale].[Actual].[YearSold].&[2009]");
 lp.refresh(); // refresh pivot contents
 lp.updateSizes(); // recalculate pivot sizes
 lp.changeBasicMDX("..."); // change mdx for LPT
-lp.getActualMDX(); // returns currently displayed MDX
 var rows = lp.getRowsValues([1,2,3]); // returns the values in rows 1, 2, 3
 var model = lp.getModel(); // returns data model representing currently rendered data set
 lp.getSelectedRows(); // returns array with selected rows indexes. First row have index 1.
@@ -130,11 +129,10 @@ You need [NodeJS](http://nodejs.org/) platform to be installed in your system to
 tasks.
 
 To build project and see working example, gulp and it's plugins must be installed. Simple run 
-<code>npm install -g gulp</code> and <code>npm install</code> commands to perform all required
-installations.
+<code>npm install</code> command to perform all required installations.
 
-By running <code>gulp</code> command later, <code>build</code> directory appears with all
-required files there.
+By running <code>npm run build</code> command later, <code>build</code> directory will appear with 
+all required files there.
 
 ## Debug
 
@@ -146,5 +144,5 @@ Also anytime you can build project and then check <code>build/example/index.html
 
 ## Preview
 
-Run <code>gulp</code> command and then check <code>build/WEBModule/index.html</code>.
+Run <code>npm run build</code> command and then check <code>build/WEBModule/index.html</code>.
 ![Light pivot table](https://cloud.githubusercontent.com/assets/4989256/5821832/b73c880c-a0d7-11e4-8458-832329b1c48a.png)
