@@ -78,15 +78,15 @@ MDXParser.prototype.drillDown = function (mdx, filter, expression) {
     }
 
     var selectBody = parts[parts.length - 3],
-        dimensions = selectBody.split(/(\s*ON\s*[01]\s*,?\s*)/);
+        dimensions = selectBody.split(/(\s*ON\s*[01]\s*,?\s*)/i);
 
     if (dimensions.length < 2) {
-        this._warnMDX(mdx);
+        this._warnMDX(mdx, "DrillDown is impossible");
         return ""; // no dimensions matched
     }
 
     var index = -1;
-    dimensions.map(function(e,i){if(e.match(/\s*ON\s*[01]\s*,?\s*/)) index=i-1; return e;});
+    dimensions.map(function(e,i){if(e.match(/\s*ON\s*[01]\s*,?\s*/i)) index=i-1; return e;});
 
     if (index === -1) {
         this._warnMDX(mdx, "DrillDown is impossible");
