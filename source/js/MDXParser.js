@@ -112,7 +112,7 @@ MDXParser.prototype.drillDown = function (mdx, filter, expression) {
  */
 MDXParser.prototype.drillThrough = function (basicMDX, filters) {
 
-    var cubeAndFilters = basicMDX.split(/(FROM\s*\[[^\]]*].*)/i)[1],
+    var cubeAndFilters = basicMDX.slice(basicMDX.lastIndexOf("FROM ")),
         query = "DRILLTHROUGH SELECT " + cubeAndFilters;
 
     for (var i in filters) {
