@@ -409,6 +409,8 @@ DataController.prototype.resetRawData = function () {
     }
 
     var rd0 = [], rd1 = [], groupNum = 2, rawData = [];
+    var MEASURES_HIDDEN = _.controller.CONFIG["pivotProperties"]
+        && _.controller.CONFIG["pivotProperties"]["hideMeasures"] === 2;
 
     var transpose = function (a) {
         return Object.keys(a[0]).map(function (c) {
@@ -483,7 +485,7 @@ DataController.prototype.resetRawData = function () {
                     value: c[i].caption || ""
                 };
                 applyHeaderStyle(obj, hor);
-                a.push(arr.concat(obj));
+                a.push(c[i]["type"] === "msr" && MEASURES_HIDDEN ? arr : arr.concat(obj));
                 groupNum++;
             }
         }
