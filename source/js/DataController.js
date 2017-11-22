@@ -443,14 +443,30 @@ DataController.prototype.resetRawData = function () {
         }
     };
 
-    var getMaxLevel = function (c) {
-        var lev = 0;
-        for (var i in c) {
-            if (c[i].children && c[i].children.length) {
-                lev = Math.max(lev, getMaxLevel(c[i].children));
+    var getMaxLevel = function (children, level) {
+
+        if (typeof level === "undefined")
+            level = 0;
+
+        function maxLevel (node, level) {
+            if (node.children) {
+	            var max = 0;
+	            for (var i in node.children) {
+	                max = Math.max(max, maxLevel(node.children[i], level + 1));
+                }
+                return max;
+            } else {
+	            if (node["type"] === "msr" && MEASURES_HIDDEN)
+	                return level - 1;
+	            return level;
             }
         }
-        return lev + 1;
+
+        return children.reduce(
+            function (acc, node) { return Math.max(acc, maxLevel(node, 1)) },
+            level
+        );
+
     };
 
     var dim1raw = function (a, c, arr, hor, level, maxLevel) {
