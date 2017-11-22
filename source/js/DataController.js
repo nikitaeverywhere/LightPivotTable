@@ -474,7 +474,7 @@ DataController.prototype.resetRawData = function () {
                     value: c[i].caption || ""
                 };
                 applyHeaderStyle(obj, hor);
-                dim1raw(a, c[i].children, arr.concat(obj), hor, level?++level:level, maxLevel);
+                dim1raw(a, c[i].children, arr.concat(obj), hor, level? level + 1 : level, maxLevel);
             } else {
                 obj = {
                     group: groupNum,
