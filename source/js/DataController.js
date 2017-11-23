@@ -434,22 +434,13 @@ DataController.prototype.resetRawData = function () {
 
     };
 
-    var applyHeaderStyle = function (cellObject, isHorizontal, previousHeaders) {
+    var applyHeaderStyle = function (cellObject, isHorizontal) {
         if (!_.controller.CONFIG["pivotProperties"]) return;
         if (_.controller.CONFIG["pivotProperties"]["columnHeaderStyle"] && isHorizontal) {
-            cellObject.style =
-                _.controller.CONFIG["pivotProperties"]["columnHeaderStyle"] + cellObject.style;
+            cellObject.style = _.controller.CONFIG["pivotProperties"]["columnHeaderStyle"];
         } else if (_.controller.CONFIG["pivotProperties"]["rowHeaderStyle"] && !isHorizontal) {
-            cellObject.style =
-                _.controller.CONFIG["pivotProperties"]["rowHeaderStyle"] + cellObject.style;
+            cellObject.style = _.controller.CONFIG["pivotProperties"]["rowHeaderStyle"];
         }
-        if (typeof previousHeaders === "undefined")
-            return;
-        var prevStyles = previousHeaders.reduce(
-            function (acc, h) { return acc + (h.style || "") }, ""
-        );
-        if (prevStyles)
-	        cellObject.style += prevStyles;
     };
 
     var getMaxLevel = function (children, level) {
@@ -498,20 +489,18 @@ DataController.prototype.resetRawData = function () {
                     group: cnum,
                     source: c[i],
                     isCaption: true,
-                    value: c[i].caption || "",
-                    style: c[i].style || ""
+                    value: c[i].caption || ""
                 };
-                applyHeaderStyle(obj, hor, arr);
+                applyHeaderStyle(obj, hor);
                 dim1raw(a, c[i].children, arr.concat(obj), hor, level? level + 1 : level, maxLevel);
             } else {
                 obj = {
                     group: groupNum,
                     source: c[i],
                     isCaption: true,
-                    value: c[i].caption || "",
-	                style: c[i].style || ""
+                    value: c[i].caption || ""
                 };
-                applyHeaderStyle(obj, hor, arr);
+                applyHeaderStyle(obj, hor);
                 a.push(c[i]["type"] === "msr" && MEASURES_HIDDEN ? arr : arr.concat(obj));
                 groupNum++;
             }
