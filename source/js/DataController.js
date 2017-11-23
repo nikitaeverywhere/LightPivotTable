@@ -538,21 +538,23 @@ DataController.prototype.resetRawData = function () {
         for (y = 0; y < rawData.length; y++) {
             for (x = 0; x < xEnd; x++) {
                 if (!rawData[y][x].isCaption) {
-                    xEnd = x; break;
+                    xEnd = x;
+                    break;
                 }
                 if (rawData[y][x].source && rawData[y][x].source["path"]) {
-                    for (i in formatColumn) {
+                    var formatCR = data.info.topHeaderRowsNumber > y ? formatColumn : formatRow;
+                    for (i in formatCR) {
                         if (rawData[y][x].source["path"].indexOf(i) >= 0) {
-                            var yy;
-                            for (yy = y; yy < rawData.length; yy++) {
-                                if (!rawData[yy][x].isCaption) {
-                                    if (formatColumn[i].style) rawData[yy][x].style = (rawData[yy][x].style || "")
-                                        + formatColumn[i].style || "";
+                            // var yy;
+                            // for (yy = y; yy < rawData.length; yy++) {
+                                if (!rawData[y][x].isCaption) {
+                                    if (formatCR[i].style) rawData[y][x].style = (rawData[y][x].style || "")
+                                        + formatCR[i].style || "";
                                 } else {
-                                    if (formatColumn[i].headStyle) rawData[yy][x].style = (rawData[yy][x].style || "")
-                                        + formatColumn[i].headStyle || "";
+                                    if (formatCR[i].headStyle) rawData[y][x].style = (rawData[y][x].style || "")
+                                        + formatCR[i].headStyle || "";
                                 }
-                            }
+                            // }
                             break;
                         }
                     }
