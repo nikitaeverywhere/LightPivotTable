@@ -867,7 +867,7 @@ DataController.prototype.modifyRawData = function (data) {
     var y = data.info.topHeaderRowsNumber - 1;
     for (i = data.info.leftHeaderColumnsNumber; i < data.rawData[y].length; i++) {
         data.rawData[y][i].style = "min-width:"
-            + (this.controller.CONFIG.pivotProperties["cellWidth"] || 100) + "px;"
+            + (this.controller.getPivotProperty(["cellWidth"]) || 100) + "px;"
             + (data.rawData[y][i].style ? data.rawData[y][i].style : "");
     }
 

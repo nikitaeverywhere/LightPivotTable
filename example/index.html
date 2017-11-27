@@ -86,7 +86,15 @@
                 {
                     basicMDX: 'SELECT NON EMPTY {[Measures].[%COUNT],%LABEL([Measures].[Avg Age],"Avg Age (ex. 1)",""),%LABEL([Measures].[Avg Age],"Avg Age (ex. 2)",""),%LABEL([Measures].[Avg Age],"Avg Age (ex. 3)","")} ON 0,NON EMPTY [AllerSevD].[H1].[Allergy Severities].Members ON 1 FROM [Patients]',
                     pivot: "Pivot Features/Conditional Formatting.pivot"
-                }
+                },
+                {
+                	basicMDX: 'SELECT NON EMPTY HEAD({NONEMPTYCROSSJOIN([Product].[P1].[Product Category].&[Pasta],[Measures].[Units Sold]),NONEMPTYCROSSJOIN([Product].[P1].[Product Category].&[Pasta],[Measures].[Amount Sold])},2000,SAMPLE) ON 1 FROM [HOLEFOODS]',
+                    pivot: 'OH/Measure labels displayed.pivot'
+                },
+	            {
+		            basicMDX: 'SELECT NON EMPTY HEAD({NONEMPTYCROSSJOIN([Product].[P1].[Product Category].&[Pasta],[Measures].[Units Sold]),NONEMPTYCROSSJOIN([Product].[P1].[Product Category].&[Pasta],[Measures].[Amount Sold])},2000,SAMPLE) ON 1 FROM [HOLEFOODS]',
+		            pivot: 'OH/Measure labels ommitted.pivot'
+	            }
             ][v],
             setup;
 
@@ -98,7 +106,7 @@
             container: document.getElementById("pivot") // HTMLElement which will contain table.
             //, locale: "en" // language to use (default: browser default or "en")
             , dataSource: {
-                MDX2JSONSource: "http://" + location.hostname + ":57776/MDX2JSON"
+                MDX2JSONSource: "http://" + location.hostname + ":57772/MDX2JSON"
                 //MDX2JSONSource: "http://37.139.4.54/MDX2JSON"
                 // MDX2JSON server address
                 , basicMDX: typeof req === "object" ? req.basicMDX : req
