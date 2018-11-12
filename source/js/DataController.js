@@ -630,7 +630,7 @@ DataController.prototype.resetRawData = function () {
         if (!data[props][columnIndex] && !(byColumns ? pivotDefaultCol : pivotDefault))
             return _.TOTAL_FUNCTIONS.totalSUM;
         switch ((data[props][columnIndex] || {}).summary || pivotDefault) {
-            case "count": return _.TOTAL_FUNCTIONS.totalCOUNT;
+            case "count": return _.TOTAL_FUNCTIONS.totalSUM; // _.TOTAL_FUNCTIONS.totalCOUNT; https://github.com/intersystems-ru/LightPivotTable/issues/4
             case "avg": return _.TOTAL_FUNCTIONS.totalAVG;
             case "min": return _.TOTAL_FUNCTIONS.totalMIN;
             case "max": return _.TOTAL_FUNCTIONS.totalMAX;
