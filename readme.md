@@ -58,6 +58,8 @@ var setup = { // Object that contain settings. Properties in brackets can be mis
             // if rowClick callback returns boolean false, DrillDown won't be performed.
             , rowClick: function (row, rowData) { console.log(row, rowData); }
             , contentRendered: function () {}
+            // triggers when request status is not 200 
+            , requestError: function (message, xhr) {}
             , cellSelected: function ({ x: Number, y: Number, leftHeaderColumnsNumber: Number, topHeaderRowsNumber: Number }) {
                 return false; // return false to block default click action
             }
