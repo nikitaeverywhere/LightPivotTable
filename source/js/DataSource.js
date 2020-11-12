@@ -51,7 +51,8 @@ DataSource.prototype._post = function (url, data, callback) {
             if (typeof handler === "function") {
                 handler.call(self.LPT, {
                     url: url,
-                    status: xhr.status
+                    status: xhr.status,
+                    xhr: xhr
                 });
             }
         }
@@ -73,11 +74,6 @@ DataSource.prototype._post = function (url, data, callback) {
                 }
             })());
         } else if (xhr.readyState === 4 && xhr.status !== 200) {
-            handler = self.LPT.CONFIG.triggers["requestError"];
-            if (typeof handler === "function") {
-                handler.call(this, xhr.responseText || pivotLocale.get(3) + "<br/>" +
-                xhr.status + ": " + xhr.statusText, xhr);
-            }
             callback({
                 error: xhr.responseText || pivotLocale.get(3) + "<br/>" +
                        xhr.status + ": " + xhr.statusText
